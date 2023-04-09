@@ -9,14 +9,16 @@
   "scripts": {
     "build": "tsc -p .",
     "build:watch": "tsc -w -p .",
+    "dev": "nodemon src/index.ts",
     "start": "yarn run build && node dist/index.js"
-  },  
+  },
   "dependencies": {
     "@notionhq/client": "^2.2.3",
     "@slack/bolt": "^3.12.2"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",
+    "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   }
