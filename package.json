@@ -1,0 +1,23 @@
+{
+  "name": "summoner",
+  "version": "0.0.1",
+  "description": "Summon docs link to slack",
+  "main": "dist/index.js",
+  "repository": "ssh://git@github.com/litencatt/summoner.git",
+  "author": "litencatt",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p .",
+    "build:watch": "tsc -w -p .",
+    "start": "yarn run build && node dist/index.js"
+  },  
+  "dependencies": {
+    "@notionhq/client": "^2.2.3",
+    "@slack/bolt": "^3.12.2"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  }
+}
