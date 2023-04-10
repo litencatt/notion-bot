@@ -22,28 +22,29 @@ app.message('hello', async ({ message, say }) => {
 
 app.event('app_mention', async({ payload, say }) => {
   try {
+    // @bot service tag1,tag2,... [all(default)|spec|man|log]
     const query = payload.text.split(" ");
     // console.log(query)
 
-    const command = query[1]
-    const option = query[2]
+    const service = query[1]
+    const tags = query[2].split(",")
+    console.log(tags)
+    const type = query[3]
 
-    switch (command) {
-      case "search":
-        const pages = await queryDb(option);
-        if (pages.length == 0) {
-          await say("Not found");
-        } else {
-          const urls = []
-          for (const page of pages) {
-            // @ts-ignore
-            urls.push(`<${page.url}|${page.properties.Name.title[0].text.content}>`)
-          }
-          await say(urls.join("\n"));
+    if (service != undefined) {
+      const pages = await queryDb(service, tags, type);
+      if (pages.length == 0) {
+        await say("Not found");
+      } else {
+        const urls = []
+        for (const page of pages) {
+          // @ts-ignore
+          urls.push(`<${page.url}|${page.properties.Name.title[0].text.content}>`)
         }
-        break;
-      default:
-        await say("Not suppoted command");
+        await say(urls.join("\n"));
+      }
+    } else {
+      await say("Not suppoted command");      
     }
   } catch (error) {
     console.log(error);

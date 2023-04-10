@@ -12,36 +12,31 @@ const tagDbName =  process.env.NOTION_TAG_DB_Name
 const docDbId =  process.env.NOTION_DOC_DB_ID
 
 export const queryDb = async (
-  propertyName:string
+  service: string,
+  tags: string[],
+  type: string
 ): Promise<QueryDatabaseResponse['results']> => {
   const pages = []
-  const f:QueryDatabaseParameters['filter'] = {
-    and: []
-  }
 
   // Get page id form tag name
+  const tagDbFilter = buildTagFilter(tags)
+  console.log(tagDbFilter)
   const { results } = await notion.databases.query({
     database_id: tagDbId,
-    filter: {
-      property: "Name",
-      title: {
-        contains: propertyName
-      }
-    }
+    filter: tagDbFilter
   })
   const tagPage = results[0]
-  console.log(tagPage.id)
- 
+  console.log(results)
+
+  const pageIds = results.map( page => page.id )
+  const tagDbRelationFilter = buildRelationFilter(pageIds)
+  console.log(tagDbRelationFilter)
+
   let cursor = undefined
   while (true) {
     const { results, next_cursor } = await notion.databases.query({
       database_id: docDbId,
-      filter: {
-        property: tagDbName,
-        relation: {
-          contains: tagPage.id
-        }
-      },
+      filter: tagDbRelationFilter,
       start_cursor: cursor
     })
     if (results.length == 0) {
@@ -55,6 +50,55 @@ export const queryDb = async (
     }
     cursor = next_cursor
   }
-  console.log(pages)
+  // console.log(pages)
   return pages
+}
+
+function buildTagFilter(tagNames: string[]): QueryDatabaseParameters['filter'] {
+  const propName = "Name"
+  if (tagNames.length == 1) {
+    return {
+      property: propName,
+      title: {
+        contains: tagNames[0]
+      }
+    }
+  } else {
+    const f = []
+    for (const tagName of tagNames) {
+      f.push({
+        property: propName,
+        title: {
+          contains: tagName
+        }
+      })
+    }
+    return {
+      or: f
+    }
+  }
+}
+
+function buildRelationFilter(tagPageIds: string[]): QueryDatabaseParameters['filter'] {
+  if (tagPageIds.length == 1) {
+    return {
+      property: tagDbName,
+      relation: {
+        contains: tagPageIds[0]
+      }
+    }
+  } else {
+    const f = []
+      for (const pageId of tagPageIds) {
+        f.push({
+          property: tagDbName,
+          relation: {
+            contains: pageId
+          }
+        })
+      }
+    return {
+      or: f
+    }
+  }
 }
