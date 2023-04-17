@@ -19,7 +19,7 @@ export const queryDbSchema = async() => {
 
 export const queDb = async(props: any[]): Promise<QueryDatabaseResponse['results']> => {
   const filter = buildFilter(props)
-  console.log(filter)
+  console.dir(filter, {depth: null})
 
   const pages = []
   let cursor = undefined
@@ -88,18 +88,18 @@ export const queryDb = async (
 }
 
 function buildFilter(props: any[]): QueryDatabaseParameters['filter'] {
-  const propName = "Name"
   if (props.length == 1) {
-    return propFilter(props[0])
+    const f = propFilter(props[0])
+    console.log(f)
+    return f
   } else {
-    const f = []
+    const f = { and: []}
     for (const prop of props) {
       const flt = propFilter(prop)
-      f.push(flt)
+      f.and.push(flt)
     }
-    return {
-      and: f
-    }
+    console.log(f)
+    return f
   }
 }
 
@@ -109,22 +109,26 @@ function propFilter(prop: any): QueryDatabaseParameters['filter'] {
       return {
         property: prop.name, // 出版社
         select: {
-          equals: prop.selectedOption // オライリー
+          equals: prop.selectedOptions[0] // オライリー
         }
       }
       break;
     case "multi_select":
-      return {
-        property: prop.name,
-        multi_select: {
-          contains: prop.selectedOption
-        }
+      const f = { or: []}
+      for (const so of prop.selectedOptions) {
+        f.or.push({
+          property: prop.name,
+          multi_select: {
+            contains: so
+          }
+        })
       }
+      return f
       break;
     case "relation":
       break;
     default:
-        console.log("Not supported type")
+      console.log("Not supported type")
   }
 }
 

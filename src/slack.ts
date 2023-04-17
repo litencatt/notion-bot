@@ -2,8 +2,10 @@ export const searchBlock = (data: string, selectProps: any[]) => {
   const blocks = []
   for (const prop of selectProps) {
     const blockSelectOptions = []
+    let selectType: string
     switch (prop.type) {
       case "select":
+        selectType = "static_select"
         for (const option of prop.select.options) {
           blockSelectOptions.push({
             "text": {
@@ -13,8 +15,9 @@ export const searchBlock = (data: string, selectProps: any[]) => {
             "value": option.name
           })
         }
-        break;        
+        break;
       case "multi_select":
+        selectType = "multi_static_select"
         for (const option of prop.multi_select.options) {
           blockSelectOptions.push({
             "text": {
@@ -32,13 +35,14 @@ export const searchBlock = (data: string, selectProps: any[]) => {
     }
     const block = {
       "type": "section",
+      // ID for relation of modal blocks and submited values
       "block_id": prop.id,
       "text": {
         "type": "mrkdwn",
         "text": `Pick an ${prop.name}`
       },
       "accessory": {
-        "type": "static_select",
+        "type": selectType,
         "placeholder": {
           "type": "plain_text",
           "text": `Select an ${prop.name}`,

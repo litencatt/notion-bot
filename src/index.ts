@@ -111,13 +111,26 @@ app.view('modal-id', async({ack, view, client, logger}) => {
     const channel_id = pm.channel_id
     const thread_ts = pm.thread_ts
     // console.dir(pm, {depth: null})
-    // console.dir(view.blocks, {depth: null})
+    console.dir(view.state.values, {depth: null})
 
     for (const prop of pm.selectProps) {
+      prop.selectedOptions = []
       for (const block of view.blocks) {
         if (prop.id == block.block_id) {
-          // prop.selectedOption = view.state.values[prop.id][`${prop.id}-action`].selected_option.value
-          prop.selectedOption = view.state.values[prop.id][`static_select-action`].selected_option.value
+          const type = view.state.values[prop.id][`static_select-action`].type
+          switch (type) {
+            case "static_select":
+              // prop.selectedOption = view.state.values[prop.id][`${prop.id}-action`].selected_option.value
+              prop.selectedOptions.push(view.state.values[prop.id][`static_select-action`].selected_option.value)
+              break;
+            case "multi_static_select":
+              view.state.values[prop.id][`static_select-action`].selected_options.map(
+                so => prop.selectedOptions.push(so.value)
+              )
+              break;
+            default:
+              console.log("Not supported type")
+          }
         }
       }
     }
@@ -126,7 +139,7 @@ app.view('modal-id', async({ack, view, client, logger}) => {
     // const selected = view.state.values.block_id.action_id.selected_option.value
     // Search Notion DB
     const pages = await queDb(pm.selectProps)
-    console.log(pages)
+    // console.log(pages)
 
     const urls = []
     for (const page of pages) {
