@@ -44,7 +44,8 @@ export const searchBlock = (data: string, selectProps: any[]) => {
           "text": `Select an ${prop.name}`,
         },
         "options": blockSelectOptions,
-        "action_id": `${prop.id}-action`
+        // "action_id": `${prop.id}-action`
+        "action_id": "static_select-action"
       }
     }
     console.log(blockSelectOptions)  

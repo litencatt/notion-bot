@@ -115,7 +115,8 @@ app.view('modal-id', async({ack, body, view, client}) => {
   for (const prop of pm.selectProps) {
     for (const block of view.blocks) {
       if (prop.id == block.block_id) {
-        prop.selectedOption = view.state.values[prop.id][`${prop.id}-action`].selected_option.value
+        // prop.selectedOption = view.state.values[prop.id][`${prop.id}-action`].selected_option.value
+        prop.selectedOption = view.state.values[prop.id][`static_select-action`].selected_option.value
       }
     }
   }
