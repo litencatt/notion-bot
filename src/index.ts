@@ -81,24 +81,15 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
     const dbSchema = await queryDbSchema();
     console.dir(dbSchema.properties, {depth: null})
 
-    const selectOptions = []
-    selectOptions[0] = {
-      type: dbSchema.properties.Media.type,
-      // @ts-ignore
-      options: dbSchema.properties.Media.select.options
-    }
-
-    // selectOptions[1] = {
-    //   type: dbSchema.properties.TagDB.type,
-    //   // @ts-ignore
-    //   options: dbSchema.properties.TagDB.multi_select.options
-    // }  
-    console.log(selectOptions)
+    const selectProps = []
+    selectProps.push(dbSchema.properties["Media"])
+    selectProps.push(dbSchema.properties["出版社"])
+    console.log(selectProps)
 
     const metaData = `${body.channel.id},${body.message.thread_ts}`
     const result = await client.views.open({
       trigger_id: body.trigger_id,
-      view: searchBlock(metaData, selectOptions),
+      view: searchBlock(metaData, selectProps),
     })
   } catch (error) {
     logger.error(error)

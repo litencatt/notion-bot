@@ -1,52 +1,54 @@
 export const searchBlock = (data: string, selectProps: any[]) => {
-  const blockSelectOptions = []
+  const blocks = []
   for (const prop of selectProps) {
-    for (const option of prop.options) {
-      blockSelectOptions.push({
-        "text": {
-          "type": "plain_text",
-          "text": option.name
-        },
-        "value": option.name
-      })
+    const blockSelectOptions = []
+    switch (prop.type) {
+      case "select":
+        for (const option of prop.select.options) {
+          blockSelectOptions.push({
+            "text": {
+              "type": "plain_text",
+              "text": option.name
+            },
+            "value": option.name
+          })
+        }
+        break;        
+      case "multi_select":
+        for (const option of prop.multi_select.options) {
+          blockSelectOptions.push({
+            "text": {
+              "type": "plain_text",
+              "text": option.name
+            },
+            "value": option.name
+          })
+        }
+        break;
+      case "relation":
+        break;
+      default:
+        console.log("Not supported type.")
     }
-  }
-  console.log(blockSelectOptions)
-
-  const blocks = [
-    {
+    const block = {
       "type": "section",
       "text": {
         "type": "mrkdwn",
-        "text": "Pick an service"
+        "text": `Pick an ${prop.name}`
       },
       "accessory": {
         "type": "static_select",
         "placeholder": {
           "type": "plain_text",
-          "text": "Select an item",
+          "text": `Select an ${prop.name}`,
         },
         "options": blockSelectOptions,
         "action_id": "static_select-action"
       }
-    },
-    {
-      "type": "section",
-      "text": {
-        "type": "mrkdwn",
-        "text": "Select tag names"
-      },
-      "accessory": {
-        "type": "multi_static_select",
-        "placeholder": {
-          "type": "plain_text",
-          "text": "Select tag names",
-        },
-        "options": blockSelectOptions,
-        "action_id": "multi_static_select-action"
-      }
-    },
-  ]
+    }
+    console.log(blockSelectOptions)  
+    blocks.push(block)
+  }
   console.dir(blocks, {depth: null})
 
   return {
