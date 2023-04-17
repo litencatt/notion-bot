@@ -29,6 +29,7 @@ export const searchBlock = (data: string, selectProps: any[]) => {
         }
         break;
       case "relation":
+        // relationの場合は prop.relation.database_id のDBの情報も必要になる
         break;
       default:
         console.log("Not supported type.")

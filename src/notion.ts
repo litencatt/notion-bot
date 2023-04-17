@@ -44,6 +44,29 @@ export const queDb = async(props: any[]): Promise<QueryDatabaseResponse['results
   return pages
 }
 
+export const queryRelationDb = async(database_id: string) => {
+  const pages = []
+  let cursor = undefined
+  while (true) {
+    const { results, next_cursor } = await notion.databases.query({
+      database_id: database_id,
+      start_cursor: cursor
+    })
+    if (results.length == 0) {
+      break
+    }
+
+    pages.push(...results)
+
+    if (!next_cursor) {
+      break
+    }
+    cursor = next_cursor
+  }
+  // console.log(pages)
+  return pages
+}
+
 export const queryDb = async (
   service: string,
   tags: string[],

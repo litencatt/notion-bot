@@ -1,5 +1,5 @@
 const { App } = require('@slack/bolt');
-import { queDb, queryDb, queryDbSchema } from "./notion"
+import { queDb, queryDb, queryDbSchema, queryRelationDb } from "./notion"
 import { searchBlock } from "./slack"
 
 const app = new App({
@@ -84,7 +84,16 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
     const selectProps = []
     selectProps.push(dbSchema.properties["Media"])
     selectProps.push(dbSchema.properties["出版社"])
+    selectProps.push(dbSchema.properties["TagDB"])
     console.log(selectProps)
+
+    // Get relation DB info
+    // @ts-ignore
+    const relationOptions = await queryRelationDb(dbSchema.properties.TagDB.relation.database_id, "Name")
+    for (const page of relationOptions) {
+      console.log(page.properties.Name.title[0].plain_text)
+    }
+    return
 
     const metaData = {
       channel_id: body.channel.id,
@@ -136,7 +145,6 @@ app.view('modal-id', async({ack, view, client, logger}) => {
     }
     console.log(pm.selectProps)
 
-    // const selected = view.state.values.block_id.action_id.selected_option.value
     // Search Notion DB
     const pages = await queDb(pm.selectProps)
     // console.log(pages)
