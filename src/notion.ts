@@ -11,6 +11,12 @@ const tagDbId =  process.env.NOTION_TAG_DB_ID
 const tagDbName =  process.env.NOTION_TAG_DB_NAME
 const docDbId =  process.env.NOTION_DOC_DB_ID
 
+export const queryDbSchema = async() => {
+  return notion.databases.retrieve({
+    database_id: docDbId,
+  })
+}
+
 export const queryDb = async (
   service: string,
   tags: string[],
