@@ -17,6 +17,33 @@ export const queryDbSchema = async() => {
   })
 }
 
+export const queDb = async(props: any[]): Promise<QueryDatabaseResponse['results']> => {
+  const filter = buildFilter(props)
+  console.log(filter)
+
+  const pages = []
+  let cursor = undefined
+  while (true) {
+    const { results, next_cursor } = await notion.databases.query({
+      database_id: docDbId,
+      filter: filter,
+      start_cursor: cursor
+    })
+    if (results.length == 0) {
+      break
+    }
+
+    pages.push(...results)
+
+    if (!next_cursor) {
+      break
+    }
+    cursor = next_cursor
+  }
+
+  return pages
+}
+
 export const queryDb = async (
   service: string,
   tags: string[],
@@ -58,6 +85,47 @@ export const queryDb = async (
   }
   // console.log(pages)
   return pages
+}
+
+function buildFilter(props: any[]): QueryDatabaseParameters['filter'] {
+  const propName = "Name"
+  if (props.length == 1) {
+    return propFilter(props[0])
+  } else {
+    const f = []
+    for (const prop of props) {
+      const flt = propFilter(prop)
+      f.push(flt)
+    }
+    return {
+      and: f
+    }
+  }
+}
+
+function propFilter(prop: any): QueryDatabaseParameters['filter'] {
+  switch (prop.type) {
+    case "select":
+      return {
+        property: prop.name, // 出版社
+        select: {
+          equals: prop.selectedOption // オライリー
+        }
+      }
+      break;
+    case "multi_select":
+      return {
+        property: prop.name,
+        multi_select: {
+          contains: prop.selectedOption
+        }
+      }
+      break;
+    case "relation":
+      break;
+    default:
+        console.log("Not supported type")
+  }
 }
 
 function buildTagFilter(tagNames: string[]): QueryDatabaseParameters['filter'] {

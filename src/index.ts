@@ -1,5 +1,5 @@
 const { App } = require('@slack/bolt');
-import { queryDb, queryDbSchema } from "./notion"
+import { queDb, queryDb, queryDbSchema } from "./notion"
 import { searchBlock } from "./slack"
 
 const app = new App({
@@ -86,10 +86,14 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
     selectProps.push(dbSchema.properties["出版社"])
     console.log(selectProps)
 
-    const metaData = `${body.channel.id},${body.message.thread_ts}`
-    const result = await client.views.open({
+    const metaData = {
+      channel_id: body.channel.id,
+      thread_ts: body.message.thread_ts,
+      selectProps: selectProps
+    }
+    await client.views.open({
       trigger_id: body.trigger_id,
-      view: searchBlock(metaData, selectProps),
+      view: searchBlock(JSON.stringify(metaData), selectProps),
     })
   } catch (error) {
     logger.error(error)
@@ -102,22 +106,42 @@ app.view('modal-id', async({ack, body, view, client}) => {
   ack()
 
   // console.log(view)
-  const pm = view.private_metadata.split(",")
-  const channel_id = pm[0]
-  const thread_ts = pm[1]
+  const pm = JSON.parse(view.private_metadata)
+  const channel_id = pm.channel_id
+  const thread_ts = pm.thread_ts
+  // console.dir(pm, {depth: null})
+  //console.dir(view.blocks, {depth: null})
 
+  for (const prop of pm.selectProps) {
+    for (const block of view.blocks) {
+      if (prop.id == block.block_id) {
+        prop.selectedOption = view.state.values[prop.id][`${prop.id}-action`].selected_option.value
+      }
+    }
+  }
+  console.log(pm.selectProps)
+
+  // const selected = view.state.values.block_id.action_id.selected_option.value
   // Search Notion DB
+  const pages = await queDb(pm.selectProps)
+  console.log(pages)
+
+  const urls = []
+  for (const page of pages) {
+    // @ts-ignore
+    urls.push(`<${page.url}|${page.properties.Name.title[0].text.content}>`)
+  }
 
   // Reply result
   await client.chat.postMessage({
     channel: channel_id,
     thread_ts: thread_ts,
-    text: "received"
+    text: urls.join("\n")
   })
 })
 
-app.action('service-selection', async({ack}) => {
-  await ack()
+app.action('static_select-action', async({ack}) => {
+  ack()
 })
 
 app.action('search-button-action', async({ ack, body, message, client }) => {
