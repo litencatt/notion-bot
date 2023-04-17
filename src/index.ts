@@ -102,54 +102,49 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
 
 
 // Receive modal submit action and reply result.
-app.view('modal-id', async({ack, body, view, client}) => {
+app.view('modal-id', async({ack, view, client, logger}) => {
   ack()
 
-  // console.log(view)
-  const pm = JSON.parse(view.private_metadata)
-  const channel_id = pm.channel_id
-  const thread_ts = pm.thread_ts
-  // console.dir(pm, {depth: null})
-  //console.dir(view.blocks, {depth: null})
+  try {
+    // console.log(view)
+    const pm = JSON.parse(view.private_metadata)
+    const channel_id = pm.channel_id
+    const thread_ts = pm.thread_ts
+    // console.dir(pm, {depth: null})
+    // console.dir(view.blocks, {depth: null})
 
-  for (const prop of pm.selectProps) {
-    for (const block of view.blocks) {
-      if (prop.id == block.block_id) {
-        // prop.selectedOption = view.state.values[prop.id][`${prop.id}-action`].selected_option.value
-        prop.selectedOption = view.state.values[prop.id][`static_select-action`].selected_option.value
+    for (const prop of pm.selectProps) {
+      for (const block of view.blocks) {
+        if (prop.id == block.block_id) {
+          // prop.selectedOption = view.state.values[prop.id][`${prop.id}-action`].selected_option.value
+          prop.selectedOption = view.state.values[prop.id][`static_select-action`].selected_option.value
+        }
       }
     }
+    console.log(pm.selectProps)
+
+    // const selected = view.state.values.block_id.action_id.selected_option.value
+    // Search Notion DB
+    const pages = await queDb(pm.selectProps)
+    console.log(pages)
+
+    const urls = []
+    for (const page of pages) {
+      // @ts-ignore
+      urls.push(`<${page.url}|${page.properties.Name.title[0].text.content}>`)
+    }
+
+    // Reply result
+    await client.chat.postMessage({
+      channel: channel_id,
+      thread_ts: thread_ts,
+      text: urls.join("\n")
+    })
+  } catch (error) {
+    logger.error(error)
   }
-  console.log(pm.selectProps)
-
-  // const selected = view.state.values.block_id.action_id.selected_option.value
-  // Search Notion DB
-  const pages = await queDb(pm.selectProps)
-  console.log(pages)
-
-  const urls = []
-  for (const page of pages) {
-    // @ts-ignore
-    urls.push(`<${page.url}|${page.properties.Name.title[0].text.content}>`)
-  }
-
-  // Reply result
-  await client.chat.postMessage({
-    channel: channel_id,
-    thread_ts: thread_ts,
-    text: urls.join("\n")
-  })
 })
 
 app.action('static_select-action', async({ack}) => {
   ack()
-})
-
-app.action('search-button-action', async({ ack, body, message, client }) => {
-  await ack()
-  console.log(message)
-  await client.chat.postMessage({
-    channel: body.channel.id,
-    text: "show result"
-  })
 })
