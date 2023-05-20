@@ -62,7 +62,7 @@ export const queryDbSchema = async() => {
   })
 }
 
-export const queDb = async(data: any): Promise<QueryDatabaseResponse['results']> => {
+export const queDb = async(data: any) => {
   const filter = {
     property: data.selected_prop_name,
     [data.selected_prop_type]: {
@@ -92,7 +92,7 @@ export const queDb = async(data: any): Promise<QueryDatabaseResponse['results']>
     cursor = next_cursor
   }
 
-  return pages
+  return {pages, filter}
 }
 
 export const queryRelationDb = async(database_id: string) => {

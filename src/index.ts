@@ -305,7 +305,7 @@ app.view('search-db-modal', async({ack, view, client, logger}) => {
     // const pages = await queDb(pm.selectProps)
     // // console.log(pages)
 
-    const pages = await queDb(pm)
+    const {pages, filter} = await queDb(pm)
     const urls = []
     for (const page of pages) {
       // @ts-ignore
@@ -316,7 +316,32 @@ app.view('search-db-modal', async({ack, view, client, logger}) => {
     await client.chat.postMessage({
       channel: pm.channel_id,
       thread_ts: pm.thread_ts,
-      text: urls.join("\n")
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "フィルター条件:\n```" + JSON.stringify(filter) + "```"
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "検索結果"
+          }
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: urls.join("\n")
+          }
+        },
+      ],
     })
   } catch (error) {
     logger.error(error)
