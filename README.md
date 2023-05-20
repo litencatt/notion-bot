@@ -1,3 +1,3 @@
-# summoner
+# Notion bot
 
-Summon docs link to slack
+Notion pages search bot on slack
