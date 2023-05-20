@@ -309,7 +309,7 @@ app.view('search-db-modal', async({ack, view, client, logger}) => {
     const urls = []
     for (const page of pages) {
       // @ts-ignore
-      urls.push(`<${page.url}|${page.properties.Name.title[0].text.content}>`)
+      urls.push(`・ <${page.url}|${page.properties.Name.title[0].text.content}>`)
     }
 
     // Reply result
@@ -331,14 +331,7 @@ app.view('search-db-modal', async({ack, view, client, logger}) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "検索結果"
-          }
-        },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: urls.join("\n")
+            text: "検索結果:\n" + urls.join("\n")
           }
         },
       ],
