@@ -31,7 +31,7 @@ export const searchDbView = (metaData: any, data: any[]) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "Select DB"
+          "text": "DB選択"
         },
         "accessory": {
           "type": "static_select",
@@ -44,108 +44,6 @@ export const searchDbView = (metaData: any, data: any[]) => {
           "action_id": "select_db-action"
         }
       },
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "プロパティ"
-        },
-        "accessory": {
-          "type": "static_select",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select an item",
-            "emoji": true
-          },
-          "options": [
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "*this is plain_text text*",
-                "emoji": true
-              },
-              "value": "value-0"
-            },
-          ],
-          "action_id": "static_select-action"
-        }
-      },
-      {
-        "block_id": "set_prop_field",
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "Selectプロパティ検索フィールド",
-        },
-        "accessory": {
-          "type": "static_select",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select a field",
-            "emoji": true
-          },
-          "options": [
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "*this is plain_text text*",
-                "emoji": true
-              },
-              "value": "value-0"
-            },
-          ],
-          "action_id": "set_prop_field-action"
-        },
-      }
-    ]
-  }
-}
-
-export const setPropView = (data: any[]) => {
-  const propOptions = []
-  for (const prop of data) {
-    propOptions.push({
-      text: {
-        type: "plain_text",
-        text: prop,
-      },
-      value: prop
-    })
-  }
-  return {
-    "type": "modal",
-    "callback_id": "search-db-modal",
-    "title": {
-      "type": "plain_text",
-      "text": "Notion bot",
-    },
-    "submit": {
-      "type": "plain_text",
-      "text": "Set",
-    },
-    "close": {
-      "type": "plain_text",
-      "text": "Cancel",
-    },
-    "blocks": [
-      {
-        "type": "input",
-        "element": {
-          "type": "static_select",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select an item",
-            "emoji": true
-          },
-          "options": propOptions,
-          "action_id": "set_prop-action"
-        },
-        "label": {
-          "type": "plain_text",
-          "text": "Select a Property",
-          "emoji": true
-        }
-      }
     ]
   }
 }
@@ -192,46 +90,19 @@ export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "プロパティ"
+          "text": "フィルター用プロパティ選択"
         },
         "accessory": {
           "type": "static_select",
           "placeholder": {
             "type": "plain_text",
-            "text": "Select an item",
+            "text": "Select a property",
             "emoji": true
           },
           "options": propOptions,
           "action_id": "set_prop-action"
         }
       },
-      {
-        "block_id": "set_prop_field",
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "Selectプロパティ検索フィールド",
-        },
-        "accessory": {
-          "type": "static_select",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select a field",
-            "emoji": true
-          },
-          "options": [
-            {
-              "text": {
-                "type": "plain_text",
-                "text": "*this is plain_text text*",
-                "emoji": true
-              },
-              "value": "value-0"
-            },
-          ],
-          "action_id": "set_prop_field-action"
-        }
-      }
     ]
   }
 }
@@ -287,7 +158,7 @@ export const searchDbView3 = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "Selectプロパティ検索フィールド",
+          "text": "フィルタープロパティのフィールド選択",
         },
         "accessory": {
           "type": "static_select",
@@ -364,7 +235,7 @@ export const searchDbView4 = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "プロパティ検索値",
+          "text": "フィルター値入力",
         },
         "accessory": {
           "type": "static_select",
