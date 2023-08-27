@@ -138,7 +138,7 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
 
     const res = await notion.client.databases.query({
       database_id: dbId,
-      page_size: 20,
+      page_size: 10,
     })
     const urls = []
     for (const page of res.results) {

@@ -67,19 +67,11 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
     },
     "blocks": [
       {
-        "type": "section",
+        "type": "header",
         "text": {
-          "type": "mrkdwn",
-          "text": `検査結果: ${metaData.selected_db_name}`
+          "type": "plain_text",
+          "text": `database: ${metaData.selected_db_name}`
         },
-        "accessory": {
-          "type": "button",
-          "text": {
-            "type": "plain_text",
-            "text": "Change DB",
-          },
-          "value": "click_me_123",
-        }
       },
       {
         "type": "actions",
@@ -91,8 +83,24 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
               "text": "Add Filter",
             },
             "value": "click_me_123",
-          }
+          },
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "Change database",
+            },
+            "style": "primary",
+            "value": "click_me_123",
+          },
         ]
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*検査結果*"
+        }
       },
       {
         "type": "divider",
@@ -103,6 +111,22 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
           "type": "mrkdwn",
           "text": urls.join("\n")
         }
+      },
+      {
+        "type": "divider",
+      },
+      {
+        "type": "actions",
+        "elements": [
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "Next Results",
+            },
+            "value": "click_me_123",
+          },
+        ]
       }
     ]
   }
