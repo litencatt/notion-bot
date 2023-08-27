@@ -3,7 +3,7 @@ import {
   QueryDatabaseParameters,
   QueryDatabaseResponse,
   GetDatabaseResponse,
-  PageObjectResponse
+  PageObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 
 export const client = new Client({
@@ -273,4 +273,111 @@ export const getPageTitle = (
     }
   })
   return title
+}
+
+export const getFilterFields = async (
+  type: string
+) => {
+  switch (type) {
+    case 'checkbox':
+      return [
+        'equals',
+        'does_not_equal',
+      ]
+    case 'created_time':
+    case 'last_edited_time':
+    case 'date':
+      return [
+        'after',
+        'before',
+        'equals',
+        'is_empty',
+        'is_not_empty',
+        'next_month',
+        'next_week',
+        'next_year',
+        'on_or_after',
+        'on_or_before',
+        'past_month',
+        'past_week',
+        'past_year',
+        'this_week',
+      ]
+    case 'rich_text':
+    case 'title':
+      return [
+        'contains',
+        'does_not_contain',
+        'does_not_equal',
+        'ends_with',
+        'equals',
+        'is_empty',
+        'is_not_empty',
+        'starts_with',
+      ]
+    case 'number':
+      return [
+        'equals',
+        'does_not_equal',
+        'greater_than',
+        'greater_than_or_equal_to',
+        'less_than',
+        'less_than_or_equal_to',
+        'is_empty',
+        'is_not_empty',
+      ]
+    case 'select':
+      return [
+        'equals',
+        'does_not_equal',
+        'is_empty',
+        'is_not_empty',
+      ]
+    case 'multi_select':
+    case 'relation':
+      return [
+        'contains',
+        'does_not_contain',
+        'is_empty',
+        'is_not_empty',
+      ]
+    case 'status':
+      return [
+        'equals',
+        'does_not_equal',
+        'is_empty',
+        'is_not_empty',
+      ]
+    case 'files':
+    case 'formula':
+    case 'people':
+    case 'rollup':
+    default:
+      console.error(`type: ${type} is not support type`)
+      return null
+  }
+}
+
+export const getSelectedDbPropValues = async (
+  res: GetDatabaseResponse,
+  selectedPropName: string
+) => {
+  let props = []
+  Object.entries(res.properties).forEach(([_, prop]) => {
+    if (prop.name != selectedPropName) {
+      return
+    }
+    switch (prop.type) {
+      case 'multi_select':
+        props = prop.multi_select.options.map(o => o.name)
+        break
+      case 'select':
+        console.dir(prop.select.options, {depth: null})
+        props = prop.select.options.map(o => o.name)
+        break
+      default:
+        console.error(`type: ${prop.type} is not supported`)
+    }
+  })
+  return props
 }

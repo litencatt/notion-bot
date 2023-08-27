@@ -76,7 +76,8 @@ app.event('app_mention', async({ payload, say }) => {
 
 app.action("open-modal-button", async({ ack, body, client, logger}) => {
   ack()
-  // console.log(body)
+  // console.dir(body, {depth: null})
+
   try {
     const dbs = await notion.searchDb();
     const dbChoices = []
@@ -119,22 +120,13 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
   try {
     logger.info("select_db action called")
     // console.dir(body.view, {depth: null})
+    const pm = JSON.parse(body.view.private_metadata)
+    console.dir(pm, {depth: null})
 
     const dbName = body.view.state.values["select_db"][`select_db-action`].selected_option.text.text
     const dbId = body.view.state.values["select_db"][`select_db-action`].selected_option.value
-    const pm = JSON.parse(body.view.private_metadata)
     pm.selected_db_id = dbId
     pm.selected_db_name = dbName
-
-    // DBのプロパティ取得
-    // const selectedDb = await retrieveDb(dbId, {})
-    // const props = []
-    // Object.entries(selectedDb.properties).forEach(([_, prop]) => {
-    //   props.push({
-    //     prop_name: prop.name,
-    //     prop_type: prop.type
-    //   })
-    // })
 
     const res = await notion.client.databases.query({
       database_id: dbId,
@@ -163,6 +155,35 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
   }
 })
 
+app.action('add_filter-action', async({ack, body, client, logger}) => {
+  ack()
+
+  try {
+    console.log("add_filter action called")
+
+    const pm = JSON.parse(body.view.private_metadata)
+    console.dir(pm, {depth: null})
+
+    // DBのプロパティ取得
+    const selectedDb = await notion.retrieveDb(pm.selected_db_id, {})
+    const dbProps = []
+    Object.entries(selectedDb.properties).forEach(([_, prop]) => {
+      dbProps.push({
+        prop_name: prop.name,
+        prop_type: prop.type
+      })
+    })
+
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchDbView2(pm, dbProps, pm.selected_db_name),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
 app.action('set_prop-action', async({ack, body, client, logger}) => {
   ack()
 
@@ -176,7 +197,7 @@ app.action('set_prop-action', async({ack, body, client, logger}) => {
     pm.selected_prop_type = propType.substring(0, propType.length - 1)
     logger.info(pm)
 
-    const filterFields = await slack.getFilterFields(pm.selected_prop_type)
+    const filterFields = await notion.getFilterFields(pm.selected_prop_type)
     logger.info(filterFields)
 
     await client.views.update({
@@ -190,33 +211,20 @@ app.action('set_prop-action', async({ack, body, client, logger}) => {
 })
 
 app.action('set_prop_field-action', async({ack, body, client, logger}) => {
+  logger.info("set_prop_field action called")
   ack()
 
   try {
-    logger.info("set_prop_field action called")
-    const propField = body.view.state.values["set_prop_field"][`set_prop_field-action`].selected_option.value
     const pm = JSON.parse(body.view.private_metadata)
+    console.dir(pm, {depth: null})
+    console.dir(body.view.state.values, {depth: null})
+
+    const propField = body.view.state.values["set_prop_field"][`set_prop_field-action`].selected_option.value
     pm.selected_prop_field = propField
-    logger.info(pm)
 
     const res = await notion.retrieveDb(pm.selected_db_id, {})
-    let props = []
-    Object.entries(res.properties).forEach(([_, prop]) => {
-      if (prop.name != pm.selected_prop_name) {
-        return
-      }
-      switch (prop.type) {
-        case 'select':
-          props = prop.select.options.map((o) => o.name)
-          break
-        case'multi_select':
-        props = prop.multi_select.options.map((o) => o.name)
-          break
-        default:
-          console.log(`${prop.type} is not supported`)
-      }
-    })
-
+    const props = await notion.getSelectedDbPropValues(res, pm.selected_prop_name)
+    console.dir(props, {depth: null})
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
@@ -228,10 +236,13 @@ app.action('set_prop_field-action', async({ack, body, client, logger}) => {
 })
 
 app.action('set_prop_value-action', async ({ ack, body, logger }) => {
+  logger.info("set_prop_value action called")
   ack();
 
   try {
     const pm = JSON.parse(body.view.private_metadata)
+    console.dir(pm, {depth: null})
+
     const propValue = body.view.state.values["set_prop_value"][`set_prop_value-action`].selected_option.value
     pm.selected_prop_value = propValue
 
