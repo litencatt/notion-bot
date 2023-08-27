@@ -5,7 +5,7 @@ import {
   GetDatabaseResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 
-const notion = new Client({
+export const client = new Client({
   auth: process.env.NOTION_API_TOKEN,
 })
 const tagDbId =  process.env.NOTION_TAG_DB_ID
@@ -13,7 +13,7 @@ const tagDbName =  process.env.NOTION_TAG_DB_NAME
 const docDbId =  process.env.NOTION_DOC_DB_ID
 
 export const searchDb = async () => {
-  const { results } = await notion.search({
+  const { results } = await client.search({
     filter: {
       value: 'database',
       property: 'object'
@@ -26,7 +26,7 @@ export const retrieveDb = async (
   databaseId: string,
   options: any
 ): Promise<GetDatabaseResponse> => {
-  const res = await notion.databases.retrieve({ database_id: databaseId })
+  const res = await client.databases.retrieve({ database_id: databaseId })
   return retrieveResponse(res, options)
 }
 
@@ -57,7 +57,7 @@ const retrieveResponse = (res: GetDatabaseResponse, options: any) => {
 }
 
 export const queryDbSchema = async() => {
-  return notion.databases.retrieve({
+  return client.databases.retrieve({
     database_id: docDbId,
   })
 }
@@ -74,7 +74,7 @@ export const queDb = async(data: any) => {
   const pages = []
   let cursor = undefined
   while (true) {
-    const { results, next_cursor } = await notion.databases.query({
+    const { results, next_cursor } = await client.databases.query({
       database_id: data.selected_db_id,
       // @ts-ignore
       filter: filter,
@@ -99,7 +99,7 @@ export const queryRelationDb = async(database_id: string) => {
   const pages = []
   let cursor = undefined
   while (true) {
-    const { results, next_cursor } = await notion.databases.query({
+    const { results, next_cursor } = await client.databases.query({
       database_id: database_id,
       start_cursor: cursor
     })
@@ -128,7 +128,7 @@ export const queryDb = async (
   // Get page id form tag name
   const tagDbFilter = buildTagFilter(tags)
   console.log(tagDbFilter)
-  const { results } = await notion.databases.query({
+  const { results } = await client.databases.query({
     database_id: tagDbId,
     filter: tagDbFilter
   })
@@ -141,7 +141,7 @@ export const queryDb = async (
 
   let cursor = undefined
   while (true) {
-    const { results, next_cursor } = await notion.databases.query({
+    const { results, next_cursor } = await client.databases.query({
       database_id: docDbId,
       filter: tagDbRelationFilter,
       start_cursor: cursor
