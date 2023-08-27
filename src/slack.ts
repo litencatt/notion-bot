@@ -84,6 +84,7 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
               "text": "Change database",
             },
             "style": "primary",
+            "action_id": "change_db-action",
             "value": "click_change_db",
           },
         ]
