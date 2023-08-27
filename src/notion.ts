@@ -261,3 +261,16 @@ function buildRelationFilter(tagPageIds: string[]): QueryDatabaseParameters['fil
     }
   }
 }
+
+export const getPageTitle = (
+  row: PageObjectResponse
+) => {
+  let title = 'Untitled'
+  Object.entries(row.properties).find(([_, prop]) => {
+    if (prop.type === 'title' && prop.title.length > 0) {
+      title = prop.title[0].plain_text
+      return true
+    }
+  })
+  return title
+}

@@ -324,8 +324,14 @@ app.view('search-db-modal', async({ack, view, client, logger}) => {
     const {pages, filter} = await notion.queDb(pm)
     const urls = []
     for (const page of pages) {
-      // @ts-ignore
-      urls.push(`・ <${page.url}|${page.properties.Name.title[0].text.content}>`)
+      if (page.object != "page") {
+        continue
+      }
+      if (!isFullPage(page)) {
+        continue
+      }
+      const title = notion.getPageTitle(page)
+      urls.push(`・ <${page.url}|${title}>`)
     }
 
     // Reply result
