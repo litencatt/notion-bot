@@ -69,15 +69,47 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
     const dbId = body.actions[0].value
     console.log(dbId)
 
-    const dbs = await notion.getDatabases()
-    const metaData = {
-      channel_id: body.channel.id,
-      thread_ts: body.message.thread_ts,
+    if (dbId == "") {
+      const dbs = await notion.getDatabases()
+      const metaData = {
+        channel_id: body.channel.id,
+        thread_ts: body.message.thread_ts,
+      }
+      await client.views.open({
+        trigger_id: body.trigger_id,
+        view: slack.searchDbView(metaData, dbs),
+      })
+    } else {
+      const db = await notion.retrieveDb(dbId, {})
+      const metaData = {
+        channel_id: body.channel.id,
+        thread_ts: body.message.thread_ts,
+        selected_db_id: dbId,
+        // @ts-ignore
+        selected_db_name: db.title.length > 0 ? db.title[0].plain_text : "",
+      }
+
+      const res = await notion.client.databases.query({
+        database_id: dbId,
+        page_size: 10,
+      })
+      const urls = []
+      for (const page of res.results) {
+        if (page.object != "page") {
+          continue
+        }
+        if (!isFullPage(page)) {
+          continue
+        }
+        const title = notion.getPageTitle(page)
+        urls.push(`・ <${page.url}|${title}>`)
+      }
+
+      await client.views.open({
+        trigger_id: body.trigger_id,
+        view: slack.searchResultModal(metaData, urls),
+      })
     }
-    await client.views.open({
-      trigger_id: body.trigger_id,
-      view: slack.searchDbView(metaData, dbs),
-    })
   } catch (error) {
     logger.error(error)
   }
