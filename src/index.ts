@@ -155,6 +155,47 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
   }
 })
 
+app.action('change_db-action', async({ack, body, client, logger}) => {
+  ack()
+
+  try {
+    console.log("change_db action called")
+
+    const pm = JSON.parse(body.view.private_metadata)
+    console.dir(pm, {depth: null})
+
+    const dbs = await notion.searchDb();
+    const dbChoices = []
+    for (const db of dbs) {
+      if (db.object != "database") {
+        continue
+      }
+      if (!isFullDatabase(db)) {
+        continue
+      }
+      if (db.title[0] == null) {
+        continue
+      }
+      dbChoices.push({
+        title: db.title[0].plain_text,
+        value: db.id,
+      })
+    }
+    const sortedDbChoices = dbChoices.sort((a,b)=> {
+      return a.title.localeCompare(b.title)
+    })
+    console.log(sortedDbChoices)
+
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchDbView(pm, sortedDbChoices),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
 app.action('add_filter-action', async({ack, body, client, logger}) => {
   ack()
 
