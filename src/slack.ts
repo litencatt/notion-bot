@@ -17,10 +17,6 @@ export const searchDbView = (metaData: any, data: any[]) => {
       "type": "plain_text",
       "text": "Notion bot",
     },
-    "submit": {
-      "type": "plain_text",
-      "text": "Search DB",
-    },
     "close": {
       "type": "plain_text",
       "text": "Cancel",
@@ -56,10 +52,6 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
     "title": {
       "type": "plain_text",
       "text": "Notion bot",
-    },
-    "submit": {
-      "type": "plain_text",
-      "text": "Search DB",
     },
     "close": {
       "type": "plain_text",
@@ -156,10 +148,6 @@ export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
       "type": "plain_text",
       "text": "Notion bot",
     },
-    "submit": {
-      "type": "plain_text",
-      "text": "Search DB",
-    },
     "close": {
       "type": "plain_text",
       "text": "Cancel",
@@ -214,10 +202,6 @@ export const searchDbView3 = (metaData: any, data: string[]) => {
     "title": {
       "type": "plain_text",
       "text": "Notion bot",
-    },
-    "submit": {
-      "type": "plain_text",
-      "text": "Search DB",
     },
     "close": {
       "type": "plain_text",
@@ -282,10 +266,6 @@ export const searchDbView4 = (metaData: any, data: string[]) => {
     "title": {
       "type": "plain_text",
       "text": "Notion bot",
-    },
-    "submit": {
-      "type": "plain_text",
-      "text": "Search DB",
     },
     "close": {
       "type": "plain_text",
