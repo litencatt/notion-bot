@@ -3,9 +3,10 @@ import {
   QueryDatabaseParameters,
   QueryDatabaseResponse,
   GetDatabaseResponse,
+  PageObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 
-const notion = new Client({
+export const client = new Client({
   auth: process.env.NOTION_API_TOKEN,
 })
 const tagDbId =  process.env.NOTION_TAG_DB_ID
@@ -13,7 +14,7 @@ const tagDbName =  process.env.NOTION_TAG_DB_NAME
 const docDbId =  process.env.NOTION_DOC_DB_ID
 
 export const searchDb = async () => {
-  const { results } = await notion.search({
+  const { results } = await client.search({
     filter: {
       value: 'database',
       property: 'object'
@@ -26,7 +27,7 @@ export const retrieveDb = async (
   databaseId: string,
   options: any
 ): Promise<GetDatabaseResponse> => {
-  const res = await notion.databases.retrieve({ database_id: databaseId })
+  const res = await client.databases.retrieve({ database_id: databaseId })
   return retrieveResponse(res, options)
 }
 
@@ -57,24 +58,30 @@ const retrieveResponse = (res: GetDatabaseResponse, options: any) => {
 }
 
 export const queryDbSchema = async() => {
-  return notion.databases.retrieve({
+  return client.databases.retrieve({
     database_id: docDbId,
   })
 }
 
 export const queDb = async(data: any) => {
-  const filter = {
-    property: data.selected_prop_name,
-    [data.selected_prop_type]: {
-      [data.selected_prop_field]: data.selected_prop_value
+  console.dir(data, {depth: null})
+  let filter = null
+  if (data.selected_prop_type) {
+    filter = {
+      property: data.selected_prop_name,
+      [data.selected_prop_type]: {
+        [data.selected_prop_field]: data.selected_prop_value
+      }
     }
+  } else {
+    filter = {and: []}
   }
   console.dir(filter, {depth: null})
 
   const pages = []
   let cursor = undefined
   while (true) {
-    const { results, next_cursor } = await notion.databases.query({
+    const { results, next_cursor } = await client.databases.query({
       database_id: data.selected_db_id,
       // @ts-ignore
       filter: filter,
@@ -99,7 +106,7 @@ export const queryRelationDb = async(database_id: string) => {
   const pages = []
   let cursor = undefined
   while (true) {
-    const { results, next_cursor } = await notion.databases.query({
+    const { results, next_cursor } = await client.databases.query({
       database_id: database_id,
       start_cursor: cursor
     })
@@ -128,7 +135,7 @@ export const queryDb = async (
   // Get page id form tag name
   const tagDbFilter = buildTagFilter(tags)
   console.log(tagDbFilter)
-  const { results } = await notion.databases.query({
+  const { results } = await client.databases.query({
     database_id: tagDbId,
     filter: tagDbFilter
   })
@@ -141,7 +148,7 @@ export const queryDb = async (
 
   let cursor = undefined
   while (true) {
-    const { results, next_cursor } = await notion.databases.query({
+    const { results, next_cursor } = await client.databases.query({
       database_id: docDbId,
       filter: tagDbRelationFilter,
       start_cursor: cursor
@@ -253,4 +260,124 @@ function buildRelationFilter(tagPageIds: string[]): QueryDatabaseParameters['fil
       or: f
     }
   }
+}
+
+export const getPageTitle = (
+  row: PageObjectResponse
+) => {
+  let title = 'Untitled'
+  Object.entries(row.properties).find(([_, prop]) => {
+    if (prop.type === 'title' && prop.title.length > 0) {
+      title = prop.title[0].plain_text
+      return true
+    }
+  })
+  return title
+}
+
+export const getFilterFields = async (
+  type: string
+) => {
+  switch (type) {
+    case 'checkbox':
+      return [
+        'equals',
+        'does_not_equal',
+      ]
+    case 'created_time':
+    case 'last_edited_time':
+    case 'date':
+      return [
+        'after',
+        'before',
+        'equals',
+        'is_empty',
+        'is_not_empty',
+        'next_month',
+        'next_week',
+        'next_year',
+        'on_or_after',
+        'on_or_before',
+        'past_month',
+        'past_week',
+        'past_year',
+        'this_week',
+      ]
+    case 'rich_text':
+    case 'title':
+      return [
+        'contains',
+        'does_not_contain',
+        'does_not_equal',
+        'ends_with',
+        'equals',
+        'is_empty',
+        'is_not_empty',
+        'starts_with',
+      ]
+    case 'number':
+      return [
+        'equals',
+        'does_not_equal',
+        'greater_than',
+        'greater_than_or_equal_to',
+        'less_than',
+        'less_than_or_equal_to',
+        'is_empty',
+        'is_not_empty',
+      ]
+    case 'select':
+      return [
+        'equals',
+        'does_not_equal',
+        'is_empty',
+        'is_not_empty',
+      ]
+    case 'multi_select':
+    case 'relation':
+      return [
+        'contains',
+        'does_not_contain',
+        'is_empty',
+        'is_not_empty',
+      ]
+    case 'status':
+      return [
+        'equals',
+        'does_not_equal',
+        'is_empty',
+        'is_not_empty',
+      ]
+    case 'files':
+    case 'formula':
+    case 'people':
+    case 'rollup':
+    default:
+      console.error(`type: ${type} is not support type`)
+      return null
+  }
+}
+
+export const getSelectedDbPropValues = async (
+  res: GetDatabaseResponse,
+  selectedPropName: string
+) => {
+  let props = []
+  Object.entries(res.properties).forEach(([_, prop]) => {
+    if (prop.name != selectedPropName) {
+      return
+    }
+    switch (prop.type) {
+      case 'multi_select':
+        props = prop.multi_select.options.map(o => o.name)
+        break
+      case 'select':
+        console.dir(prop.select.options, {depth: null})
+        props = prop.select.options.map(o => o.name)
+        break
+      default:
+        console.error(`type: ${prop.type} is not supported`)
+    }
+  })
+  return props
 }

@@ -48,6 +48,95 @@ export const searchDbView = (metaData: any, data: any[]) => {
   }
 }
 
+export const searchResultModal = (metaData: any, urls: any[]) => {
+  return {
+    "private_metadata": JSON.stringify(metaData),
+    "type": "modal",
+    "callback_id": "search-db-modal",
+    "title": {
+      "type": "plain_text",
+      "text": "Notion bot",
+    },
+    "submit": {
+      "type": "plain_text",
+      "text": "Search DB",
+    },
+    "close": {
+      "type": "plain_text",
+      "text": "Cancel",
+    },
+    "blocks": [
+      {
+        "type": "header",
+        "text": {
+          "type": "plain_text",
+          "text": `database: ${metaData.selected_db_name}`
+        },
+      },
+      {
+        "type": "actions",
+        "elements": [
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "Add Filter",
+            },
+            "action_id": "add_filter-action",
+            "value": "click_add_filter",
+          },
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "Change database",
+            },
+            "style": "primary",
+            "value": "click_change_db",
+          },
+        ]
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "*検索結果*"
+        }
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "フィルター:\n```" + JSON.stringify(metaData.filter) + "```"
+        }
+      },
+      {
+        "type": "divider",
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": urls.join("\n")
+        }
+      },
+      {
+        "type": "actions",
+        "elements": [
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "Next Results",
+            },
+            "value": "click_next_results",
+          },
+        ]
+      }
+    ]
+  }
+}
+
 export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
   const propOptions = []
   for (const prop of data) {
@@ -329,42 +418,5 @@ export const searchBlock = (data: string, selectProps: any[]) => {
       "text": "Cancel",
     },
     "blocks": blocks
-  }
-}
-
-
-export const getFilterFields = async (
-  type: string
-) => {
-  switch (type) {
-    case 'number':
-      return [
-        'equals',
-        'does_not_equal',
-        'greater_than',
-        'greater_than_or_equal_to',
-        'less_than',
-        'less_than_or_equal_to',
-        'is_empty',
-        'is_not_empty',
-      ]
-    case 'select':
-      return [
-        'equals',
-        'does_not_equal',
-        'is_empty',
-        'is_not_empty',
-      ]
-    case 'multi_select':
-    case 'relation':
-      return [
-        'contains',
-        'does_not_contain',
-        'is_empty',
-        'is_not_empty',
-      ]
-    default:
-      console.log(`${type} is not support type`)
-      return null
   }
 }
