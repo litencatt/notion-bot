@@ -189,15 +189,22 @@ app.action('set_prop-action', async({ack, body, client, logger}) => {
 
   try {
     logger.info("set_prop action called")
-    const propName = body.view.state.values["set_prop"][`set_prop-action`].selected_option.value
-    const propNameAndTypeText = body.view.state.values["set_prop"][`set_prop-action`].selected_option.text.text
-    const propType = propNameAndTypeText.split(" (")[1] as string
+    const selectedPropName = body.view.state.values["set_prop"][`set_prop-action`].selected_option.value
+    const selectedPropNameAndTypeText = body.view.state.values["set_prop"][`set_prop-action`].selected_option.text.text
+    const propType = selectedPropNameAndTypeText.split(" (")[1] as string
+    const type = propType.substring(0, propType.length - 1)
+
     const pm = JSON.parse(body.view.private_metadata)
-    pm.selected_prop_name = propName
-    pm.selected_prop_type = propType.substring(0, propType.length - 1)
+    if (pm.filter == null) {
+      pm.filter = []
+    }
+    pm.filter.push({
+      prop_name: selectedPropName,
+      prop_type: type,
+    })
     logger.info(pm)
 
-    const filterFields = await notion.getFilterFields(pm.selected_prop_type)
+    const filterFields = await notion.getFilterFields(type)
     logger.info(filterFields)
 
     await client.views.update({
@@ -220,10 +227,10 @@ app.action('set_prop_field-action', async({ack, body, client, logger}) => {
     console.dir(body.view.state.values, {depth: null})
 
     const propField = body.view.state.values["set_prop_field"][`set_prop_field-action`].selected_option.value
-    pm.selected_prop_field = propField
+    pm.filter[pm.filter.length - 1].prop_field = propField
 
     const res = await notion.retrieveDb(pm.selected_db_id, {})
-    const props = await notion.getSelectedDbPropValues(res, pm.selected_prop_name)
+    const props = await notion.getSelectedDbPropValues(res, pm.filter[pm.filter.length - 1].prop_name)
     console.dir(props, {depth: null})
     await client.views.update({
       view_id: body.view.id,
@@ -235,7 +242,7 @@ app.action('set_prop_field-action', async({ack, body, client, logger}) => {
   }
 })
 
-app.action('set_prop_value-action', async ({ ack, body, logger }) => {
+app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
   logger.info("set_prop_value action called")
   ack();
 
@@ -244,8 +251,41 @@ app.action('set_prop_value-action', async ({ ack, body, logger }) => {
     console.dir(pm, {depth: null})
 
     const propValue = body.view.state.values["set_prop_value"][`set_prop_value-action`].selected_option.value
-    pm.selected_prop_value = propValue
+    pm.filter[pm.filter.length - 1].prop_value = propValue
+    console.dir(pm.filter, {depth: null})
 
+    const res = await notion.client.databases.query({
+      database_id: pm.selected_db_id,
+      filter: {
+        and: pm.filter.map(f => {
+          return {
+            property: f.prop_name,
+            [f.prop_type]: {
+              [f.prop_field]: f.prop_value
+            }
+          }
+        })
+      },
+      page_size: 10,
+    })
+    const urls = []
+    for (const page of res.results) {
+      if (page.object != "page") {
+        continue
+      }
+      if (!isFullPage(page)) {
+        continue
+      }
+      const title = notion.getPageTitle(page)
+      urls.push(`・ <${page.url}|${title}>`)
+    }
+
+    // プロパティ設定用モーダルに更新
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchResultModal(pm, urls),
+    })
   } catch (error) {
     logger.error(error)
   }

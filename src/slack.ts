@@ -100,7 +100,14 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "*検査結果*"
+          "text": "*検索結果*"
+        }
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": "フィルター:\n```" + JSON.stringify(metaData.filter) + "```"
         }
       },
       {
@@ -112,9 +119,6 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
           "type": "mrkdwn",
           "text": urls.join("\n")
         }
-      },
-      {
-        "type": "divider",
       },
       {
         "type": "actions",
