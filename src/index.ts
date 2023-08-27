@@ -22,53 +22,40 @@ app.message('hello', async ({ message, say }) => {
   await say(`Hey there <@${message.user}>!`);
 });
 
+type metaData = {
+  channel_id: string,
+  thread_ts: string,
+  selected_db_id?: string,
+  selected_db_name?: string,
+  filter?: any[],
+}
+
 app.event('app_mention', async({ payload, say }) => {
   try {
-    // @bot service tag1,tag2,... [all(default)|spec|man|log]
+    // @bot database_id
     const query = payload.text.split(" ");
-    // console.log(query)
-
+    let dbId = ""
     if (query.length > 1) {
-      const service = query[1]
-      const tags = query[2].split(",")
-      console.log(tags)
-      const type = query[3]
-
-      if (service == undefined) {
-        await say("Service not included");
-        return
-      }
-
-      const pages = await notion.queryDb(service, tags, type);
-      if (pages.length == 0) {
-        await say("Not found");
-      } else {
-        const urls = []
-        for (const page of pages) {
-          // @ts-ignore
-          urls.push(`<${page.url}|${page.properties.Name.title[0].text.content}>`)
-        }
-        await say(urls.join("\n"));
-      }
-    } else {
-      const threadTs = payload.ts
-      await say({
-        thread_ts: threadTs,
-        blocks: [{
-          "type": "actions",
-          elements: [
-          {
-            type: "button",
-            "text": {
-                "type": "plain_text",
-                "text": "モーダルを開いて検索する",
-            },
-            "value": "clicked",
-            "action_id": "open-modal-button",
-          }]
-        }]
-      });
+      dbId = query[1]
     }
+
+    const threadTs = payload.ts
+    await say({
+      thread_ts: threadTs,
+      blocks: [{
+        "type": "actions",
+        elements: [
+        {
+          type: "button",
+          "text": {
+              "type": "plain_text",
+              "text": "モーダルを開いて検索する",
+          },
+          "value": dbId,
+          "action_id": "open-modal-button",
+        }]
+      }]
+    });
   } catch (error) {
     console.log(error);
   }
@@ -79,6 +66,9 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
   // console.dir(body, {depth: null})
 
   try {
+    const dbId = body.actions[0].value
+    console.log(dbId)
+
     const dbs = await notion.getDatabases()
     const metaData = {
       channel_id: body.channel.id,
@@ -371,7 +361,7 @@ app.view('search-db-modal', async({ack, view, client, logger}) => {
     // const pages = await queDb(pm.selectProps)
     // // console.log(pages)
 
-    const {pages, filter} = await notion.queDb(pm)
+    const {pages, filter} = await notion.queryDb(pm)
     const urls = []
     for (const page of pages) {
       if (page.object != "page") {
