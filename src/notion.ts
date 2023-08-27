@@ -66,7 +66,7 @@ export const queryDbSchema = async() => {
   })
 }
 
-export const queDb = async(data: any) => {
+export const queryDb = async(data: any) => {
   console.dir(data, {depth: null})
   let filter = null
   if (data.selected_prop_type) {
@@ -111,49 +111,6 @@ export const queryRelationDb = async(database_id: string) => {
   while (true) {
     const { results, next_cursor } = await client.databases.query({
       database_id: database_id,
-      start_cursor: cursor
-    })
-    if (results.length == 0) {
-      break
-    }
-
-    pages.push(...results)
-
-    if (!next_cursor) {
-      break
-    }
-    cursor = next_cursor
-  }
-  // console.log(pages)
-  return pages
-}
-
-export const queryDb = async (
-  service: string,
-  tags: string[],
-  type: string
-): Promise<QueryDatabaseResponse['results']> => {
-  const pages = []
-
-  // Get page id form tag name
-  const tagDbFilter = buildTagFilter(tags)
-  console.log(tagDbFilter)
-  const { results } = await client.databases.query({
-    database_id: tagDbId,
-    filter: tagDbFilter
-  })
-  const tagPage = results[0]
-  console.log(results)
-
-  const pageIds = results.map( page => page.id )
-  const tagDbRelationFilter = buildRelationFilter(pageIds)
-  console.log(tagDbRelationFilter)
-
-  let cursor = undefined
-  while (true) {
-    const { results, next_cursor } = await client.databases.query({
-      database_id: docDbId,
-      filter: tagDbRelationFilter,
       start_cursor: cursor
     })
     if (results.length == 0) {

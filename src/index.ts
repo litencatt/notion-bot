@@ -22,53 +22,40 @@ app.message('hello', async ({ message, say }) => {
   await say(`Hey there <@${message.user}>!`);
 });
 
+type metaData = {
+  channel_id: string,
+  thread_ts: string,
+  selected_db_id?: string,
+  selected_db_name?: string,
+  filter?: any[],
+}
+
 app.event('app_mention', async({ payload, say }) => {
   try {
-    // @bot service tag1,tag2,... [all(default)|spec|man|log]
+    // @bot database_id
     const query = payload.text.split(" ");
-    // console.log(query)
-
+    let dbId = ""
     if (query.length > 1) {
-      const service = query[1]
-      const tags = query[2].split(",")
-      console.log(tags)
-      const type = query[3]
-
-      if (service == undefined) {
-        await say("Service not included");
-        return
-      }
-
-      const pages = await notion.queryDb(service, tags, type);
-      if (pages.length == 0) {
-        await say("Not found");
-      } else {
-        const urls = []
-        for (const page of pages) {
-          // @ts-ignore
-          urls.push(`<${page.url}|${page.properties.Name.title[0].text.content}>`)
-        }
-        await say(urls.join("\n"));
-      }
-    } else {
-      const threadTs = payload.ts
-      await say({
-        thread_ts: threadTs,
-        blocks: [{
-          "type": "actions",
-          elements: [
-          {
-            type: "button",
-            "text": {
-                "type": "plain_text",
-                "text": "モーダルを開いて検索する",
-            },
-            "value": "clicked",
-            "action_id": "open-modal-button",
-          }]
-        }]
-      });
+      dbId = query[1]
     }
+
+    const threadTs = payload.ts
+    await say({
+      thread_ts: threadTs,
+      blocks: [{
+        "type": "actions",
+        elements: [
+        {
+          type: "button",
+          "text": {
+              "type": "plain_text",
+              "text": "モーダルを開いて検索する",
+          },
+          "value": dbId,
+          "action_id": "open-modal-button",
+        }]
+      }]
+    });
   } catch (error) {
     console.log(error);
   }
@@ -79,15 +66,50 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
   // console.dir(body, {depth: null})
 
   try {
-    const dbs = await notion.getDatabases()
-    const metaData = {
-      channel_id: body.channel.id,
-      thread_ts: body.message.thread_ts,
+    const dbId = body.actions[0].value
+    console.log(dbId)
+
+    if (dbId == "") {
+      const dbs = await notion.getDatabases()
+      const metaData = {
+        channel_id: body.channel.id,
+        thread_ts: body.message.thread_ts,
+      }
+      await client.views.open({
+        trigger_id: body.trigger_id,
+        view: slack.searchDbView(metaData, dbs),
+      })
+    } else {
+      const db = await notion.retrieveDb(dbId, {})
+      const metaData = {
+        channel_id: body.channel.id,
+        thread_ts: body.message.thread_ts,
+        selected_db_id: dbId,
+        // @ts-ignore
+        selected_db_name: db.title.length > 0 ? db.title[0].plain_text : "",
+      }
+
+      const res = await notion.client.databases.query({
+        database_id: dbId,
+        page_size: 10,
+      })
+      const urls = []
+      for (const page of res.results) {
+        if (page.object != "page") {
+          continue
+        }
+        if (!isFullPage(page)) {
+          continue
+        }
+        const title = notion.getPageTitle(page)
+        urls.push(`・ <${page.url}|${title}>`)
+      }
+
+      await client.views.open({
+        trigger_id: body.trigger_id,
+        view: slack.searchResultModal(metaData, urls),
+      })
     }
-    await client.views.open({
-      trigger_id: body.trigger_id,
-      view: slack.searchDbView(metaData, dbs),
-    })
   } catch (error) {
     logger.error(error)
   }
@@ -371,7 +393,7 @@ app.view('search-db-modal', async({ack, view, client, logger}) => {
     // const pages = await queDb(pm.selectProps)
     // // console.log(pages)
 
-    const {pages, filter} = await notion.queDb(pm)
+    const {pages, filter} = await notion.queryDb(pm)
     const urls = []
     for (const page of pages) {
       if (page.object != "page") {
