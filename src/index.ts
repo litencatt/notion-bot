@@ -1,5 +1,5 @@
 const { App } = require('@slack/bolt');
-import { queDb, queryDb, queryDbSchema, retrieveDb, searchDb } from "./notion"
+import * as notion from "./notion"
 import * as slack from "./slack"
 import { isFullDatabase, isFullPage } from '@notionhq/client'
 
@@ -39,7 +39,7 @@ app.event('app_mention', async({ payload, say }) => {
         return
       }
 
-      const pages = await queryDb(service, tags, type);
+      const pages = await notion.queryDb(service, tags, type);
       if (pages.length == 0) {
         await say("Not found");
       } else {
@@ -74,12 +74,11 @@ app.event('app_mention', async({ payload, say }) => {
   }
 });
 
-
 app.action("open-modal-button", async({ ack, body, client, logger}) => {
   ack()
   // console.log(body)
   try {
-    const dbs = await searchDb();
+    const dbs = await notion.searchDb();
     const dbChoices = []
     for (const db of dbs) {
       if (db.object != "database") {
@@ -183,7 +182,7 @@ app.action('set_prop_field-action', async({ack, body, client, logger}) => {
     pm.selected_prop_field = propField
     logger.info(pm)
 
-    const res = await retrieveDb(pm.selected_db_id, {})
+    const res = await notion.retrieveDb(pm.selected_db_id, {})
     let props = []
     Object.entries(res.properties).forEach(([_, prop]) => {
       if (prop.name != pm.selected_prop_name) {
@@ -229,7 +228,7 @@ app.action("x-open-modal-button", async({ ack, body, client, logger}) => {
   // console.log(body)
   try {
     // 指定DBのスキーマ情報よりselectブロックの情報を取得
-    const dbSchema = await queryDbSchema();
+    const dbSchema = await notion.queryDbSchema();
     console.dir(dbSchema.properties, {depth: null})
 
     const selectProps = []
@@ -305,7 +304,7 @@ app.view('search-db-modal', async({ack, view, client, logger}) => {
     // const pages = await queDb(pm.selectProps)
     // // console.log(pages)
 
-    const {pages, filter} = await queDb(pm)
+    const {pages, filter} = await notion.queDb(pm)
     const urls = []
     for (const page of pages) {
       // @ts-ignore
