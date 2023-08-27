@@ -62,7 +62,7 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
         "type": "header",
         "text": {
           "type": "plain_text",
-          "text": `database: ${metaData.selected_db_name}`
+          "text": `DB: ${metaData.selected_db_name}`
         },
       },
       {
@@ -72,7 +72,7 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
             "type": "button",
             "text": {
               "type": "plain_text",
-              "text": "Add Filter",
+              "text": "Add filter",
             },
             "action_id": "add_filter-action",
             "value": "click_add_filter",
@@ -93,18 +93,18 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "*検索結果*"
+          "text": "*フィルター*\n```" + JSON.stringify(metaData.filter) + "```"
         }
+      },
+      {
+        "type": "divider",
       },
       {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "フィルター:\n```" + JSON.stringify(metaData.filter) + "```"
+          "text": "*検索結果*"
         }
-      },
-      {
-        "type": "divider",
       },
       {
         "type": "section",
