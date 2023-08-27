@@ -105,9 +105,11 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
         urls.push(`・ <${page.url}|${title}>`)
       }
 
+      let nextCursor = res.has_more ? res.next_cursor : ""
+      console.log(nextCursor)
       await client.views.open({
         trigger_id: body.trigger_id,
-        view: slack.searchResultModal(metaData, urls),
+        view: slack.searchResultModal(metaData, urls, nextCursor),
       })
     }
   } catch (error) {
@@ -120,7 +122,7 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
 
   try {
     logger.info("select_db action called")
-    // console.dir(body.view, {depth: null})
+    console.dir(body, {depth: null})
     const pm = JSON.parse(body.view.private_metadata)
     console.dir(pm, {depth: null})
 
@@ -129,9 +131,11 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     pm.selected_db_id = dbId
     pm.selected_db_name = dbName
 
+    // const start_cursor = body.actions[0].selected_option.value
     const res = await notion.client.databases.query({
       database_id: dbId,
       page_size: 10,
+      start_cursor: undefined,
     })
     const urls = []
     for (const page of res.results) {
@@ -149,7 +153,7 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls),
+      view: slack.searchResultModal(pm, urls, res.next_cursor),
     })
   } catch (error) {
     logger.error(error)
@@ -305,7 +309,7 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls),
+      view: slack.searchResultModal(pm, urls, res.next_cursor),
     })
   } catch (error) {
     logger.error(error)

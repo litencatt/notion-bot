@@ -44,7 +44,7 @@ export const searchDbView = (metaData: any, data: any[]) => {
   }
 }
 
-export const searchResultModal = (metaData: any, urls: any[]) => {
+export const searchResultModal = (metaData: any, urls: any[], nextCursor: string) => {
   return {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
@@ -122,7 +122,7 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
               "type": "plain_text",
               "text": "Next Results",
             },
-            "value": "click_next_results",
+            "value": nextCursor,
           },
         ]
       }
