@@ -173,11 +173,8 @@ app.action('change_db-action', async({ack, body, client, logger}) => {
       if (!isFullDatabase(db)) {
         continue
       }
-      if (db.title[0] == null) {
-        continue
-      }
       dbChoices.push({
-        title: db.title[0].plain_text,
+        title: db.title.length > 0 ? db.title[0].plain_text : "Untitled",
         value: db.id,
       })
     }
