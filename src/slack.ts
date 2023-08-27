@@ -48,6 +48,66 @@ export const searchDbView = (metaData: any, data: any[]) => {
   }
 }
 
+export const searchResultModal = (metaData: any, urls: any[]) => {
+  return {
+    "private_metadata": JSON.stringify(metaData),
+    "type": "modal",
+    "callback_id": "search-db-modal",
+    "title": {
+      "type": "plain_text",
+      "text": "Notion bot",
+    },
+    "submit": {
+      "type": "plain_text",
+      "text": "Search DB",
+    },
+    "close": {
+      "type": "plain_text",
+      "text": "Cancel",
+    },
+    "blocks": [
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": `検査結果: ${metaData.selected_db_name}`
+        },
+        "accessory": {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Change DB",
+          },
+          "value": "click_me_123",
+        }
+      },
+      {
+        "type": "actions",
+        "elements": [
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "Add Filter",
+            },
+            "value": "click_me_123",
+          }
+        ]
+      },
+      {
+        "type": "divider",
+      },
+      {
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": urls.join("\n")
+        }
+      }
+    ]
+  }
+}
+
 export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
   const propOptions = []
   for (const prop of data) {
@@ -331,7 +391,6 @@ export const searchBlock = (data: string, selectProps: any[]) => {
     "blocks": blocks
   }
 }
-
 
 export const getFilterFields = async (
   type: string

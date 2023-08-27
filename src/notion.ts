@@ -3,6 +3,7 @@ import {
   QueryDatabaseParameters,
   QueryDatabaseResponse,
   GetDatabaseResponse,
+  PageObjectResponse
 } from '@notionhq/client/build/src/api-endpoints'
 
 export const client = new Client({
@@ -63,11 +64,17 @@ export const queryDbSchema = async() => {
 }
 
 export const queDb = async(data: any) => {
-  const filter = {
-    property: data.selected_prop_name,
-    [data.selected_prop_type]: {
-      [data.selected_prop_field]: data.selected_prop_value
+  console.dir(data, {depth: null})
+  let filter = null
+  if (data.selected_prop_type) {
+    filter = {
+      property: data.selected_prop_name,
+      [data.selected_prop_type]: {
+        [data.selected_prop_field]: data.selected_prop_value
+      }
     }
+  } else {
+    filter = {and: []}
   }
   console.dir(filter, {depth: null})
 

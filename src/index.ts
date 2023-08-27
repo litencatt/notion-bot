@@ -120,26 +120,43 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     logger.info("select_db action called")
     // console.dir(body.view, {depth: null})
 
-    // DBのプロパティ取得
     const dbName = body.view.state.values["select_db"][`select_db-action`].selected_option.text.text
     const dbId = body.view.state.values["select_db"][`select_db-action`].selected_option.value
-    const selectedDb = await retrieveDb(dbId, {})
-    const props = []
-    Object.entries(selectedDb.properties).forEach(([_, prop]) => {
-      props.push({
-        prop_name: prop.name,
-        prop_type: prop.type
-      })
-    })
     const pm = JSON.parse(body.view.private_metadata)
     pm.selected_db_id = dbId
     pm.selected_db_name = dbName
+
+    // DBのプロパティ取得
+    // const selectedDb = await retrieveDb(dbId, {})
+    // const props = []
+    // Object.entries(selectedDb.properties).forEach(([_, prop]) => {
+    //   props.push({
+    //     prop_name: prop.name,
+    //     prop_type: prop.type
+    //   })
+    // })
+
+    const res = await notion.client.databases.query({
+      database_id: dbId,
+      page_size: 20,
+    })
+    const urls = []
+    for (const page of res.results) {
+      if (page.object != "page") {
+        continue
+      }
+      if (!isFullPage(page)) {
+        continue
+      }
+      const title = notion.getPageTitle(page)
+      urls.push(`・ <${page.url}|${title}>`)
+    }
 
     // プロパティ設定用モーダルに更新
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchDbView2(pm, props, dbName),
+      view: slack.searchResultModal(pm, urls),
     })
   } catch (error) {
     logger.error(error)
