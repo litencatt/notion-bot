@@ -30,38 +30,41 @@ type metaData = {
   filter?: any[],
 }
 
-app.event('app_mention', async({ payload, say }) => {
-  try {
-    // @bot database_id
-    const query = payload.text.split(" ");
-    let dbId = ""
-    if (query.length > 1) {
-      dbId = query[1]
-    }
+app.event('app_mention', async({ logger, payload, say }) => {
+  logger.info("app_mention event called")
 
-    const threadTs = payload.ts
-    await say({
-      thread_ts: threadTs,
-      blocks: [{
+  try {
+    const modalMessage = {
+      "thread_ts": payload.ts,
+      "blocks": [{
         "type": "actions",
-        elements: [
+        "elements": [
         {
-          type: "button",
+          "type": "button",
           "text": {
               "type": "plain_text",
               "text": "モーダルを開いて検索する",
           },
-          "value": dbId,
           "action_id": "open-modal-button",
         }]
       }]
-    });
+    }
+
+    const query = payload.text.split(" ");
+    let dbId = null
+    if (query.length > 1) {
+      dbId = query[1]
+      modalMessage.blocks[0].elements[0]["value"] = dbId
+    }
+
+    await say(modalMessage);
   } catch (error) {
     console.log(error);
   }
 });
 
 app.action("open-modal-button", async({ ack, body, client, logger}) => {
+  logger.info("open-modal-button action called")
   ack()
   // console.dir(body, {depth: null})
 
@@ -69,7 +72,7 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
     const dbId = body.actions[0].value
     console.log(dbId)
 
-    if (dbId == "") {
+    if (dbId == undefined) {
       const dbs = await notion.getDatabases()
       const metaData = {
         channel_id: body.channel.id,
@@ -93,21 +96,12 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
         database_id: dbId,
         page_size: 10,
       })
-      const urls = []
-      for (const page of res.results) {
-        if (page.object != "page") {
-          continue
-        }
-        if (!isFullPage(page)) {
-          continue
-        }
-        const title = notion.getPageTitle(page)
-        urls.push(`・ <${page.url}|${title}>`)
-      }
+      const urls = await notion.getPageUrls(res)
+      const nextCursor = res.has_more ? res.next_cursor : ""
 
       await client.views.open({
         trigger_id: body.trigger_id,
-        view: slack.searchResultModal(metaData, urls),
+        view: slack.searchResultModal(metaData, urls, nextCursor),
       })
     }
   } catch (error) {
@@ -116,40 +110,32 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
 });
 
 app.action('select_db-action', async({ack, body, client, logger}) => {
+  logger.info("select_db action called")
   ack()
 
   try {
-    logger.info("select_db action called")
-    // console.dir(body.view, {depth: null})
+    // console.dir(body, {depth: null})
     const pm = JSON.parse(body.view.private_metadata)
-    console.dir(pm, {depth: null})
+    console.dir({private_metadata: pm}, {depth: null})
 
     const dbName = body.view.state.values["select_db"][`select_db-action`].selected_option.text.text
     const dbId = body.view.state.values["select_db"][`select_db-action`].selected_option.value
     pm.selected_db_id = dbId
     pm.selected_db_name = dbName
+    console.dir({private_metadata: pm}, {depth: null})
 
     const res = await notion.client.databases.query({
       database_id: dbId,
       page_size: 10,
     })
-    const urls = []
-    for (const page of res.results) {
-      if (page.object != "page") {
-        continue
-      }
-      if (!isFullPage(page)) {
-        continue
-      }
-      const title = notion.getPageTitle(page)
-      urls.push(`・ <${page.url}|${title}>`)
-    }
+    const urls = await notion.getPageUrls(res)
+    const nextCursor = res.has_more ? res.next_cursor : ""    
+    pm.next_cursor = nextCursor
 
-    // プロパティ設定用モーダルに更新
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls),
+      view: slack.searchResultModal(pm, urls, nextCursor),
     })
   } catch (error) {
     logger.error(error)
@@ -157,11 +143,10 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
 })
 
 app.action('change_db-action', async({ack, body, client, logger}) => {
+  logger.info("change_db action called")
   ack()
 
   try {
-    console.log("change_db action called")
-
     const pm = JSON.parse(body.view.private_metadata)
     console.dir(pm, {depth: null})
 
@@ -176,12 +161,40 @@ app.action('change_db-action', async({ack, body, client, logger}) => {
   }
 })
 
-app.action('add_filter-action', async({ack, body, client, logger}) => {
+app.action('next_result-action', async({ack, body, client, logger}) => {
+  logger.info("next_result action called")
   ack()
 
   try {
-    console.log("add_filter action called")
+    console.dir(body.view.state.values, {depth: null})
 
+    const pm = JSON.parse(body.view.private_metadata)
+    console.dir({private_metadata: pm}, {depth: null})
+
+    const res = await notion.client.databases.query({
+      database_id: pm.selected_db_id,
+      start_cursor: pm.next_cursor,
+      page_size: 10,
+    })
+    const urls = await notion.getPageUrls(res)
+    const nextCursor = res.has_more ? res.next_cursor : ""
+    pm.next_cursor = nextCursor
+
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchResultModal(pm, urls, nextCursor),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
+app.action('add_filter-action', async({ack, body, client, logger}) => {
+  logger.info("add_filter action called")
+  ack()
+
+  try {
     const pm = JSON.parse(body.view.private_metadata)
     console.dir(pm, {depth: null})
 
@@ -206,10 +219,10 @@ app.action('add_filter-action', async({ack, body, client, logger}) => {
 })
 
 app.action('set_prop-action', async({ack, body, client, logger}) => {
+  logger.info("set_prop action called")
   ack()
 
   try {
-    logger.info("set_prop action called")
     const selectedPropName = body.view.state.values["set_prop"][`set_prop-action`].selected_option.value
     const selectedPropNameAndTypeText = body.view.state.values["set_prop"][`set_prop-action`].selected_option.text.text
     const propType = selectedPropNameAndTypeText.split(" (")[1] as string
@@ -289,72 +302,25 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
       },
       page_size: 10,
     })
-    const urls = []
-    for (const page of res.results) {
-      if (page.object != "page") {
-        continue
-      }
-      if (!isFullPage(page)) {
-        continue
-      }
-      const title = notion.getPageTitle(page)
-      urls.push(`・ <${page.url}|${title}>`)
-    }
+    const urls = await notion.getPageUrls(res)
 
     // プロパティ設定用モーダルに更新
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls),
+      view: slack.searchResultModal(pm, urls, res.next_cursor),
     })
   } catch (error) {
     logger.error(error)
   }
 });
-
-app.action("x-open-modal-button", async({ ack, body, client, logger}) => {
-  ack()
-  // console.log(body)
-  try {
-    // 指定DBのスキーマ情報よりselectブロックの情報を取得
-    const dbSchema = await notion.queryDbSchema();
-    console.dir(dbSchema.properties, {depth: null})
-
-    const selectProps = []
-    selectProps.push(dbSchema.properties["Media"])
-    selectProps.push(dbSchema.properties["出版社"])
-    // selectProps.push(dbSchema.properties["TagDB"])
-    console.log(selectProps)
-
-    // Get relation DB info
-    // @ts-ignore
-    // const relationOptions = await queryRelationDb(dbSchema.properties.TagDB.relation.database_id, "Name")
-    // for (const page of relationOptions) {
-    //   console.log(page.properties.Name.title[0].plain_text)
-    // }
-    // return
-
-    const metaData = {
-      channel_id: body.channel.id,
-      thread_ts: body.message.thread_ts,
-      selectProps: selectProps
-    }
-    await client.views.open({
-      trigger_id: body.trigger_id,
-      view: slack.searchBlock(JSON.stringify(metaData), selectProps),
-    })
-  } catch (error) {
-    logger.error(error)
-  }
-});
-
 
 // Receive modal submit action and reply result.
 app.view('search-db-modal', async({ack, view, client, logger}) => {
+  logger.info("search-db-modal view called")
   ack()
 
   try {
-    logger.info("search-db-modal view called")
     // console.log(view)
     const propValue = view.state.values["set_prop_value"][`set_prop_value-action`].selected_option.value
     //console.log(propValue)

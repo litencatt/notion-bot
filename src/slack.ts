@@ -44,8 +44,8 @@ export const searchDbView = (metaData: any, data: any[]) => {
   }
 }
 
-export const searchResultModal = (metaData: any, urls: any[]) => {
-  return {
+export const searchResultModal = (metaData: any, urls: any[], nextCursor: string) => {
+  let searchResultModalView = {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
     "callback_id": "search-db-modal",
@@ -62,7 +62,7 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
         "type": "header",
         "text": {
           "type": "plain_text",
-          "text": `database: ${metaData.selected_db_name}`
+          "text": `DB: ${metaData.selected_db_name}`
         },
       },
       {
@@ -72,7 +72,7 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
             "type": "button",
             "text": {
               "type": "plain_text",
-              "text": "Add Filter",
+              "text": "Add filter",
             },
             "action_id": "add_filter-action",
             "value": "click_add_filter",
@@ -93,14 +93,7 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "*検索結果*"
-        }
-      },
-      {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "フィルター:\n```" + JSON.stringify(metaData.filter) + "```"
+          "text": "*フィルター*\n```" + JSON.stringify(metaData.filter) + "```"
         }
       },
       {
@@ -110,24 +103,36 @@ export const searchResultModal = (metaData: any, urls: any[]) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": urls.join("\n")
+          "text": "*検索結果*"
         }
       },
       {
-        "type": "actions",
-        "elements": [
-          {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "text": "Next Results",
-            },
-            "value": "click_next_results",
-          },
-        ]
+        "type": "section",
+        "text": {
+          "type": "mrkdwn",
+          "text": urls.join("\n")
+        }
       }
     ]
   }
+  if (nextCursor) {
+    searchResultModalView.blocks[6] = {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Next Result",
+          },
+          "value": nextCursor,
+          "action_id": "next_result-action"
+        }
+      ]
+    } as any
+  }
+
+  return searchResultModalView
 }
 
 export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {

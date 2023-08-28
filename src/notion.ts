@@ -1,12 +1,13 @@
 import {
     Client,
     isFullDatabase,
+    isFullPage,
   } from '@notionhq/client'
 import {
   QueryDatabaseParameters,
-  QueryDatabaseResponse,
   GetDatabaseResponse,
   PageObjectResponse,
+  QueryDatabaseResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 
 export const client = new Client({
@@ -361,4 +362,19 @@ export const getDatabases = async () => {
     return a.title.localeCompare(b.title)
   })
   return sortedDbChoices
+}
+
+export const getPageUrls = async (res: QueryDatabaseResponse) => {
+  const urls = []
+  for (const page of res.results) {
+    if (page.object != "page") {
+      continue
+    }
+    if (!isFullPage(page)) {
+      continue
+    }
+    const title = getPageTitle(page)
+    urls.push(`・ <${page.url}|${title}>`)
+  }
+  return urls
 }
