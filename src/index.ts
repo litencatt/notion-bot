@@ -1,5 +1,4 @@
 const { App } = require('@slack/bolt');
-import { getPage } from "@notionhq/client/build/src/api-endpoints";
 import * as notion from "./notion"
 import * as slack from "./slack"
 import { isFullDatabase, isFullPage } from '@notionhq/client'
@@ -92,7 +91,14 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
         // @ts-ignore
         selected_db_name: db.title.length > 0 ? db.title[0].plain_text : "",
       }
-      const { urls, nextCursor } = await notion.getPageUrls(dbId)
+
+      const res = await client.databases.query({
+        database_id: dbId,
+        page_size: 10,
+      })
+      const urls = await notion.getPageUrls(res)
+      const nextCursor = res.has_more ? res.next_cursor : ""
+
       await client.views.open({
         trigger_id: body.trigger_id,
         view: slack.searchResultModal(metaData, urls, nextCursor),
@@ -118,8 +124,14 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     pm.selected_db_name = dbName
     console.dir({private_metadata: pm}, {depth: null})
 
-    const { urls, nextCursor } = await notion.getPageUrls(dbId)
+    const res = await client.databases.query({
+      database_id: dbId,
+      page_size: 10,
+    })
+    const urls = await notion.getPageUrls(res)
+    const nextCursor = res.has_more ? res.next_cursor : ""    
     pm.next_cursor = nextCursor
+
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
@@ -159,7 +171,12 @@ app.action('next_result-action', async({ack, body, client, logger}) => {
     const pm = JSON.parse(body.view.private_metadata)
     console.dir({private_metadata: pm}, {depth: null})
 
-    const { urls, nextCursor } = await notion.getPageUrls(pm.selected_db_id)
+    const res = await client.databases.query({
+      database_id: pm.selected_db_id,
+      page_size: 10,
+    })
+    const urls = await notion.getPageUrls(res)
+    const nextCursor = res.has_more ? res.next_cursor : ""
     pm.next_cursor = nextCursor
 
     await client.views.update({
@@ -284,17 +301,7 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
       },
       page_size: 10,
     })
-    const urls = []
-    for (const page of res.results) {
-      if (page.object != "page") {
-        continue
-      }
-      if (!isFullPage(page)) {
-        continue
-      }
-      const title = notion.getPageTitle(page)
-      urls.push(`・ <${page.url}|${title}>`)
-    }
+    const urls = await notion.getPageUrls(res)
 
     // プロパティ設定用モーダルに更新
     await client.views.update({

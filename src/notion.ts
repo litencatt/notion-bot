@@ -7,6 +7,7 @@ import {
   QueryDatabaseParameters,
   GetDatabaseResponse,
   PageObjectResponse,
+  QueryDatabaseResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 
 export const client = new Client({
@@ -363,12 +364,7 @@ export const getDatabases = async () => {
   return sortedDbChoices
 }
 
-export const getPageUrls = async (dbId: string) => {
-  const res = await client.databases.query({
-    database_id: dbId,
-    page_size: 10,
-  })
-  const nextCursor = res.has_more ? res.next_cursor : ""
+export const getPageUrls = async (res: QueryDatabaseResponse) => {
   const urls = []
   for (const page of res.results) {
     if (page.object != "page") {
@@ -380,6 +376,5 @@ export const getPageUrls = async (dbId: string) => {
     const title = getPageTitle(page)
     urls.push(`・ <${page.url}|${title}>`)
   }
-
-  return { urls, nextCursor }
+  return urls
 }
