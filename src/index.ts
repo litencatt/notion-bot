@@ -1,4 +1,5 @@
 const { App } = require('@slack/bolt');
+import { getPage } from "@notionhq/client/build/src/api-endpoints";
 import * as notion from "./notion"
 import * as slack from "./slack"
 import { isFullDatabase, isFullPage } from '@notionhq/client'
@@ -91,25 +92,7 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
         // @ts-ignore
         selected_db_name: db.title.length > 0 ? db.title[0].plain_text : "",
       }
-
-      const res = await notion.client.databases.query({
-        database_id: dbId,
-        page_size: 10,
-      })
-      const urls = []
-      for (const page of res.results) {
-        if (page.object != "page") {
-          continue
-        }
-        if (!isFullPage(page)) {
-          continue
-        }
-        const title = notion.getPageTitle(page)
-        urls.push(`・ <${page.url}|${title}>`)
-      }
-
-      let nextCursor = res.has_more ? res.next_cursor : ""
-      console.log(nextCursor)
+      const { urls, nextCursor } = await notion.getPageUrls(dbId)
       await client.views.open({
         trigger_id: body.trigger_id,
         view: slack.searchResultModal(metaData, urls, nextCursor),
@@ -135,28 +118,7 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     pm.selected_db_name = dbName
     console.dir({private_metadata: pm}, {depth: null})
 
-    // const start_cursor = body.actions[0].selected_option.value
-    const res = await notion.client.databases.query({
-      database_id: dbId,
-      page_size: 10,
-      start_cursor: undefined,
-    })
-    // console.dir({res}, {depth: null})
-
-    const urls = []
-    for (const page of res.results) {
-      if (page.object != "page") {
-        continue
-      }
-      if (!isFullPage(page)) {
-        continue
-      }
-      const title = notion.getPageTitle(page)
-      urls.push(`・ <${page.url}|${title}>`)
-    }
-    console.dir({urls}, {depth: null})
-
-    let nextCursor = res.has_more ? res.next_cursor : undefined
+    const { urls, nextCursor } = await notion.getPageUrls(dbId)
     pm.next_cursor = nextCursor
     await client.views.update({
       view_id: body.view.id,
@@ -197,28 +159,9 @@ app.action('next_result-action', async({ack, body, client, logger}) => {
     const pm = JSON.parse(body.view.private_metadata)
     console.dir({private_metadata: pm}, {depth: null})
 
-    const res = await notion.client.databases.query({
-      database_id: pm.selected_db_id,
-      page_size: 10,
-      start_cursor: pm.next_cursor,
-    })
-    // console.dir({res}, {depth: null})
-
-    const urls = []
-    for (const page of res.results) {
-      if (page.object != "page") {
-        continue
-      }
-      if (!isFullPage(page)) {
-        continue
-      }
-      const title = notion.getPageTitle(page)
-      urls.push(`・ <${page.url}|${title}>`)
-    }
-    console.dir({urls}, {depth: null})
-
-    let nextCursor = res.has_more ? res.next_cursor : undefined
+    const { urls, nextCursor } = await notion.getPageUrls(pm.selected_db_id)
     pm.next_cursor = nextCursor
+
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
@@ -363,43 +306,6 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
     logger.error(error)
   }
 });
-
-app.action("x-open-modal-button", async({ ack, body, client, logger}) => {
-  ack()
-  // console.log(body)
-  try {
-    // 指定DBのスキーマ情報よりselectブロックの情報を取得
-    const dbSchema = await notion.queryDbSchema();
-    console.dir(dbSchema.properties, {depth: null})
-
-    const selectProps = []
-    selectProps.push(dbSchema.properties["Media"])
-    selectProps.push(dbSchema.properties["出版社"])
-    // selectProps.push(dbSchema.properties["TagDB"])
-    console.log(selectProps)
-
-    // Get relation DB info
-    // @ts-ignore
-    // const relationOptions = await queryRelationDb(dbSchema.properties.TagDB.relation.database_id, "Name")
-    // for (const page of relationOptions) {
-    //   console.log(page.properties.Name.title[0].plain_text)
-    // }
-    // return
-
-    const metaData = {
-      channel_id: body.channel.id,
-      thread_ts: body.message.thread_ts,
-      selectProps: selectProps
-    }
-    await client.views.open({
-      trigger_id: body.trigger_id,
-      view: slack.searchBlock(JSON.stringify(metaData), selectProps),
-    })
-  } catch (error) {
-    logger.error(error)
-  }
-});
-
 
 // Receive modal submit action and reply result.
 app.view('search-db-modal', async({ack, view, client, logger}) => {
