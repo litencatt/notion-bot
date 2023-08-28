@@ -32,30 +32,30 @@ type metaData = {
 
 app.event('app_mention', async({ payload, say }) => {
   try {
-    // @bot database_id
-    const query = payload.text.split(" ");
-    let dbId = ""
-    if (query.length > 1) {
-      dbId = query[1]
-    }
-
-    const threadTs = payload.ts
-    await say({
-      thread_ts: threadTs,
-      blocks: [{
+    const modalMessage = {
+      "thread_ts": payload.ts,
+      "blocks": [{
         "type": "actions",
-        elements: [
+        "elements": [
         {
-          type: "button",
+          "type": "button",
           "text": {
               "type": "plain_text",
               "text": "モーダルを開いて検索する",
           },
-          "value": dbId,
           "action_id": "open-modal-button",
         }]
       }]
-    });
+    }
+
+    const query = payload.text.split(" ");
+    let dbId = null
+    if (query.length > 1) {
+      dbId = query[1]
+      modalMessage.blocks[0].elements[0]["value"] = dbId
+    }
+
+    await say(modalMessage);
   } catch (error) {
     console.log(error);
   }
@@ -69,7 +69,7 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
     const dbId = body.actions[0].value
     console.log(dbId)
 
-    if (dbId == "") {
+    if (dbId == undefined) {
       const dbs = await notion.getDatabases()
       const metaData = {
         channel_id: body.channel.id,
