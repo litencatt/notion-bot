@@ -30,7 +30,9 @@ type metaData = {
   filter?: any[],
 }
 
-app.event('app_mention', async({ payload, say }) => {
+app.event('app_mention', async({ logger, payload, say }) => {
+  logger.info("app_mention event called")
+
   try {
     const modalMessage = {
       "thread_ts": payload.ts,
@@ -62,6 +64,7 @@ app.event('app_mention', async({ payload, say }) => {
 });
 
 app.action("open-modal-button", async({ ack, body, client, logger}) => {
+  logger.info("open-modal-button action called")
   ack()
   // console.dir(body, {depth: null})
 
@@ -118,10 +121,10 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
 });
 
 app.action('select_db-action', async({ack, body, client, logger}) => {
+  logger.info("select_db action called")
   ack()
 
   try {
-    logger.info("select_db action called")
     // console.dir(body, {depth: null})
     const pm = JSON.parse(body.view.private_metadata)
     console.dir({private_metadata: pm}, {depth: null})
@@ -166,11 +169,10 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
 })
 
 app.action('change_db-action', async({ack, body, client, logger}) => {
+  logger.info("change_db action called")
   ack()
 
   try {
-    logger.info("change_db action called")
-
     const pm = JSON.parse(body.view.private_metadata)
     console.dir(pm, {depth: null})
 
@@ -186,10 +188,10 @@ app.action('change_db-action', async({ack, body, client, logger}) => {
 })
 
 app.action('next_result-action', async({ack, body, client, logger}) => {
+  logger.info("next_result action called")
   ack()
 
   try {
-    logger.info("next_result action called")
     console.dir(body.view.state.values, {depth: null})
 
     const pm = JSON.parse(body.view.private_metadata)
@@ -228,11 +230,10 @@ app.action('next_result-action', async({ack, body, client, logger}) => {
 })
 
 app.action('add_filter-action', async({ack, body, client, logger}) => {
+  logger.info("add_filter action called")
   ack()
 
   try {
-    console.log("add_filter action called")
-
     const pm = JSON.parse(body.view.private_metadata)
     console.dir(pm, {depth: null})
 
@@ -257,10 +258,10 @@ app.action('add_filter-action', async({ack, body, client, logger}) => {
 })
 
 app.action('set_prop-action', async({ack, body, client, logger}) => {
+  logger.info("set_prop action called")
   ack()
 
   try {
-    logger.info("set_prop action called")
     const selectedPropName = body.view.state.values["set_prop"][`set_prop-action`].selected_option.value
     const selectedPropNameAndTypeText = body.view.state.values["set_prop"][`set_prop-action`].selected_option.text.text
     const propType = selectedPropNameAndTypeText.split(" (")[1] as string
@@ -402,10 +403,10 @@ app.action("x-open-modal-button", async({ ack, body, client, logger}) => {
 
 // Receive modal submit action and reply result.
 app.view('search-db-modal', async({ack, view, client, logger}) => {
+  logger.info("search-db-modal view called")
   ack()
 
   try {
-    logger.info("search-db-modal view called")
     // console.log(view)
     const propValue = view.state.values["set_prop_value"][`set_prop_value-action`].selected_option.value
     //console.log(propValue)
