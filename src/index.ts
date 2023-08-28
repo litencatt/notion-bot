@@ -92,7 +92,7 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
         selected_db_name: db.title.length > 0 ? db.title[0].plain_text : "",
       }
 
-      const res = await client.databases.query({
+      const res = await notion.client.databases.query({
         database_id: dbId,
         page_size: 10,
       })
@@ -124,7 +124,7 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     pm.selected_db_name = dbName
     console.dir({private_metadata: pm}, {depth: null})
 
-    const res = await client.databases.query({
+    const res = await notion.client.databases.query({
       database_id: dbId,
       page_size: 10,
     })
@@ -171,7 +171,7 @@ app.action('next_result-action', async({ack, body, client, logger}) => {
     const pm = JSON.parse(body.view.private_metadata)
     console.dir({private_metadata: pm}, {depth: null})
 
-    const res = await client.databases.query({
+    const res = await notion.client.databases.query({
       database_id: pm.selected_db_id,
       page_size: 10,
     })
