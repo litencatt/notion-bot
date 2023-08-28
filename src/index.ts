@@ -173,6 +173,7 @@ app.action('next_result-action', async({ack, body, client, logger}) => {
 
     const res = await notion.client.databases.query({
       database_id: pm.selected_db_id,
+      start_cursor: pm.next_cursor,
       page_size: 10,
     })
     const urls = await notion.getPageUrls(res)
