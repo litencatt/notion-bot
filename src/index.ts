@@ -122,14 +122,15 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
 
   try {
     logger.info("select_db action called")
-    console.dir(body, {depth: null})
+    // console.dir(body, {depth: null})
     const pm = JSON.parse(body.view.private_metadata)
-    console.dir(pm, {depth: null})
+    console.dir({private_metadata: pm}, {depth: null})
 
     const dbName = body.view.state.values["select_db"][`select_db-action`].selected_option.text.text
     const dbId = body.view.state.values["select_db"][`select_db-action`].selected_option.value
     pm.selected_db_id = dbId
     pm.selected_db_name = dbName
+    console.dir({private_metadata: pm}, {depth: null})
 
     // const start_cursor = body.actions[0].selected_option.value
     const res = await notion.client.databases.query({
@@ -137,6 +138,8 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
       page_size: 10,
       start_cursor: undefined,
     })
+    console.dir({res}, {depth: null})
+
     const urls = []
     for (const page of res.results) {
       if (page.object != "page") {
@@ -148,12 +151,13 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
       const title = notion.getPageTitle(page)
       urls.push(`・ <${page.url}|${title}>`)
     }
+    console.dir({urls}, {depth: null})
 
-    // プロパティ設定用モーダルに更新
+    let nextCursor = res.has_more ? res.next_cursor : undefined
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls, res.next_cursor),
+      view: slack.searchResultModal(pm, urls, nextCursor),
     })
   } catch (error) {
     logger.error(error)

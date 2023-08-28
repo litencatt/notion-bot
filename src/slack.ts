@@ -45,7 +45,7 @@ export const searchDbView = (metaData: any, data: any[]) => {
 }
 
 export const searchResultModal = (metaData: any, urls: any[], nextCursor: string) => {
-  return {
+  let searchResultModalView = {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
     "callback_id": "search-db-modal",
@@ -112,22 +112,26 @@ export const searchResultModal = (metaData: any, urls: any[], nextCursor: string
           "type": "mrkdwn",
           "text": urls.join("\n")
         }
-      },
-      {
-        "type": "actions",
-        "elements": [
-          {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "text": "Next Results",
-            },
-            "value": nextCursor,
-          },
-        ]
       }
     ]
   }
+  if (nextCursor) {
+    searchResultModalView.blocks[6] = {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Next",
+          },
+          "value": nextCursor,
+        }
+      ]
+    } as any
+  }
+
+  return searchResultModalView
 }
 
 export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
