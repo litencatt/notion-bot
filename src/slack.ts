@@ -123,9 +123,10 @@ export const searchResultModal = (metaData: any, urls: any[], nextCursor: string
           "type": "button",
           "text": {
             "type": "plain_text",
-            "text": "Next",
+            "text": "Next Result",
           },
           "value": nextCursor,
+          "action_id": "next_result-action"
         }
       ]
     } as any

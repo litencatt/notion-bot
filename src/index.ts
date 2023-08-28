@@ -138,7 +138,7 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
       page_size: 10,
       start_cursor: undefined,
     })
-    console.dir({res}, {depth: null})
+    // console.dir({res}, {depth: null})
 
     const urls = []
     for (const page of res.results) {
@@ -154,6 +154,7 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     console.dir({urls}, {depth: null})
 
     let nextCursor = res.has_more ? res.next_cursor : undefined
+    pm.next_cursor = nextCursor
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
@@ -168,7 +169,7 @@ app.action('change_db-action', async({ack, body, client, logger}) => {
   ack()
 
   try {
-    console.log("change_db action called")
+    logger.info("change_db action called")
 
     const pm = JSON.parse(body.view.private_metadata)
     console.dir(pm, {depth: null})
@@ -178,6 +179,48 @@ app.action('change_db-action', async({ack, body, client, logger}) => {
       view_id: body.view.id,
       hash: body.view.hash,
       view: slack.searchDbView(pm, dbs),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
+app.action('next_result-action', async({ack, body, client, logger}) => {
+  ack()
+
+  try {
+    logger.info("next_result action called")
+    console.dir(body.view.state.values, {depth: null})
+
+    const pm = JSON.parse(body.view.private_metadata)
+    console.dir({private_metadata: pm}, {depth: null})
+
+    const res = await notion.client.databases.query({
+      database_id: pm.selected_db_id,
+      page_size: 10,
+      start_cursor: pm.next_cursor,
+    })
+    // console.dir({res}, {depth: null})
+
+    const urls = []
+    for (const page of res.results) {
+      if (page.object != "page") {
+        continue
+      }
+      if (!isFullPage(page)) {
+        continue
+      }
+      const title = notion.getPageTitle(page)
+      urls.push(`・ <${page.url}|${title}>`)
+    }
+    console.dir({urls}, {depth: null})
+
+    let nextCursor = res.has_more ? res.next_cursor : undefined
+    pm.next_cursor = nextCursor
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchResultModal(pm, urls, nextCursor),
     })
   } catch (error) {
     logger.error(error)
