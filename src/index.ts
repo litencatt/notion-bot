@@ -2,6 +2,7 @@ const { App } = require('@slack/bolt');
 import * as notion from "./notion"
 import * as slack from "./slack"
 import { isFullDatabase, isFullPage } from '@notionhq/client'
+import { QueryDatabaseParameters } from '@notionhq/client/build/src/api-endpoints'
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -27,37 +28,26 @@ type metaData = {
   thread_ts: string,
   selected_db_id?: string,
   selected_db_name?: string,
-  filter?: any[],
+  next_cursor?: string,
+  filterValues?: any[],
+  filters?: object
 }
 
 app.event('app_mention', async({ logger, payload, say }) => {
   logger.info("app_mention event called")
 
   try {
-    const modalMessage = {
-      "thread_ts": payload.ts,
-      "blocks": [{
-        "type": "actions",
-        "elements": [
-        {
-          "type": "button",
-          "text": {
-              "type": "plain_text",
-              "text": "モーダルを開いて検索する",
-          },
-          "action_id": "open-modal-button",
-        }]
-      }]
-    }
+    const modalButtonMessage = slack.modalButtonMessage(payload.thread_ts)
 
+    // If database id is passed, the default database is set to modal button.
     const query = payload.text.split(" ");
     let dbId = null
     if (query.length > 1) {
       dbId = query[1]
-      modalMessage.blocks[0].elements[0]["value"] = dbId
+      modalButtonMessage.blocks[0].elements[0]["value"] = dbId
     }
 
-    await say(modalMessage);
+    await say(modalButtonMessage);
   } catch (error) {
     console.log(error);
   }
@@ -70,7 +60,7 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
 
   try {
     const dbId = body.actions[0].value
-    console.log(dbId)
+    console.log(`dbId: ${dbId}`)
 
     if (dbId == undefined) {
       const dbs = await notion.getDatabases()
@@ -84,12 +74,12 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
       })
     } else {
       const db = await notion.retrieveDb(dbId, {})
-      const metaData = {
+      const dbTitle = await notion.getDatabaseTitle(db)
+      const metaData: metaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
         selected_db_id: dbId,
-        // @ts-ignore
-        selected_db_name: db.title.length > 0 ? db.title[0].plain_text : "",
+        selected_db_name: dbTitle,
       }
 
       const res = await notion.client.databases.query({
@@ -98,10 +88,11 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
       })
       const urls = await notion.getPageUrls(res)
       const nextCursor = res.has_more ? res.next_cursor : ""
+      metaData.next_cursor = nextCursor
 
       await client.views.open({
         trigger_id: body.trigger_id,
-        view: slack.searchResultModal(metaData, urls, nextCursor),
+        view: slack.searchPagesResultView(metaData, urls),
       })
     }
   } catch (error) {
@@ -115,14 +106,14 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
 
   try {
     // console.dir(body, {depth: null})
-    const pm = JSON.parse(body.view.private_metadata)
-    console.dir({private_metadata: pm}, {depth: null})
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    console.dir({private_metadata: metaData}, {depth: null})
 
     const dbName = body.view.state.values["select_db"][`select_db-action`].selected_option.text.text
     const dbId = body.view.state.values["select_db"][`select_db-action`].selected_option.value
-    pm.selected_db_id = dbId
-    pm.selected_db_name = dbName
-    console.dir({private_metadata: pm}, {depth: null})
+    metaData.selected_db_id = dbId
+    metaData.selected_db_name = dbName
+    console.dir({private_metadata: metaData}, {depth: null})
 
     const res = await notion.client.databases.query({
       database_id: dbId,
@@ -130,12 +121,12 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     })
     const urls = await notion.getPageUrls(res)
     const nextCursor = res.has_more ? res.next_cursor : ""    
-    pm.next_cursor = nextCursor
+    metaData.next_cursor = nextCursor
 
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls, nextCursor),
+      view: slack.searchPagesResultView(metaData, urls),
     })
   } catch (error) {
     logger.error(error)
@@ -147,14 +138,14 @@ app.action('change_db-action', async({ack, body, client, logger}) => {
   ack()
 
   try {
-    const pm = JSON.parse(body.view.private_metadata)
-    console.dir(pm, {depth: null})
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    console.dir(metaData, {depth: null})
 
     const dbs = await notion.getDatabases()
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchDbView(pm, dbs),
+      view: slack.searchDbView(metaData, dbs),
     })
   } catch (error) {
     logger.error(error)
@@ -168,22 +159,22 @@ app.action('next_result-action', async({ack, body, client, logger}) => {
   try {
     console.dir(body.view.state.values, {depth: null})
 
-    const pm = JSON.parse(body.view.private_metadata)
-    console.dir({private_metadata: pm}, {depth: null})
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    console.dir({private_metadata: metaData}, {depth: null})
 
     const res = await notion.client.databases.query({
-      database_id: pm.selected_db_id,
-      start_cursor: pm.next_cursor,
+      database_id: metaData.selected_db_id,
+      start_cursor: metaData.next_cursor,
       page_size: 10,
     })
     const urls = await notion.getPageUrls(res)
     const nextCursor = res.has_more ? res.next_cursor : ""
-    pm.next_cursor = nextCursor
+    metaData.next_cursor = nextCursor
 
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls, nextCursor),
+      view: slack.searchPagesResultView(metaData, urls),
     })
   } catch (error) {
     logger.error(error)
@@ -195,56 +186,91 @@ app.action('add_filter-action', async({ack, body, client, logger}) => {
   ack()
 
   try {
-    const pm = JSON.parse(body.view.private_metadata)
-    console.dir(pm, {depth: null})
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    console.dir(metaData, {depth: null})
 
-    // DBのプロパティ取得
-    const selectedDb = await notion.retrieveDb(pm.selected_db_id, {})
-    const dbProps = []
-    Object.entries(selectedDb.properties).forEach(([_, prop]) => {
-      dbProps.push({
-        prop_name: prop.name,
-        prop_type: prop.type
-      })
-    })
-
+    const selectedDb = await notion.retrieveDb(metaData.selected_db_id, {})
+    const dbProps = notion.buildFilterPropertyOptions(selectedDb)
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchDbView2(pm, dbProps, pm.selected_db_name),
+      view: slack.selectFilterPropertyView(metaData, dbProps),
     })
   } catch (error) {
     logger.error(error)
   }
 })
 
-app.action('set_prop-action', async({ack, body, client, logger}) => {
-  logger.info("set_prop action called")
+
+app.action('clear_filter-action', async({ack, body, client, logger}) => {
+  logger.info("add_filter action called")
   ack()
 
   try {
-    const selectedPropName = body.view.state.values["set_prop"][`set_prop-action`].selected_option.value
-    const selectedPropNameAndTypeText = body.view.state.values["set_prop"][`set_prop-action`].selected_option.text.text
-    const propType = selectedPropNameAndTypeText.split(" (")[1] as string
-    const type = propType.substring(0, propType.length - 1)
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    console.dir(metaData, {depth: null})
 
-    const pm = JSON.parse(body.view.private_metadata)
-    if (pm.filter == null) {
-      pm.filter = []
-    }
-    pm.filter.push({
-      prop_name: selectedPropName,
-      prop_type: type,
+    metaData.filterValues = []
+    metaData.filters = null
+
+    const res = await notion.client.databases.query({
+      database_id: metaData.selected_db_id,
+      page_size: 10,
     })
-    logger.info(pm)
-
-    const filterFields = await notion.getFilterFields(type)
-    logger.info(filterFields)
+    const urls = await notion.getPageUrls(res)
+    const nextCursor = res.has_more ? res.next_cursor : ""
+    metaData.next_cursor = nextCursor
 
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchDbView3(pm, filterFields),
+      view: slack.searchPagesResultView(metaData, urls),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
+app.action('select_prop-action', async({ack, body, client, logger}) => {
+  logger.info("select_prop action called")
+  ack()
+
+  try {
+    console.dir(body.view.state.values, {depth: null})
+    const selectedOption = body.view.state.values["select_prop"][`select_prop-action`].selected_option
+    const selectedPropName = selectedOption.value
+    // Convert "Name (type)" to "type"
+    const selectedPropNameAndType = selectedOption.text.text
+    let selectedPropType = selectedPropNameAndType.split(" (")[1] as string
+    selectedPropType = selectedPropType.substring(0, selectedPropType.length - 1)
+
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    if (metaData.filterValues == null) {
+      metaData.filterValues = []
+    }
+    metaData.filterValues.push({
+      prop_name: selectedPropName,
+      prop_type: selectedPropType,
+    })
+    logger.info(metaData)
+
+    const filterFields = await notion.getFilterFields(selectedPropType)
+    const filterFieldOptions = []
+    for (const field of filterFields) {
+      filterFieldOptions.push({
+        text: {
+          type: "plain_text",
+          text: field
+        },
+        value: field
+      })
+    }
+    logger.info(filterFieldOptions)
+
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.selectFilterPropertyFieldView(metaData, selectedPropNameAndType, filterFieldOptions),
     })
   } catch (error) {
     logger.error(error)
@@ -256,20 +282,40 @@ app.action('set_prop_field-action', async({ack, body, client, logger}) => {
   ack()
 
   try {
-    const pm = JSON.parse(body.view.private_metadata)
-    console.dir(pm, {depth: null})
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    console.dir(metaData, {depth: null})
     console.dir(body.view.state.values, {depth: null})
 
-    const propField = body.view.state.values["set_prop_field"][`set_prop_field-action`].selected_option.value
-    pm.filter[pm.filter.length - 1].prop_field = propField
+    const selectedOption = body.view.state.values["set_prop_field"][`set_prop_field-action`].selected_option
+    const selectedPropertyField = selectedOption.value
+    metaData.filterValues[metaData.filterValues.length - 1].prop_field = selectedPropertyField
 
-    const res = await notion.retrieveDb(pm.selected_db_id, {})
-    const props = await notion.getSelectedDbPropValues(res, pm.filter[pm.filter.length - 1].prop_name)
-    console.dir(props, {depth: null})
+    // typeがselectなどの場合は選択中のDBの指定プロパティの値を取得して選択肢にする
+    // それ以外は入力欄を表示
+    const res = await notion.retrieveDb(metaData.selected_db_id, {})
+    const selectedPropName = metaData.filterValues[metaData.filterValues.length - 1].prop_name
+    const dbPropValues = await notion.getSelectedDbPropValues(res, selectedPropName)
+    console.dir(dbPropValues, {depth: null})
+    const selectDbPropValueOptions = []
+    for (const o of dbPropValues) {
+      selectDbPropValueOptions.push({
+        text: {
+          type: "plain_text",
+          text: o
+        },
+        value: o
+      })
+    }
+
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchDbView4(pm, props),
+      view: slack.selectFilterValueView(
+          metaData,
+          selectedPropName,
+          selectedPropertyField,
+          selectDbPropValueOptions
+        ),
     })
   } catch (error) {
     logger.error(error)
@@ -281,25 +327,35 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
   ack();
 
   try {
-    const pm = JSON.parse(body.view.private_metadata)
-    console.dir(pm, {depth: null})
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    console.dir(metaData, {depth: null})
 
     const propValue = body.view.state.values["set_prop_value"][`set_prop_value-action`].selected_option.value
-    pm.filter[pm.filter.length - 1].prop_value = propValue
-    console.dir(pm.filter, {depth: null})
+    const currentFilterIndex = metaData.filterValues.length - 1
+    metaData.filterValues[currentFilterIndex].prop_value = propValue
+
+    const currentFilterValue = metaData.filterValues[currentFilterIndex]
+    const currentFilter = notion.buildDatabaseQueryFilter(
+      currentFilterValue.prop_name,
+      currentFilterValue.prop_type,
+      currentFilterValue.prop_field,
+      currentFilterValue.prop_value
+    )
+    console.dir(currentFilter, {depth: null})
+
+    if (metaData.filters == null) {
+      metaData.filters = {
+        and: [currentFilter]
+      }
+    } else {
+      metaData.filters["and"].push(currentFilter)
+    }
+
+    console.dir(metaData, {depth: null})
 
     const res = await notion.client.databases.query({
-      database_id: pm.selected_db_id,
-      filter: {
-        and: pm.filter.map(f => {
-          return {
-            property: f.prop_name,
-            [f.prop_type]: {
-              [f.prop_field]: f.prop_value
-            }
-          }
-        })
-      },
+      database_id: metaData.selected_db_id,
+      filter: metaData.filters as QueryDatabaseParameters["filter"],
       page_size: 10,
     })
     const urls = await notion.getPageUrls(res)
@@ -308,7 +364,7 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls, res.next_cursor),
+      view: slack.searchPagesResultView(metaData, urls),
     })
   } catch (error) {
     logger.error(error)

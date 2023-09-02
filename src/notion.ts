@@ -364,6 +364,16 @@ export const getDatabases = async () => {
   return sortedDbChoices
 }
 
+export const getDatabaseTitle = async (db: GetDatabaseResponse) => {
+  if (db.object != "database") {
+    return "Untitled"
+  }
+  if (!isFullDatabase(db)) {
+    return "Untitled"
+  }
+  return db.title.length > 0 ? db.title[0].plain_text : "Untitled"
+}
+
 export const getPageUrls = async (res: QueryDatabaseResponse) => {
   const urls = []
   for (const page of res.results) {
@@ -377,4 +387,89 @@ export const getPageUrls = async (res: QueryDatabaseResponse) => {
     urls.push(`・ <${page.url}|${title}>`)
   }
   return urls
+}
+
+export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
+  const propOptions = []
+  Object.entries(db.properties).forEach(([_, prop]) => {
+    propOptions.push({
+      text: {
+        type: "plain_text",
+        text: `${prop.name} (${prop.type})`,
+      },
+      value: prop.name
+    })
+  })
+  return propOptions
+}
+
+export const buildDatabaseQueryFilter = (
+  name: string,
+  type: string,
+  field: string,
+  value: string | string[] | boolean
+): QueryDatabaseParameters["filter"] =>  {
+  let filter = null
+  switch (type) {
+    case 'checkbox':
+      filter = {
+        property: name,
+        [type]: {
+          // boolean value
+          [field]: value == 'true'
+        }
+      }
+      break
+    case 'date':
+    case 'created_time':
+    case 'last_edited_time':
+    case 'rich_text':
+    case 'number':
+    case 'select':
+    case 'status':
+    case 'title':
+      filter = {
+        property: name,
+        [type]: {
+          [field]: value
+        }
+      }
+      break
+    case 'multi_select':
+    case 'relation':
+      filter = {
+        property: name,
+        [type]: {
+          [field]: value
+        }
+      }
+      // const values = value as string[]
+      // if (values.length == 1) {
+      //   filter = {
+      //     property: name,
+      //     [type]: {
+      //       [field]: value[0]
+      //     }
+      //   }
+      // } else {
+      //   filter = { and: [] }
+      //   for (const v of values) {
+      //     filter.and.push({
+      //       property: name,
+      //       [type]: {
+      //         [field]: v
+      //       }
+      //     })
+      //   }
+      // }
+      break
+
+    case 'files':
+    case 'formula':
+    case 'people':
+    case 'rollup':
+    default:
+      console.error(`type: ${type} is not support type`)
+  }
+  return filter
 }

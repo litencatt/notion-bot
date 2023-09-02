@@ -1,3 +1,21 @@
+export const modalButtonMessage = (thread_ts: string) => {
+  return {
+    "thread_ts": thread_ts,
+    "blocks": [{
+      "type": "actions",
+      "elements": [
+      {
+        "type": "button",
+        "text": {
+            "type": "plain_text",
+            "text": "モーダルを開いて検索する",
+        },
+        "action_id": "open-modal-button",
+      }]
+    }]
+  }
+}
+
 export const searchDbView = (metaData: any, data: any[]) => {
   const dbOptions = []
   for (const db of data) {
@@ -44,8 +62,8 @@ export const searchDbView = (metaData: any, data: any[]) => {
   }
 }
 
-export const searchResultModal = (metaData: any, urls: any[], nextCursor: string) => {
-  let searchResultModalView = {
+export const searchPagesResultView = (metaData: any, urls: any[]) => {
+  let view = {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
     "callback_id": "search-db-modal",
@@ -81,6 +99,15 @@ export const searchResultModal = (metaData: any, urls: any[], nextCursor: string
             "type": "button",
             "text": {
               "type": "plain_text",
+              "text": "Clear filter",
+            },
+            "action_id": "clear_filter-action",
+            "value": "click_clear_filter",
+          },
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
               "text": "Change database",
             },
             "style": "primary",
@@ -93,7 +120,7 @@ export const searchResultModal = (metaData: any, urls: any[], nextCursor: string
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "*フィルター*\n```" + JSON.stringify(metaData.filter) + "```"
+          "text": "*フィルター*: なし"
         }
       },
       {
@@ -115,8 +142,12 @@ export const searchResultModal = (metaData: any, urls: any[], nextCursor: string
       }
     ]
   }
-  if (nextCursor) {
-    searchResultModalView.blocks[6] = {
+  if (metaData.filters) {
+    view.blocks[2].text.text = "*フィルター*"
+    view.blocks[2].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
+  }
+  if (metaData.next_cursor) {
+    view.blocks[6] = {
       "type": "actions",
       "elements": [
         {
@@ -125,27 +156,17 @@ export const searchResultModal = (metaData: any, urls: any[], nextCursor: string
             "type": "plain_text",
             "text": "Next Result",
           },
-          "value": nextCursor,
+          "value": metaData.next_cursor,
           "action_id": "next_result-action"
         }
       ]
     } as any
   }
 
-  return searchResultModalView
+  return view
 }
 
-export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
-  const propOptions = []
-  for (const prop of data) {
-    propOptions.push({
-      text: {
-        type: "plain_text",
-        text: `${prop.prop_name} (${prop.prop_type})`,
-      },
-      value: prop.prop_name
-    })
-  }
+export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
   return {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
@@ -160,16 +181,16 @@ export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
     },
     "blocks": [
       {
-        "block_id": "select_db",
+        "block_id": "selected_db",
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected DB: ${dbName}`,
+          "text": `DB: ${metaData.selected_db_name}`,
           "emoji": true
         }
       },
       {
-        "block_id": "set_prop",
+        "block_id": "select_prop",
         "type": "section",
         "text": {
           "type": "mrkdwn",
@@ -183,24 +204,18 @@ export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
             "emoji": true
           },
           "options": propOptions,
-          "action_id": "set_prop-action"
+          "action_id": "select_prop-action"
         }
       },
     ]
   }
 }
 
-export const searchDbView3 = (metaData: any, data: string[]) => {
-  const propFields = []
-  for (const field of data) {
-    propFields.push({
-      text: {
-        type: "plain_text",
-        text: field
-      },
-      value: field
-    })
-  }
+export const selectFilterPropertyFieldView = (
+  metaData: any,
+  selectedPropNameAndType:string,
+  filterFieldOptions: string[]
+) => {
   return {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
@@ -219,7 +234,7 @@ export const searchDbView3 = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected DB: ${metaData.selected_db_name}`,
+          "text": `DB: ${metaData.selected_db_name}`,
           "emoji": true
         }
       },
@@ -228,7 +243,7 @@ export const searchDbView3 = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected Property: ${metaData.selected_prop_name}`,
+          "text": `Property: ${selectedPropNameAndType}`,
           "emoji": true
         }
       },
@@ -246,7 +261,7 @@ export const searchDbView3 = (metaData: any, data: string[]) => {
             "text": "Select a field",
             "emoji": true
           },
-          "options": propFields,
+          "options": filterFieldOptions,
           "action_id": "set_prop_field-action"
         },
       }
@@ -254,17 +269,12 @@ export const searchDbView3 = (metaData: any, data: string[]) => {
   }
 }
 
-export const searchDbView4 = (metaData: any, data: string[]) => {
-  const propOptions = []
-  for (const o of data) {
-    propOptions.push({
-      text: {
-        type: "plain_text",
-        text: o
-      },
-      value: o
-    })
-  }
+export const selectFilterValueView = (
+  metaData: any,
+  selectedPropName: string,
+  selectedPropertyField: string,
+  selectDbPropValueOptions: string[]
+) => {
   return {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
@@ -283,7 +293,7 @@ export const searchDbView4 = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected DB: ${metaData.selected_db_name}`,
+          "text": `DB: ${metaData.selected_db_name}`,
           "emoji": true
         }
       },
@@ -292,7 +302,7 @@ export const searchDbView4 = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected Property: ${metaData.selected_prop_name}`,
+          "text": `Property: ${selectedPropName}`,
           "emoji": true
         }
       },
@@ -301,7 +311,7 @@ export const searchDbView4 = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected field: ${metaData.selected_prop_field}`,
+          "text": `field: ${selectedPropertyField}`,
           "emoji": true
         }
       },
@@ -319,7 +329,7 @@ export const searchDbView4 = (metaData: any, data: string[]) => {
             "text": "Select a field",
             "emoji": true
           },
-          "options": propOptions,
+          "options": selectDbPropValueOptions,
           "action_id": "set_prop_value-action"
         },
       }
