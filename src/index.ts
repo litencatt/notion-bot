@@ -256,10 +256,11 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
     const selectedOption =
       body.view.state.values["select_prop_field"]["select_prop_field-action"].selected_option
     const selectedPropertyField = selectedOption.value
-    metaData.filter_values[metaData.filter_values.length - 1].prop_field = selectedPropertyField
+
+    const currentFilterIndex = metaData.filter_values.length - 1
+    metaData.filter_values[currentFilterIndex].prop_field = selectedPropertyField
 
     if (["is_empty", "is_not_empty"].includes(selectedPropertyField)) {
-      const currentFilterIndex = metaData.filter_values.length - 1
       const currentFilterValue = metaData.filter_values[currentFilterIndex]
       currentFilterValue.prop_value = true
       const currentFilter = notion.buildDatabaseQueryFilter(currentFilterValue)
