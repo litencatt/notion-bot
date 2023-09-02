@@ -237,7 +237,7 @@ app.action('select_prop-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.selectFilterPropertyFieldView(metaData, filterFieldOptions),
+      view: slack.selectFilterPropertyFieldView(metaData, selectedPropNameAndType, filterFieldOptions),
     })
   } catch (error) {
     logger.error(error)
