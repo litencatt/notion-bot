@@ -210,7 +210,9 @@ app.action('clear_filter-action', async({ack, body, client, logger}) => {
     const metaData = JSON.parse(body.view.private_metadata) as metaData
     console.dir(metaData, {depth: null})
 
+    metaData.filterValues = []
     metaData.filters = null
+
     const res = await notion.client.databases.query({
       database_id: metaData.selected_db_id,
       page_size: 10,
