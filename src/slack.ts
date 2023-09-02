@@ -68,6 +68,7 @@ export const searchDbView = (metaData: any, data: any[]) => {
 }
 
 export const searchPagesResultView = (metaData: any, urls: any[]) => {
+  const dbId = metaData.selected_db_id.replace(/-/g, "")
   let view = {
     private_metadata: JSON.stringify(metaData),
     type: "modal",
@@ -82,10 +83,20 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
     },
     blocks: [
       {
-        type: "header",
+        type: "section",
         text: {
-          type: "plain_text",
-          text: `DB: ${metaData.selected_db_name}`,
+          type: "mrkdwn",
+          text: `*DB: <https://www.notion.so/${dbId}|${metaData.selected_db_name}>*`,
+        },
+        accessory: {
+          type: "button",
+          text: {
+            type: "plain_text",
+            text: "Change database",
+          },
+          style: "primary",
+          action_id: "change_db-action",
+          value: "click_change_db",
         },
       },
       {
@@ -108,16 +119,6 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
             },
             action_id: "clear_filter-action",
             value: "click_clear_filter",
-          },
-          {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "Change database",
-            },
-            style: "primary",
-            action_id: "change_db-action",
-            value: "click_change_db",
           },
         ],
       },
