@@ -99,6 +99,15 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
             "type": "button",
             "text": {
               "type": "plain_text",
+              "text": "Clear filter",
+            },
+            "action_id": "clear_filter-action",
+            "value": "click_clear_filter",
+          },
+          {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
               "text": "Change database",
             },
             "style": "primary",
@@ -111,7 +120,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          "text": "*フィルター*\n```" + JSON.stringify(metaData.filter) + "```"
+          "text": "*フィルター*: なし"
         }
       },
       {
@@ -132,6 +141,10 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
         }
       }
     ]
+  }
+  if (metaData.filters) {
+    view.blocks[2].text.text = "*フィルター*"
+    view.blocks[2].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
   }
   if (metaData.next_cursor) {
     view.blocks[6] = {
