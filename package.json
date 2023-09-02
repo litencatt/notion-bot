@@ -1,9 +1,9 @@
 {
-  "name": "summoner",
-  "version": "0.0.1",
-  "description": "Summon docs link to slack",
+  "name": "notion-bot",
+  "version": "0.1.0",
+  "description": "Notion database search bot",
   "main": "dist/index.js",
-  "repository": "ssh://git@github.com/litencatt/summoner.git",
+  "repository": "litencatt/notion-bot",
   "author": "litencatt",
   "license": "MIT",
   "scripts": {
