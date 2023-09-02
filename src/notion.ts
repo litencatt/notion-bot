@@ -416,6 +416,20 @@ export const getPageUrls = async (res: QueryDatabaseResponse) => {
 export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
   const propOptions = []
   Object.entries(db.properties).forEach(([_, prop]) => {
+    // Hide not supported types
+    switch (prop.type) {
+      case "date":
+      case "created_time":
+      case "last_edited_time":
+      case "number":
+      case "files":
+      case "formula":
+      case "people":
+      case "rollup":
+      case "unique_id":
+        return
+    }
+
     propOptions.push({
       text: {
         type: "plain_text",
