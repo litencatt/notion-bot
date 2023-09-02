@@ -153,7 +153,7 @@ export const searchPagesResultView = (metaData: any, urls: any[], nextCursor: st
   return view
 }
 
-export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
+export const selectFilterPropertyView = (metaData: any, data: any[], dbName: string) => {
   const propOptions = []
   for (const prop of data) {
     propOptions.push({
@@ -208,7 +208,7 @@ export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {
   }
 }
 
-export const searchDbView3 = (metaData: any, data: string[]) => {
+export const selectFilterPropertyFieldView = (metaData: any, data: string[]) => {
   const propFields = []
   for (const field of data) {
     propFields.push({
@@ -272,7 +272,7 @@ export const searchDbView3 = (metaData: any, data: string[]) => {
   }
 }
 
-export const searchDbView4 = (metaData: any, data: string[]) => {
+export const selectFilterValueView = (metaData: any, data: string[]) => {
   const propOptions = []
   for (const o of data) {
     propOptions.push({

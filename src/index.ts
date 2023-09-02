@@ -199,7 +199,7 @@ app.action('add_filter-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchDbView2(metaData, dbProps, metaData.selected_db_name),
+      view: slack.selectFilterPropertyView(metaData, dbProps, metaData.selected_db_name),
     })
   } catch (error) {
     logger.error(error)
@@ -232,7 +232,7 @@ app.action('set_prop-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchDbView3(pm, filterFields),
+      view: slack.selectFilterPropertyFieldView(pm, filterFields),
     })
   } catch (error) {
     logger.error(error)
@@ -257,7 +257,7 @@ app.action('set_prop_field-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchDbView4(metaData, props),
+      view: slack.selectFilterValueView(metaData, props),
     })
   } catch (error) {
     logger.error(error)
