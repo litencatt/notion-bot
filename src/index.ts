@@ -216,15 +216,15 @@ app.action('set_prop-action', async({ack, body, client, logger}) => {
     const propType = selectedPropNameAndTypeText.split(" (")[1] as string
     const type = propType.substring(0, propType.length - 1)
 
-    const pm = JSON.parse(body.view.private_metadata) as metaData
-    if (pm.filters == null) {
-      pm.filters = []
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    if (metaData.filters == null) {
+      metaData.filters = []
     }
-    pm.filters.push({
+    metaData.filters.push({
       prop_name: selectedPropName,
       prop_type: type,
     })
-    logger.info(pm)
+    logger.info(metaData)
 
     const filterFields = await notion.getFilterFields(type)
     logger.info(filterFields)
@@ -232,7 +232,7 @@ app.action('set_prop-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.selectFilterPropertyFieldView(pm, filterFields),
+      view: slack.selectFilterPropertyFieldView(metaData, filterFields),
     })
   } catch (error) {
     logger.error(error)
