@@ -244,37 +244,37 @@ export const getFilterFields = async (type: string) => {
     case "checkbox":
       return ["equals", "does_not_equal"]
 
-    case "date":
-    case "created_time":
-    case "last_edited_time":
-      return [
-        "after",
-        "before",
-        "equals",
-        "is_empty",
-        "is_not_empty",
-        "next_month",
-        "next_week",
-        "next_year",
-        "on_or_after",
-        "on_or_before",
-        "past_month",
-        "past_week",
-        "past_year",
-        "this_week",
-      ]
-
     case "rich_text":
     case "title":
       return [
         "contains",
         "does_not_contain",
-        "does_not_equal",
-        "ends_with",
         "equals",
+        "does_not_equal",
+        "starts_with",
+        "ends_with",
         "is_empty",
         "is_not_empty",
-        "starts_with",
+      ]
+
+    case "date":
+    case "created_time":
+    case "last_edited_time":
+      return [
+        "equals",
+        "before",
+        "after",
+        "on_or_before",
+        "on_or_after",
+        "this_week",
+        "next_week",
+        "next_month",
+        "next_year",
+        "past_week",
+        "past_month",
+        "past_year",
+        "is_empty",
+        "is_not_empty",
       ]
 
     case "number":
