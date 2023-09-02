@@ -256,17 +256,12 @@ export const selectFilterPropertyFieldView = (
   }
 }
 
-export const selectFilterValueView = (metaData: any, data: string[]) => {
-  const propOptions = []
-  for (const o of data) {
-    propOptions.push({
-      text: {
-        type: "plain_text",
-        text: o
-      },
-      value: o
-    })
-  }
+export const selectFilterValueView = (
+  metaData: any,
+  selectedPropName: string,
+  selectedPropertyField: string,
+  selectDbPropValueOptions: string[]
+) => {
   return {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
@@ -285,7 +280,7 @@ export const selectFilterValueView = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected DB: ${metaData.selected_db_name}`,
+          "text": `DB: ${metaData.selected_db_name}`,
           "emoji": true
         }
       },
@@ -294,7 +289,7 @@ export const selectFilterValueView = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected Property: ${metaData.selected_prop_name}`,
+          "text": `Property: ${selectedPropName}`,
           "emoji": true
         }
       },
@@ -303,7 +298,7 @@ export const selectFilterValueView = (metaData: any, data: string[]) => {
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected field: ${metaData.selected_prop_field}`,
+          "text": `field: ${selectedPropertyField}`,
           "emoji": true
         }
       },
@@ -321,7 +316,7 @@ export const selectFilterValueView = (metaData: any, data: string[]) => {
             "text": "Select a field",
             "emoji": true
           },
-          "options": propOptions,
+          "options": selectDbPropValueOptions,
           "action_id": "set_prop_value-action"
         },
       }

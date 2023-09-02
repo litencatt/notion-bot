@@ -253,16 +253,36 @@ app.action('set_prop_field-action', async({ack, body, client, logger}) => {
     console.dir(metaData, {depth: null})
     console.dir(body.view.state.values, {depth: null})
 
-    const propField = body.view.state.values["set_prop_field"][`set_prop_field-action`].selected_option.value
-    metaData.filters[metaData.filters.length - 1].prop_field = propField
+    const selectedOption = body.view.state.values["set_prop_field"][`set_prop_field-action`].selected_option
+    const selectedPropertyField = selectedOption.value
+    metaData.filters[metaData.filters.length - 1].prop_field = selectedPropertyField
 
+    // typeがselectなどの場合は選択中のDBの指定プロパティの値を取得して選択肢にする
+    // それ以外は入力欄を表示
     const res = await notion.retrieveDb(metaData.selected_db_id, {})
-    const props = await notion.getSelectedDbPropValues(res, metaData.filters[metaData.filters.length - 1].prop_name)
-    console.dir(props, {depth: null})
+    const selectedPropName = metaData.filters[metaData.filters.length - 1].prop_name
+    const dbPropValues = await notion.getSelectedDbPropValues(res, selectedPropName)
+    console.dir(dbPropValues, {depth: null})
+    const selectDbPropValueOptions = []
+    for (const o of dbPropValues) {
+      selectDbPropValueOptions.push({
+        text: {
+          type: "plain_text",
+          text: o
+        },
+        value: o
+      })
+    }
+
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.selectFilterValueView(metaData, props),
+      view: slack.selectFilterValueView(
+          metaData,
+          selectedPropName,
+          selectedPropertyField,
+          selectDbPropValueOptions
+        ),
     })
   } catch (error) {
     logger.error(error)
