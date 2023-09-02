@@ -437,25 +437,31 @@ export const buildDatabaseQueryFilter = (
       break
     case 'multi_select':
     case 'relation':
-      const values = value as string[]
-      if (values.length == 1) {
-        filter = {
-          property: name,
-          [type]: {
-            [field]: value[0]
-          }
-        }
-      } else {
-        filter = { and: [] }
-        for (const v of values) {
-          filter.and.push({
-            property: name,
-            [type]: {
-              [field]: v
-            }
-          })
+      filter = {
+        property: name,
+        [type]: {
+          [field]: value
         }
       }
+      // const values = value as string[]
+      // if (values.length == 1) {
+      //   filter = {
+      //     property: name,
+      //     [type]: {
+      //       [field]: value[0]
+      //     }
+      //   }
+      // } else {
+      //   filter = { and: [] }
+      //   for (const v of values) {
+      //     filter.and.push({
+      //       property: name,
+      //       [type]: {
+      //         [field]: v
+      //       }
+      //     })
+      //   }
+      // }
       break
 
     case 'files':

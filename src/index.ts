@@ -29,7 +29,8 @@ type metaData = {
   selected_db_id?: string,
   selected_db_name?: string,
   next_cursor?: string,
-  filters?: any[],
+  filterValues?: any[],
+  filters?: object
 }
 
 app.event('app_mention', async({ logger, payload, say }) => {
@@ -214,10 +215,10 @@ app.action('select_prop-action', async({ack, body, client, logger}) => {
     selectedPropType = selectedPropType.substring(0, selectedPropType.length - 1)
 
     const metaData = JSON.parse(body.view.private_metadata) as metaData
-    if (metaData.filters == null) {
-      metaData.filters = []
+    if (metaData.filterValues == null) {
+      metaData.filterValues = []
     }
-    metaData.filters.push({
+    metaData.filterValues.push({
       prop_name: selectedPropName,
       prop_type: selectedPropType,
     })
@@ -257,12 +258,12 @@ app.action('set_prop_field-action', async({ack, body, client, logger}) => {
 
     const selectedOption = body.view.state.values["set_prop_field"][`set_prop_field-action`].selected_option
     const selectedPropertyField = selectedOption.value
-    metaData.filters[metaData.filters.length - 1].prop_field = selectedPropertyField
+    metaData.filterValues[metaData.filterValues.length - 1].prop_field = selectedPropertyField
 
     // typeがselectなどの場合は選択中のDBの指定プロパティの値を取得して選択肢にする
     // それ以外は入力欄を表示
     const res = await notion.retrieveDb(metaData.selected_db_id, {})
-    const selectedPropName = metaData.filters[metaData.filters.length - 1].prop_name
+    const selectedPropName = metaData.filterValues[metaData.filterValues.length - 1].prop_name
     const dbPropValues = await notion.getSelectedDbPropValues(res, selectedPropName)
     console.dir(dbPropValues, {depth: null})
     const selectDbPropValueOptions = []
@@ -300,22 +301,27 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
     console.dir(metaData, {depth: null})
 
     const propValue = body.view.state.values["set_prop_value"][`set_prop_value-action`].selected_option.value
-    const currentFilterIndex = metaData.filters.length - 1
-    metaData.filters[currentFilterIndex].prop_value = propValue
+    const currentFilterIndex = metaData.filterValues.length - 1
+    metaData.filterValues[currentFilterIndex].prop_value = propValue
 
-    const currentFilterValue = metaData.filters[currentFilterIndex]
+    const currentFilterValue = metaData.filterValues[currentFilterIndex]
     const currentFilter = notion.buildDatabaseQueryFilter(
       currentFilterValue.prop_name,
       currentFilterValue.prop_type,
       currentFilterValue.prop_field,
       currentFilterValue.prop_value
     )
-    if (metaData.filters.length > 1) {
-      metaData.filters.push({
-        and: currentFilter
-      })
+    console.dir(currentFilter, {depth: null})
+
+    if (metaData.filters == null) {
+      metaData.filters = {
+        and: [currentFilter]
+      }
+    } else {
+      metaData.filters["and"].push(currentFilter)
     }
-    console.dir(metaData.filters, {depth: null})
+
+    console.dir(metaData, {depth: null})
 
     const res = await notion.client.databases.query({
       database_id: metaData.selected_db_id,
