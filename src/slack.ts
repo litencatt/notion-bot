@@ -198,17 +198,7 @@ export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
   }
 }
 
-export const selectFilterPropertyFieldView = (metaData: any, data: string[]) => {
-  const propFields = []
-  for (const field of data) {
-    propFields.push({
-      text: {
-        type: "plain_text",
-        text: field
-      },
-      value: field
-    })
-  }
+export const selectFilterPropertyFieldView = (metaData: any, filterFieldOptions: string[]) => {
   return {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
@@ -254,7 +244,7 @@ export const selectFilterPropertyFieldView = (metaData: any, data: string[]) => 
             "text": "Select a field",
             "emoji": true
           },
-          "options": propFields,
+          "options": filterFieldOptions,
           "action_id": "set_prop_field-action"
         },
       }

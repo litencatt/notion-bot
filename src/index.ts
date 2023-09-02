@@ -204,10 +204,12 @@ app.action('select_prop-action', async({ack, body, client, logger}) => {
 
   try {
     console.dir(body.view.state.values, {depth: null})
-    const selectedPropName = body.view.state.values["select_prop"][`select_prop-action`].selected_option.value
-    const selectedPropNameAndTypeText = body.view.state.values["select_prop"][`select_prop-action`].selected_option.text.text
-    const propType = selectedPropNameAndTypeText.split(" (")[1] as string
-    const type = propType.substring(0, propType.length - 1)
+    const selectedOption = body.view.state.values["select_prop"][`select_prop-action`].selected_option
+    const selectedPropName = selectedOption.value
+    // Convert "Name (type)" to "type"
+    const selectedPropNameAndType = selectedOption.text.text
+    let selectedPropType = selectedPropNameAndType.split(" (")[1] as string
+    selectedPropType = selectedPropType.substring(0, selectedPropType.length - 1)
 
     const metaData = JSON.parse(body.view.private_metadata) as metaData
     if (metaData.filters == null) {
@@ -215,17 +217,27 @@ app.action('select_prop-action', async({ack, body, client, logger}) => {
     }
     metaData.filters.push({
       prop_name: selectedPropName,
-      prop_type: type,
+      prop_type: selectedPropType,
     })
     logger.info(metaData)
 
-    const filterFields = await notion.getFilterFields(type)
-    logger.info(filterFields)
+    const filterFields = await notion.getFilterFields(selectedPropType)
+    const filterFieldOptions = []
+    for (const field of filterFields) {
+      filterFieldOptions.push({
+        text: {
+          type: "plain_text",
+          text: field
+        },
+        value: field
+      })
+    }
+    logger.info(filterFieldOptions)
 
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.selectFilterPropertyFieldView(metaData, filterFields),
+      view: slack.selectFilterPropertyFieldView(metaData, filterFieldOptions),
     })
   } catch (error) {
     logger.error(error)
