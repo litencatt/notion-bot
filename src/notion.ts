@@ -233,11 +233,20 @@ export const getPageTitle = (row: PageObjectResponse) => {
 
 export const getFilterFields = async (type: string) => {
   switch (type) {
+    case "select":
+    case "status":
+      return ["equals", "does_not_equal", "is_empty", "is_not_empty"]
+
+    case "multi_select":
+    case "relation":
+      return ["contains", "does_not_contain", "is_empty", "is_not_empty"]
+
     case "checkbox":
       return ["equals", "does_not_equal"]
+
+    case "date":
     case "created_time":
     case "last_edited_time":
-    case "date":
       return [
         "after",
         "before",
@@ -254,6 +263,7 @@ export const getFilterFields = async (type: string) => {
         "past_year",
         "this_week",
       ]
+
     case "rich_text":
     case "title":
       return [
@@ -266,6 +276,7 @@ export const getFilterFields = async (type: string) => {
         "is_not_empty",
         "starts_with",
       ]
+
     case "number":
       return [
         "equals",
@@ -277,13 +288,7 @@ export const getFilterFields = async (type: string) => {
         "is_empty",
         "is_not_empty",
       ]
-    case "select":
-      return ["equals", "does_not_equal", "is_empty", "is_not_empty"]
-    case "multi_select":
-    case "relation":
-      return ["contains", "does_not_contain", "is_empty", "is_not_empty"]
-    case "status":
-      return ["equals", "does_not_equal", "is_empty", "is_not_empty"]
+
     case "files":
     case "formula":
     case "people":
