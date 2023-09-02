@@ -253,8 +253,8 @@ app.action("select_prop-action", async ({ ack, body, client, logger }) => {
   }
 })
 
-app.action("set_prop_field-action", async ({ ack, body, client, logger }) => {
-  logger.info("set_prop_field action called")
+app.action("select_prop_field-action", async ({ ack, body, client, logger }) => {
+  logger.info("select_prop_field action called")
   ack()
 
   try {
@@ -263,7 +263,7 @@ app.action("set_prop_field-action", async ({ ack, body, client, logger }) => {
     console.dir(body.view.state.values, { depth: null })
 
     const selectedOption =
-      body.view.state.values["set_prop_field"]["set_prop_field-action"].selected_option
+      body.view.state.values["select_prop_field"]["select_prop_field-action"].selected_option
     const selectedPropertyField = selectedOption.value
     metaData.filter_values[metaData.filter_values.length - 1].prop_field = selectedPropertyField
 
@@ -299,8 +299,8 @@ app.action("set_prop_field-action", async ({ ack, body, client, logger }) => {
   }
 })
 
-app.action("set_prop_value-action", async ({ ack, body, client, logger }) => {
-  logger.info("set_prop_value action called")
+app.action("select_prop_value-action", async ({ ack, body, client, logger }) => {
+  logger.info("select_prop_value action called")
   ack()
 
   try {
@@ -308,7 +308,7 @@ app.action("set_prop_value-action", async ({ ack, body, client, logger }) => {
     console.dir({ metaData }, { depth: null })
 
     const propValue =
-      body.view.state.values["set_prop_value"]["set_prop_value-action"].selected_option.value
+      body.view.state.values["select_prop_value"]["select_prop_value-action"].selected_option.value
     const currentFilterIndex = metaData.filter_values.length - 1
     metaData.filter_values[currentFilterIndex].prop_value = propValue
 
@@ -386,7 +386,7 @@ app.view("search-db-modal", async ({ ack, view, client, logger }) => {
   try {
     // console.log(view)
     const propValue =
-      view.state.values["set_prop_value"]["set_prop_value-action"].selected_option.value
+      view.state.values["select_prop_value"]["select_prop_value-action"].selected_option.value
     //console.log(propValue)
 
     const pm = JSON.parse(view.private_metadata)

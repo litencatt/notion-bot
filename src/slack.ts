@@ -251,7 +251,7 @@ export const selectFilterPropertyFieldView = (
         },
       },
       {
-        block_id: "set_prop_field",
+        block_id: "select_prop_field",
         type: "section",
         text: {
           type: "mrkdwn",
@@ -265,7 +265,7 @@ export const selectFilterPropertyFieldView = (
             emoji: true,
           },
           options: filterFieldOptions,
-          action_id: "set_prop_field-action",
+          action_id: "select_prop_field-action",
         },
       },
     ],
@@ -310,7 +310,7 @@ export const selectFilterValueView = (
         },
       },
       {
-        block_id: "set_prop_field",
+        block_id: "select_prop_field",
         type: "section",
         text: {
           type: "plain_text",
@@ -319,7 +319,7 @@ export const selectFilterValueView = (
         },
       },
       {
-        block_id: "set_prop_value",
+        block_id: "select_prop_value",
         type: "section",
         text: {
           type: "mrkdwn",
@@ -333,7 +333,7 @@ export const selectFilterValueView = (
             emoji: true,
           },
           options: selectDbPropValueOptions,
-          action_id: "set_prop_value-action",
+          action_id: "select_prop_value-action",
         },
       },
     ],
