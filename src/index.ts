@@ -354,6 +354,9 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
       page_size: 10,
     })
     const urls = await notion.getPageUrls(res)
+    if (urls.length == 0) {
+      urls.push("該当するページはありませんでした")
+    }
 
     // プロパティ設定用モーダルに更新
     await client.views.update({
