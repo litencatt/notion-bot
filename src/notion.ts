@@ -193,30 +193,6 @@ function buildTagFilter(tagNames: string[]): QueryDatabaseParameters["filter"] {
   }
 }
 
-function buildRelationFilter(tagPageIds: string[]): QueryDatabaseParameters["filter"] {
-  if (tagPageIds.length == 1) {
-    return {
-      property: tagDbName,
-      relation: {
-        contains: tagPageIds[0],
-      },
-    }
-  } else {
-    const f = []
-    for (const pageId of tagPageIds) {
-      f.push({
-        property: tagDbName,
-        relation: {
-          contains: pageId,
-        },
-      })
-    }
-    return {
-      or: f,
-    }
-  }
-}
-
 export const getPageTitle = (row: PageObjectResponse) => {
   let title = "Untitled"
   Object.entries(row.properties).find(([_, prop]) => {
