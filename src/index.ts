@@ -355,7 +355,7 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
 
     const res = await notion.client.databases.query({
       database_id: metaData.selected_db_id,
-      filter: currentFilter,
+      filter: metaData.filters as QueryDatabaseParameters["filter"],
       page_size: 10,
     })
     const urls = await notion.getPageUrls(res)
