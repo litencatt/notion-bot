@@ -308,12 +308,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
       await client.views.update({
         view_id: body.view.id,
         hash: body.view.hash,
-        view: slack.selectFilterValueView(
-          metaData,
-          currentFilterValue.prop_name,
-          selectedPropertyField,
-          dbPropOptions
-        ),
+        view: slack.selectFilterValueView(metaData, currentFilterValue, dbPropOptions),
       })
     }
   } catch (error) {
@@ -407,10 +402,10 @@ app.action("select_prop_value_input-action", async ({ ack, body, client, logger 
     console.dir({ metaData }, { depth: null })
     console.dir(body.view.state.values, { depth: null })
 
-    const propValue =
+    const propInputValue =
       body.view.state.values["select_prop_value_input"]["select_prop_value_input-action"].value
     const currentFilterIndex = metaData.filter_values.length - 1
-    metaData.filter_values[currentFilterIndex].prop_value = propValue
+    metaData.filter_values[currentFilterIndex].prop_value = propInputValue
 
     const currentFilterValue = metaData.filter_values[currentFilterIndex]
     const currentFilter = notion.buildDatabaseQueryFilter(currentFilterValue)

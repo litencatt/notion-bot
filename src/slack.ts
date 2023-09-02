@@ -1,3 +1,5 @@
+import { FilterValue } from "./type"
+
 export const modalButtonMessage = (message_ts: string) => {
   return {
     thread_ts: message_ts,
@@ -340,10 +342,13 @@ export const selectFilterValueInputView = (
 
 export const selectFilterValueView = (
   metaData: any,
-  selectedPropName: string,
-  selectedPropertyField: string,
+  selectedProp: FilterValue,
   selectDbPropValueOptions: string[]
 ) => {
+  let selectPropValueType = "static_select"
+  if (["multi_select", "relation"].includes(selectedProp.prop_type)) {
+    selectPropValueType = "multi_static_select"
+  }
   return {
     private_metadata: JSON.stringify(metaData),
     type: "modal",
@@ -371,7 +376,7 @@ export const selectFilterValueView = (
         type: "section",
         text: {
           type: "plain_text",
-          text: `Property: ${selectedPropName}`,
+          text: `Property: ${selectedProp.prop_name}`,
           emoji: true,
         },
       },
@@ -380,7 +385,7 @@ export const selectFilterValueView = (
         type: "section",
         text: {
           type: "plain_text",
-          text: `field: ${selectedPropertyField}`,
+          text: `field: ${selectedProp.prop_field}`,
           emoji: true,
         },
       },
@@ -389,13 +394,13 @@ export const selectFilterValueView = (
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "フィルター値入力",
+          text: "フィルター値選択",
         },
         accessory: {
-          type: "static_select",
+          type: selectPropValueType,
           placeholder: {
             type: "plain_text",
-            text: "Select a field",
+            text: "Select a value",
             emoji: true,
           },
           options: selectDbPropValueOptions,
