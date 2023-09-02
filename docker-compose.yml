@@ -1,7 +1,7 @@
 version: "3"
 services:
   app:
-    image: node:19-alpine
+    image: node:20-bullseye
     command: yarn dev
     environment:
       TZ: Asia/Tokyo
