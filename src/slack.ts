@@ -46,13 +46,10 @@ export const searchDbView = (metaData: any, data: any[]) => {
     },
     blocks: [
       {
+        type: "input",
         block_id: "select_db",
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "DB選択",
-        },
-        accessory: {
+        dispatch_action: true,
+        element: {
           type: "static_select",
           placeholder: {
             type: "plain_text",
@@ -61,6 +58,10 @@ export const searchDbView = (metaData: any, data: any[]) => {
           },
           options: dbOptions,
           action_id: "select_db-action",
+        },
+        label: {
+          type: "plain_text",
+          text: "DB選択",
         },
       },
     ],
