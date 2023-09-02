@@ -8,11 +8,8 @@ import {
 import { FilterValue } from "./type"
 
 export const client = new Client({
-  auth: process.env.NOTION_API_TOKEN,
+  auth: process.env.NOTION_TOKEN,
 })
-const tagDbId = process.env.NOTION_TAG_DB_ID
-const tagDbName = process.env.NOTION_TAG_DB_NAME
-const docDbId = process.env.NOTION_DOC_DB_ID
 
 export const searchDb = async () => {
   const { results } = await client.search({
