@@ -1,6 +1,6 @@
-export const modalButtonMessage = (thread_ts: string) => {
+export const modalButtonMessage = (message_ts: string) => {
   return {
-    "thread_ts": thread_ts,
+    "thread_ts": message_ts,
     "blocks": [{
       "type": "actions",
       "elements": [
