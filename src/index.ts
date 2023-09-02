@@ -27,37 +27,22 @@ type metaData = {
   thread_ts: string,
   selected_db_id?: string,
   selected_db_name?: string,
-  filter?: any[],
+  filters?: any[],
 }
 
 app.event('app_mention', async({ logger, payload, say }) => {
   logger.info("app_mention event called")
 
   try {
-    const modalMessage = {
-      "thread_ts": payload.ts,
-      "blocks": [{
-        "type": "actions",
-        "elements": [
-        {
-          "type": "button",
-          "text": {
-              "type": "plain_text",
-              "text": "モーダルを開いて検索する",
-          },
-          "action_id": "open-modal-button",
-        }]
-      }]
-    }
-
+    const modalButtonMessage = slack.modalButtonMessage(payload.thread_ts)
     const query = payload.text.split(" ");
     let dbId = null
     if (query.length > 1) {
       dbId = query[1]
-      modalMessage.blocks[0].elements[0]["value"] = dbId
+      modalButtonMessage.blocks[0].elements[0]["value"] = dbId
     }
 
-    await say(modalMessage);
+    await say(modalButtonMessage);
   } catch (error) {
     console.log(error);
   }

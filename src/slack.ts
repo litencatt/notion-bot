@@ -1,3 +1,21 @@
+export const modalButtonMessage = (thread_ts: string) => {
+  return {
+    "thread_ts": thread_ts,
+    "blocks": [{
+      "type": "actions",
+      "elements": [
+      {
+        "type": "button",
+        "text": {
+            "type": "plain_text",
+            "text": "モーダルを開いて検索する",
+        },
+        "action_id": "open-modal-button",
+      }]
+    }]
+  }
+}
+
 export const searchDbView = (metaData: any, data: any[]) => {
   const dbOptions = []
   for (const db of data) {
