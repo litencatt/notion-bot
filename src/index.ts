@@ -87,10 +87,11 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
       })
       const urls = await notion.getPageUrls(res)
       const nextCursor = res.has_more ? res.next_cursor : ""
+      metaData.next_cursor = nextCursor
 
       await client.views.open({
         trigger_id: body.trigger_id,
-        view: slack.searchPagesResultView(metaData, urls, nextCursor),
+        view: slack.searchPagesResultView(metaData, urls),
       })
     }
   } catch (error) {
@@ -124,7 +125,7 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchPagesResultView(metaData, urls, nextCursor),
+      view: slack.searchPagesResultView(metaData, urls),
     })
   } catch (error) {
     logger.error(error)
@@ -172,7 +173,7 @@ app.action('next_result-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchPagesResultView(metaData, urls, nextCursor),
+      view: slack.searchPagesResultView(metaData, urls),
     })
   } catch (error) {
     logger.error(error)
@@ -327,7 +328,7 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchPagesResultView(metaData, urls, res.next_cursor),
+      view: slack.searchPagesResultView(metaData, urls),
     })
   } catch (error) {
     logger.error(error)

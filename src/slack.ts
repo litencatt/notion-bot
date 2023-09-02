@@ -62,7 +62,7 @@ export const searchDbView = (metaData: any, data: any[]) => {
   }
 }
 
-export const searchPagesResultView = (metaData: any, urls: any[], nextCursor: string) => {
+export const searchPagesResultView = (metaData: any, urls: any[]) => {
   let view = {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
@@ -133,7 +133,7 @@ export const searchPagesResultView = (metaData: any, urls: any[], nextCursor: st
       }
     ]
   }
-  if (nextCursor) {
+  if (metaData.next_cursor) {
     view.blocks[6] = {
       "type": "actions",
       "elements": [
@@ -143,7 +143,7 @@ export const searchPagesResultView = (metaData: any, urls: any[], nextCursor: st
             "type": "plain_text",
             "text": "Next Result",
           },
-          "value": nextCursor,
+          "value": metaData.next_cursor,
           "action_id": "next_result-action"
         }
       ]
