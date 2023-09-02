@@ -8,11 +8,8 @@ import {
 import { FilterValue } from "./type"
 
 export const client = new Client({
-  auth: process.env.NOTION_API_TOKEN,
+  auth: process.env.NOTION_TOKEN,
 })
-const tagDbId = process.env.NOTION_TAG_DB_ID
-const tagDbName = process.env.NOTION_TAG_DB_NAME
-const docDbId = process.env.NOTION_DOC_DB_ID
 
 export const searchDb = async () => {
   const { results } = await client.search({
@@ -187,30 +184,6 @@ function buildTagFilter(tagNames: string[]): QueryDatabaseParameters["filter"] {
         property: propName,
         title: {
           contains: tagName,
-        },
-      })
-    }
-    return {
-      or: f,
-    }
-  }
-}
-
-function buildRelationFilter(tagPageIds: string[]): QueryDatabaseParameters["filter"] {
-  if (tagPageIds.length == 1) {
-    return {
-      property: tagDbName,
-      relation: {
-        contains: tagPageIds[0],
-      },
-    }
-  } else {
-    const f = []
-    for (const pageId of tagPageIds) {
-      f.push({
-        property: tagDbName,
-        relation: {
-          contains: pageId,
         },
       })
     }
