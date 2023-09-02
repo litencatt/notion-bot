@@ -316,6 +316,9 @@ export const getSelectedDbPropValues = async (
         console.dir(prop.select.options, { depth: null })
         props = prop.select.options.map((o) => o.name)
         break
+      case "status":
+        props = prop.status.options.map((o) => o.name)
+        break
       default:
         console.error(`type: ${prop.type} is not supported`)
     }
