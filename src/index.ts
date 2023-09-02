@@ -291,19 +291,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
     // それ以外は入力欄を表示
     else {
       const res = await notion.retrieveDb(metaData.selected_db_id, {})
-      const dbPropValues = await notion.getSelectedDbPropValues(res, currentFilterValue)
-      console.dir(dbPropValues, { depth: null })
-      const selectDbPropValueOptions = []
-      for (const o of dbPropValues) {
-        selectDbPropValueOptions.push({
-          text: {
-            type: "plain_text",
-            text: o,
-          },
-          value: o,
-        })
-      }
-
+      const dbPropOptions = await notion.getSelectedDbPropValues(res, currentFilterValue)
       await client.views.update({
         view_id: body.view.id,
         hash: body.view.hash,
@@ -311,7 +299,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
           metaData,
           currentFilterValue.prop_name,
           selectedPropertyField,
-          selectDbPropValueOptions
+          dbPropOptions
         ),
       })
     }

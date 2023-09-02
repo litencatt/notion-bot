@@ -301,29 +301,67 @@ export const getFilterFields = async (type: string) => {
 
 export const getSelectedDbPropValues = async (res: GetDatabaseResponse, fv: FilterValue) => {
   let props = []
+  let relDbId = null
+  const selectDbPropValueOptions = []
+
   if (fv.prop_type == "checkbox") {
-    return ["true", "false"]
+    props = ["true", "false"]
+  } else {
+    Object.entries(res.properties).forEach(([_, prop]) => {
+      if (prop.name != fv.prop_name) {
+        return
+      }
+      switch (prop.type) {
+        case "multi_select":
+          props = prop.multi_select.options.map((o) => o.name)
+          break
+        case "select":
+          console.dir(prop.select.options, { depth: null })
+          props = prop.select.options.map((o) => o.name)
+          break
+        case "status":
+          props = prop.status.options.map((o) => o.name)
+          break
+        case "relation":
+          relDbId = prop.relation.database_id
+          break
+        default:
+          console.error(`type: ${prop.type} is not supported`)
+      }
+    })
+
+    if (fv.prop_type == "relation" && relDbId) {
+      const res = await client.databases.query({ database_id: relDbId })
+      Object.entries(res.results).forEach(([_, prop]) => {
+        if (prop.object != "page") {
+          return
+        }
+        if (!isFullPage(prop)) {
+          return
+        }
+        const pageTitle = getPageTitle(prop)
+        props.push({
+          text: {
+            type: "plain_text",
+            text: pageTitle,
+          },
+          value: prop.id,
+        })
+      })
+      return props
+    } else {
+      for (const o of props) {
+        selectDbPropValueOptions.push({
+          text: {
+            type: "plain_text",
+            text: o,
+          },
+          value: o,
+        })
+      }
+      return selectDbPropValueOptions
+    }
   }
-  Object.entries(res.properties).forEach(([_, prop]) => {
-    if (prop.name != fv.prop_name) {
-      return
-    }
-    switch (prop.type) {
-      case "multi_select":
-        props = prop.multi_select.options.map((o) => o.name)
-        break
-      case "select":
-        console.dir(prop.select.options, { depth: null })
-        props = prop.select.options.map((o) => o.name)
-        break
-      case "status":
-        props = prop.status.options.map((o) => o.name)
-        break
-      default:
-        console.error(`type: ${prop.type} is not supported`)
-    }
-  })
-  return props
 }
 
 export const getDatabases = async () => {
