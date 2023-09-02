@@ -3,6 +3,7 @@ import * as notion from "./notion"
 import * as slack from "./slack"
 import { isFullDatabase, isFullPage } from "@notionhq/client"
 import { QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints"
+import { MetaData, FilterValue } from "./type"
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -22,16 +23,6 @@ const app = new App({
 app.message("hello", async ({ message, say }) => {
   await say(`Hey there <@${message.user}>!`)
 })
-
-type metaData = {
-  channel_id: string
-  thread_ts: string
-  selected_db_id?: string
-  selected_db_name?: string
-  next_cursor?: string
-  filter_values?: any[]
-  filters?: object
-}
 
 app.event("app_mention", async ({ logger, payload, say }) => {
   logger.info("app_mention event called")
@@ -75,7 +66,7 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
     } else {
       const db = await notion.retrieveDb(dbId, {})
       const dbTitle = await notion.getDatabaseTitle(db)
-      const metaData: metaData = {
+      const metaData: MetaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
         selected_db_id: dbId,
@@ -106,7 +97,7 @@ app.action("select_db-action", async ({ ack, body, client, logger }) => {
 
   try {
     // console.dir(body, {depth: null})
-    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
     const selectedOption = body.view.state.values["select_db"]["select_db-action"].selected_option
@@ -139,7 +130,7 @@ app.action("change_db-action", async ({ ack, body, client, logger }) => {
   ack()
 
   try {
-    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
     const dbs = await notion.getDatabases()
@@ -160,7 +151,7 @@ app.action("next_result-action", async ({ ack, body, client, logger }) => {
   try {
     console.dir(body.view.state.values, { depth: null })
 
-    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
     const res = await notion.client.databases.query({
@@ -187,7 +178,7 @@ app.action("add_filter-action", async ({ ack, body, client, logger }) => {
   ack()
 
   try {
-    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
     const selectedDb = await notion.retrieveDb(metaData.selected_db_id, {})
@@ -216,7 +207,7 @@ app.action("select_prop-action", async ({ ack, body, client, logger }) => {
     let selectedPropType = selectedPropNameAndType.split(" (")[1] as string
     selectedPropType = selectedPropType.substring(0, selectedPropType.length - 1)
 
-    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     if (metaData.filter_values == null) {
       metaData.filter_values = []
     }
@@ -258,7 +249,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
   ack()
 
   try {
-    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
     console.dir(body.view.state.values, { depth: null })
 
@@ -339,7 +330,7 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
   ack()
 
   try {
-    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
     const propValue =
@@ -389,7 +380,7 @@ app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
   ack()
 
   try {
-    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
     metaData.filter_values = []
