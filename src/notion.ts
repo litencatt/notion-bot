@@ -55,12 +55,6 @@ const retrieveResponse = (res: GetDatabaseResponse, options: any) => {
   return output.join("\n")
 }
 
-export const queryDbSchema = async () => {
-  return client.databases.retrieve({
-    database_id: docDbId,
-  })
-}
-
 export const queryDb = async (data: any) => {
   console.dir(data, { depth: null })
   let filter = null
