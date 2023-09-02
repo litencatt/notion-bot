@@ -259,9 +259,9 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
 
     const currentFilterIndex = metaData.filter_values.length - 1
     metaData.filter_values[currentFilterIndex].prop_field = selectedPropertyField
+    const currentFilterValue = metaData.filter_values[currentFilterIndex]
 
     if (["is_empty", "is_not_empty"].includes(selectedPropertyField)) {
-      const currentFilterValue = metaData.filter_values[currentFilterIndex]
       currentFilterValue.prop_value = true
       const currentFilter = notion.buildDatabaseQueryFilter(currentFilterValue)
 
@@ -291,8 +291,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
     // それ以外は入力欄を表示
     else {
       const res = await notion.retrieveDb(metaData.selected_db_id, {})
-      const selectedPropName = metaData.filter_values[currentFilterIndex].prop_name
-      const dbPropValues = await notion.getSelectedDbPropValues(res, selectedPropName)
+      const dbPropValues = await notion.getSelectedDbPropValues(res, currentFilterValue)
       console.dir(dbPropValues, { depth: null })
       const selectDbPropValueOptions = []
       for (const o of dbPropValues) {
@@ -310,7 +309,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
         hash: body.view.hash,
         view: slack.selectFilterValueView(
           metaData,
-          selectedPropName,
+          currentFilterValue.prop_name,
           selectedPropertyField,
           selectDbPropValueOptions
         ),

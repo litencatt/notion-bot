@@ -299,13 +299,13 @@ export const getFilterFields = async (type: string) => {
   }
 }
 
-export const getSelectedDbPropValues = async (
-  res: GetDatabaseResponse,
-  selectedPropName: string
-) => {
+export const getSelectedDbPropValues = async (res: GetDatabaseResponse, fv: FilterValue) => {
   let props = []
+  if (fv.prop_type == "checkbox") {
+    return ["true", "false"]
+  }
   Object.entries(res.properties).forEach(([_, prop]) => {
-    if (prop.name != selectedPropName) {
+    if (prop.name != fv.prop_name) {
       return
     }
     switch (prop.type) {
