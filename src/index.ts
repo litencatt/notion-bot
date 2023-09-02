@@ -107,7 +107,7 @@ app.action("select_db-action", async ({ ack, body, client, logger }) => {
   try {
     // console.dir(body, {depth: null})
     const metaData = JSON.parse(body.view.private_metadata) as metaData;
-    console.dir({ private_metadata: metaData }, { depth: null });
+    console.dir({ metaData }, { depth: null });
 
     const dbName =
       body.view.state.values["select_db"][`select_db-action`].selected_option
@@ -143,7 +143,7 @@ app.action("change_db-action", async ({ ack, body, client, logger }) => {
 
   try {
     const metaData = JSON.parse(body.view.private_metadata) as metaData;
-    console.dir(metaData, { depth: null });
+    console.dir({ metaData }, { depth: null });
 
     const dbs = await notion.getDatabases();
     await client.views.update({
@@ -164,7 +164,7 @@ app.action("next_result-action", async ({ ack, body, client, logger }) => {
     console.dir(body.view.state.values, { depth: null });
 
     const metaData = JSON.parse(body.view.private_metadata) as metaData;
-    console.dir({ private_metadata: metaData }, { depth: null });
+    console.dir({ metaData }, { depth: null });
 
     const res = await notion.client.databases.query({
       database_id: metaData.selected_db_id,
@@ -191,7 +191,7 @@ app.action("add_filter-action", async ({ ack, body, client, logger }) => {
 
   try {
     const metaData = JSON.parse(body.view.private_metadata) as metaData;
-    console.dir(metaData, { depth: null });
+    console.dir({ metaData }, { depth: null });
 
     const selectedDb = await notion.retrieveDb(metaData.selected_db_id, {});
     const dbProps = notion.buildFilterPropertyOptions(selectedDb);
@@ -211,7 +211,7 @@ app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
 
   try {
     const metaData = JSON.parse(body.view.private_metadata) as metaData;
-    console.dir(metaData, { depth: null });
+    console.dir({ metaData }, { depth: null });
 
     metaData.filter_values = [];
     metaData.filters = null;
@@ -295,7 +295,7 @@ app.action("set_prop_field-action", async ({ ack, body, client, logger }) => {
 
   try {
     const metaData = JSON.parse(body.view.private_metadata) as metaData;
-    console.dir(metaData, { depth: null });
+    console.dir({ metaData }, { depth: null });
     console.dir(body.view.state.values, { depth: null });
 
     const selectedOption =
@@ -347,7 +347,7 @@ app.action("set_prop_value-action", async ({ ack, body, client, logger }) => {
 
   try {
     const metaData = JSON.parse(body.view.private_metadata) as metaData;
-    console.dir(metaData, { depth: null });
+    console.dir({ metaData }, { depth: null });
 
     const propValue =
       body.view.state.values["set_prop_value"][`set_prop_value-action`]
