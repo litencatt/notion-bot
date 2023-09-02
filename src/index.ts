@@ -109,8 +109,9 @@ app.action("select_db-action", async ({ ack, body, client, logger }) => {
     const metaData = JSON.parse(body.view.private_metadata) as metaData
     console.dir({ metaData }, { depth: null })
 
-    const dbName = body.view.state.values["select_db"]["select_db-action"].selected_option.text.text
-    const dbId = body.view.state.values["select_db"]["select_db-action"].selected_option.value
+    const selectedOption = body.view.state.values["select_db"]["select_db-action"].selected_option
+    const dbName = selectedOption.text.text
+    const dbId = selectedOption.value
     metaData.selected_db_id = dbId
     metaData.selected_db_name = dbName
     console.dir({ private_metadata: metaData }, { depth: null })
