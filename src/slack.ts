@@ -189,8 +189,8 @@ export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
     },
     blocks: [
       {
-        block_id: "selected_db",
         type: "section",
+        block_id: "selected_db",
         text: {
           type: "plain_text",
           text: `DB: ${metaData.selected_db_name}`,
@@ -198,21 +198,21 @@ export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
         },
       },
       {
+        type: "input",
         block_id: "select_prop",
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "フィルター用プロパティ選択",
-        },
-        accessory: {
+        dispatch_action: true,
+        element: {
           type: "static_select",
           placeholder: {
             type: "plain_text",
             text: "Select a property",
-            emoji: true,
           },
           options: propOptions,
           action_id: "select_prop-action",
+        },
+        label: {
+          type: "plain_text",
+          text: "フィルター用プロパティ選択",
         },
       },
     ],
@@ -256,21 +256,21 @@ export const selectFilterPropertyFieldView = (
         },
       },
       {
+        type: "input",
         block_id: "select_prop_field",
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "フィルタープロパティのフィールド選択",
-        },
-        accessory: {
+        dispatch_action: true,
+        element: {
           type: "static_select",
           placeholder: {
             type: "plain_text",
             text: "Select a field",
-            emoji: true,
           },
           options: filterFieldOptions,
           action_id: "select_prop_field-action",
+        },
+        label: {
+          type: "plain_text",
+          text: "フィルタープロパティのフィールド選択",
         },
       },
     ],
@@ -399,21 +399,21 @@ export const selectFilterValueView = (
         },
       },
       {
+        type: "input",
         block_id: "select_prop_value",
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "フィルター値選択",
-        },
-        accessory: {
+        dispatch_action: true,
+        element: {
           type: selectPropValueType,
           placeholder: {
             type: "plain_text",
             text: "Select a value",
-            emoji: true,
           },
           options: selectDbPropValueOptions,
           action_id: selectPropValueAction,
+        },
+        label: {
+          type: "plain_text",
+          text: "フィルター値選択",
         },
       },
     ],
