@@ -202,35 +202,6 @@ app.action("add_filter-action", async ({ ack, body, client, logger }) => {
   }
 })
 
-app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
-  logger.info("add_filter action called")
-  ack()
-
-  try {
-    const metaData = JSON.parse(body.view.private_metadata) as metaData
-    console.dir({ metaData }, { depth: null })
-
-    metaData.filter_values = []
-    metaData.filters = null
-
-    const res = await notion.client.databases.query({
-      database_id: metaData.selected_db_id,
-      page_size: 10,
-    })
-    const urls = await notion.getPageUrls(res)
-    const nextCursor = res.has_more ? res.next_cursor : ""
-    metaData.next_cursor = nextCursor
-
-    await client.views.update({
-      view_id: body.view.id,
-      hash: body.view.hash,
-      view: slack.searchPagesResultView(metaData, urls),
-    })
-  } catch (error) {
-    logger.error(error)
-  }
-})
-
 app.action("select_prop-action", async ({ ack, body, client, logger }) => {
   logger.info("select_prop action called")
   ack()
@@ -368,6 +339,35 @@ app.action("set_prop_value-action", async ({ ack, body, client, logger }) => {
     const urls = await notion.getPageUrls(res)
 
     // プロパティ設定用モーダルに更新
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchPagesResultView(metaData, urls),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
+app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
+  logger.info("add_filter action called")
+  ack()
+
+  try {
+    const metaData = JSON.parse(body.view.private_metadata) as metaData
+    console.dir({ metaData }, { depth: null })
+
+    metaData.filter_values = []
+    metaData.filters = null
+
+    const res = await notion.client.databases.query({
+      database_id: metaData.selected_db_id,
+      page_size: 10,
+    })
+    const urls = await notion.getPageUrls(res)
+    const nextCursor = res.has_more ? res.next_cursor : ""
+    metaData.next_cursor = nextCursor
+
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
