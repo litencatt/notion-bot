@@ -117,6 +117,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
               type: "plain_text",
               text: "Clear filter",
             },
+            style: "danger",
             action_id: "clear_filter-action",
             value: "click_clear_filter",
           },
