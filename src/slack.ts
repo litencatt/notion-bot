@@ -1,18 +1,21 @@
 export const modalButtonMessage = (message_ts: string) => {
   return {
-    "thread_ts": message_ts,
-    "blocks": [{
-      "type": "actions",
-      "elements": [
+    thread_ts: message_ts,
+    blocks: [
       {
-        "type": "button",
-        "text": {
-            "type": "plain_text",
-            "text": "モーダルを開いて検索する",
-        },
-        "action_id": "open-modal-button",
-      }]
-    }]
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "モーダルを開いて検索する",
+            },
+            action_id: "open-modal-button",
+          },
+        ],
+      },
+    ],
   }
 }
 
@@ -24,123 +27,123 @@ export const searchDbView = (metaData: any, data: any[]) => {
         type: "plain_text",
         text: db.title,
       },
-      value: db.value
+      value: db.value,
     })
   }
   return {
-    "private_metadata": JSON.stringify(metaData),
-    "type": "modal",
-    "callback_id": "search-db-modal",
-    "title": {
-      "type": "plain_text",
-      "text": "Notion bot",
+    private_metadata: JSON.stringify(metaData),
+    type: "modal",
+    callback_id: "search-db-modal",
+    title: {
+      type: "plain_text",
+      text: "Notion bot",
     },
-    "close": {
-      "type": "plain_text",
-      "text": "Cancel",
+    close: {
+      type: "plain_text",
+      text: "Cancel",
     },
-    "blocks": [
+    blocks: [
       {
-        "block_id": "select_db",
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "DB選択"
+        block_id: "select_db",
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "DB選択",
         },
-        "accessory": {
-          "type": "static_select",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select a DB",
-            "emoji": true
+        accessory: {
+          type: "static_select",
+          placeholder: {
+            type: "plain_text",
+            text: "Select a DB",
+            emoji: true,
           },
-          "options": dbOptions,
-          "action_id": "select_db-action"
-        }
+          options: dbOptions,
+          action_id: "select_db-action",
+        },
       },
-    ]
+    ],
   }
 }
 
 export const searchPagesResultView = (metaData: any, urls: any[]) => {
   let view = {
-    "private_metadata": JSON.stringify(metaData),
-    "type": "modal",
-    "callback_id": "search-db-modal",
-    "title": {
-      "type": "plain_text",
-      "text": "Notion bot",
+    private_metadata: JSON.stringify(metaData),
+    type: "modal",
+    callback_id: "search-db-modal",
+    title: {
+      type: "plain_text",
+      text: "Notion bot",
     },
-    "close": {
-      "type": "plain_text",
-      "text": "Cancel",
+    close: {
+      type: "plain_text",
+      text: "Cancel",
     },
-    "blocks": [
+    blocks: [
       {
-        "type": "header",
-        "text": {
-          "type": "plain_text",
-          "text": `DB: ${metaData.selected_db_name}`
+        type: "header",
+        text: {
+          type: "plain_text",
+          text: `DB: ${metaData.selected_db_name}`,
         },
       },
       {
-        "type": "actions",
-        "elements": [
+        type: "actions",
+        elements: [
           {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "text": "Add filter",
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Add filter",
             },
-            "action_id": "add_filter-action",
-            "value": "click_add_filter",
+            action_id: "add_filter-action",
+            value: "click_add_filter",
           },
           {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "text": "Clear filter",
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Clear filter",
             },
-            "action_id": "clear_filter-action",
-            "value": "click_clear_filter",
+            action_id: "clear_filter-action",
+            value: "click_clear_filter",
           },
           {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "text": "Change database",
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "Change database",
             },
-            "style": "primary",
-            "action_id": "change_db-action",
-            "value": "click_change_db",
+            style: "primary",
+            action_id: "change_db-action",
+            value: "click_change_db",
           },
-        ]
+        ],
       },
       {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "*フィルター*: なし"
-        }
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "*フィルター*: なし",
+        },
       },
       {
-        "type": "divider",
+        type: "divider",
       },
       {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "*検索結果*"
-        }
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "*検索結果*",
+        },
       },
       {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": urls.join("\n")
-        }
-      }
-    ]
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: urls.join("\n"),
+        },
+      },
+    ],
   }
   if (metaData.filters) {
     view.blocks[2].text.text = "*フィルター*"
@@ -148,18 +151,18 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
   }
   if (metaData.next_cursor) {
     view.blocks[6] = {
-      "type": "actions",
-      "elements": [
+      type: "actions",
+      elements: [
         {
-          "type": "button",
-          "text": {
-            "type": "plain_text",
-            "text": "Next Result",
+          type: "button",
+          text: {
+            type: "plain_text",
+            text: "Next Result",
           },
-          "value": metaData.next_cursor,
-          "action_id": "next_result-action"
-        }
-      ]
+          value: metaData.next_cursor,
+          action_id: "next_result-action",
+        },
+      ],
     } as any
   }
 
@@ -168,104 +171,104 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
 
 export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
   return {
-    "private_metadata": JSON.stringify(metaData),
-    "type": "modal",
-    "callback_id": "search-db-modal",
-    "title": {
-      "type": "plain_text",
-      "text": "Notion bot",
+    private_metadata: JSON.stringify(metaData),
+    type: "modal",
+    callback_id: "search-db-modal",
+    title: {
+      type: "plain_text",
+      text: "Notion bot",
     },
-    "close": {
-      "type": "plain_text",
-      "text": "Cancel",
+    close: {
+      type: "plain_text",
+      text: "Cancel",
     },
-    "blocks": [
+    blocks: [
       {
-        "block_id": "selected_db",
-        "type": "section",
-        "text": {
-          "type": "plain_text",
-          "text": `DB: ${metaData.selected_db_name}`,
-          "emoji": true
-        }
-      },
-      {
-        "block_id": "select_prop",
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "フィルター用プロパティ選択"
+        block_id: "selected_db",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `DB: ${metaData.selected_db_name}`,
+          emoji: true,
         },
-        "accessory": {
-          "type": "static_select",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select a property",
-            "emoji": true
-          },
-          "options": propOptions,
-          "action_id": "select_prop-action"
-        }
       },
-    ]
+      {
+        block_id: "select_prop",
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "フィルター用プロパティ選択",
+        },
+        accessory: {
+          type: "static_select",
+          placeholder: {
+            type: "plain_text",
+            text: "Select a property",
+            emoji: true,
+          },
+          options: propOptions,
+          action_id: "select_prop-action",
+        },
+      },
+    ],
   }
 }
 
 export const selectFilterPropertyFieldView = (
   metaData: any,
-  selectedPropNameAndType:string,
+  selectedPropNameAndType: string,
   filterFieldOptions: string[]
 ) => {
   return {
-    "private_metadata": JSON.stringify(metaData),
-    "type": "modal",
-    "callback_id": "search-db-modal",
-    "title": {
-      "type": "plain_text",
-      "text": "Notion bot",
+    private_metadata: JSON.stringify(metaData),
+    type: "modal",
+    callback_id: "search-db-modal",
+    title: {
+      type: "plain_text",
+      text: "Notion bot",
     },
-    "close": {
-      "type": "plain_text",
-      "text": "Cancel",
+    close: {
+      type: "plain_text",
+      text: "Cancel",
     },
-    "blocks": [
+    blocks: [
       {
-        "block_id": "select_db",
-        "type": "section",
-        "text": {
-          "type": "plain_text",
-          "text": `DB: ${metaData.selected_db_name}`,
-          "emoji": true
-        }
-      },
-      {
-        "block_id": "set_prop",
-        "type": "section",
-        "text": {
-          "type": "plain_text",
-          "text": `Property: ${selectedPropNameAndType}`,
-          "emoji": true
-        }
-      },
-      {
-        "block_id": "set_prop_field",
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "フィルタープロパティのフィールド選択",
+        block_id: "select_db",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `DB: ${metaData.selected_db_name}`,
+          emoji: true,
         },
-        "accessory": {
-          "type": "static_select",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select a field",
-            "emoji": true
+      },
+      {
+        block_id: "set_prop",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `Property: ${selectedPropNameAndType}`,
+          emoji: true,
+        },
+      },
+      {
+        block_id: "set_prop_field",
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "フィルタープロパティのフィールド選択",
+        },
+        accessory: {
+          type: "static_select",
+          placeholder: {
+            type: "plain_text",
+            text: "Select a field",
+            emoji: true,
           },
-          "options": filterFieldOptions,
-          "action_id": "set_prop_field-action"
+          options: filterFieldOptions,
+          action_id: "set_prop_field-action",
         },
-      }
-    ]
+      },
+    ],
   }
 }
 
@@ -276,64 +279,64 @@ export const selectFilterValueView = (
   selectDbPropValueOptions: string[]
 ) => {
   return {
-    "private_metadata": JSON.stringify(metaData),
-    "type": "modal",
-    "callback_id": "search-db-modal",
-    "title": {
-      "type": "plain_text",
-      "text": "Notion bot",
+    private_metadata: JSON.stringify(metaData),
+    type: "modal",
+    callback_id: "search-db-modal",
+    title: {
+      type: "plain_text",
+      text: "Notion bot",
     },
-    "close": {
-      "type": "plain_text",
-      "text": "Cancel",
+    close: {
+      type: "plain_text",
+      text: "Cancel",
     },
-    "blocks": [
+    blocks: [
       {
-        "block_id": "select_db",
-        "type": "section",
-        "text": {
-          "type": "plain_text",
-          "text": `DB: ${metaData.selected_db_name}`,
-          "emoji": true
-        }
-      },
-      {
-        "block_id": "set_prop",
-        "type": "section",
-        "text": {
-          "type": "plain_text",
-          "text": `Property: ${selectedPropName}`,
-          "emoji": true
-        }
-      },
-      {
-        "block_id": "set_prop_field",
-        "type": "section",
-        "text": {
-          "type": "plain_text",
-          "text": `field: ${selectedPropertyField}`,
-          "emoji": true
-        }
-      },
-      {
-        "block_id": "set_prop_value",
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": "フィルター値入力",
+        block_id: "select_db",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `DB: ${metaData.selected_db_name}`,
+          emoji: true,
         },
-        "accessory": {
-          "type": "static_select",
-          "placeholder": {
-            "type": "plain_text",
-            "text": "Select a field",
-            "emoji": true
+      },
+      {
+        block_id: "set_prop",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `Property: ${selectedPropName}`,
+          emoji: true,
+        },
+      },
+      {
+        block_id: "set_prop_field",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `field: ${selectedPropertyField}`,
+          emoji: true,
+        },
+      },
+      {
+        block_id: "set_prop_value",
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "フィルター値入力",
+        },
+        accessory: {
+          type: "static_select",
+          placeholder: {
+            type: "plain_text",
+            text: "Select a field",
+            emoji: true,
           },
-          "options": selectDbPropValueOptions,
-          "action_id": "set_prop_value-action"
+          options: selectDbPropValueOptions,
+          action_id: "set_prop_value-action",
         },
-      }
-    ]
+      },
+    ],
   }
 }
 
@@ -347,72 +350,72 @@ export const searchBlock = (data: string, selectProps: any[]) => {
         selectType = "static_select"
         for (const option of prop.select.options) {
           blockSelectOptions.push({
-            "text": {
-              "type": "plain_text",
-              "text": option.name
+            text: {
+              type: "plain_text",
+              text: option.name,
             },
-            "value": option.name
+            value: option.name,
           })
         }
-        break;
+        break
       case "multi_select":
         selectType = "multi_static_select"
         for (const option of prop.multi_select.options) {
           blockSelectOptions.push({
-            "text": {
-              "type": "plain_text",
-              "text": option.name
+            text: {
+              type: "plain_text",
+              text: option.name,
             },
-            "value": option.name
+            value: option.name,
           })
         }
-        break;
+        break
       case "relation":
         // relationの場合は prop.relation.database_id のDBの情報も必要になる
-        break;
+        break
       default:
         console.log("Not supported type.")
     }
     const block = {
-      "type": "section",
+      type: "section",
       // ID for relation of modal blocks and submited values
-      "block_id": prop.id,
-      "text": {
-        "type": "mrkdwn",
-        "text": `Pick an ${prop.name}`
+      block_id: prop.id,
+      text: {
+        type: "mrkdwn",
+        text: `Pick an ${prop.name}`,
       },
-      "accessory": {
-        "type": selectType,
-        "placeholder": {
-          "type": "plain_text",
-          "text": `Select an ${prop.name}`,
+      accessory: {
+        type: selectType,
+        placeholder: {
+          type: "plain_text",
+          text: `Select an ${prop.name}`,
         },
-        "options": blockSelectOptions,
+        options: blockSelectOptions,
         // "action_id": `${prop.id}-action`
-        "action_id": "static_select-action"
-      }
+        action_id: "static_select-action",
+      },
     }
-    console.log(blockSelectOptions)  
+    console.log(blockSelectOptions)
     blocks.push(block)
   }
-  console.dir(blocks, {depth: null})
+  console.dir(blocks, { depth: null })
 
   return {
-    "private_metadata": data,
-    "type": "modal",
-    "callback_id": "modal-id",
-    "title": {
-      "type": "plain_text",
-      "text": "Notion bot",
+    private_metadata: data,
+    type: "modal",
+    callback_id: "modal-id",
+    title: {
+      type: "plain_text",
+      text: "Notion bot",
     },
-    "submit": {
-      "type": "plain_text",
-      "text": "Search",
+    submit: {
+      type: "plain_text",
+      text: "Search",
     },
-    "close": {
-      "type": "plain_text",
-      "text": "Cancel",
+    close: {
+      type: "plain_text",
+      text: "Cancel",
     },
-    "blocks": blocks
+    blocks: blocks,
   }
 }
