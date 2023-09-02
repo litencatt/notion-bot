@@ -153,7 +153,7 @@ export const searchPagesResultView = (metaData: any, urls: any[], nextCursor: st
   return view
 }
 
-export const selectFilterPropertyView = (metaData: any, data: any[], dbName: string) => {
+export const selectFilterPropertyView = (metaData: any, data: any[]) => {
   const propOptions = []
   for (const prop of data) {
     propOptions.push({
@@ -182,7 +182,7 @@ export const selectFilterPropertyView = (metaData: any, data: any[], dbName: str
         "type": "section",
         "text": {
           "type": "plain_text",
-          "text": `Selected DB: ${dbName}`,
+          "text": `DB: ${metaData.selected_db_name}`,
           "emoji": true
         }
       },

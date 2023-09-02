@@ -186,7 +186,6 @@ app.action('add_filter-action', async({ack, body, client, logger}) => {
     const metaData = JSON.parse(body.view.private_metadata) as metaData
     console.dir(metaData, {depth: null})
 
-    // DBのプロパティ取得
     const selectedDb = await notion.retrieveDb(metaData.selected_db_id, {})
     const dbProps = []
     Object.entries(selectedDb.properties).forEach(([_, prop]) => {
@@ -199,7 +198,7 @@ app.action('add_filter-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.selectFilterPropertyView(metaData, dbProps, metaData.selected_db_name),
+      view: slack.selectFilterPropertyView(metaData, dbProps),
     })
   } catch (error) {
     logger.error(error)
