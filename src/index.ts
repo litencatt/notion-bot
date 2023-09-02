@@ -276,18 +276,17 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
     metaData.filters[metaData.filters.length - 1].prop_value = propValue
     console.dir(metaData.filters, {depth: null})
 
+    const f = metaData.filters.map(f => {
+      return {
+        property: f.prop_name,
+        [f.prop_type]: {
+          [f.prop_field]: f.prop_value
+        }
+      }
+    })
     const res = await notion.client.databases.query({
       database_id: metaData.selected_db_id,
-      filter: {
-        and: metaData.filters.map(f => {
-          return {
-            property: f.prop_name,
-            [f.prop_type]: {
-              [f.prop_field]: f.prop_value
-            }
-          }
-        })
-      },
+      // filter: {},
       page_size: 10,
     })
     const urls = await notion.getPageUrls(res)
