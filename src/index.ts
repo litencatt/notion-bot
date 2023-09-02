@@ -198,13 +198,14 @@ app.action('add_filter-action', async({ack, body, client, logger}) => {
   }
 })
 
-app.action('set_prop-action', async({ack, body, client, logger}) => {
-  logger.info("set_prop action called")
+app.action('select_prop-action', async({ack, body, client, logger}) => {
+  logger.info("select_prop action called")
   ack()
 
   try {
-    const selectedPropName = body.view.state.values["set_prop"][`set_prop-action`].selected_option.value
-    const selectedPropNameAndTypeText = body.view.state.values["set_prop"][`set_prop-action`].selected_option.text.text
+    console.dir(body.view.state.values, {depth: null})
+    const selectedPropName = body.view.state.values["select_prop"][`select_prop-action`].selected_option.value
+    const selectedPropNameAndTypeText = body.view.state.values["select_prop"][`select_prop-action`].selected_option.text.text
     const propType = selectedPropNameAndTypeText.split(" (")[1] as string
     const type = propType.substring(0, propType.length - 1)
 

@@ -168,7 +168,7 @@ export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
     },
     "blocks": [
       {
-        "block_id": "select_db",
+        "block_id": "selected_db",
         "type": "section",
         "text": {
           "type": "plain_text",
@@ -177,7 +177,7 @@ export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
         }
       },
       {
-        "block_id": "set_prop",
+        "block_id": "select_prop",
         "type": "section",
         "text": {
           "type": "mrkdwn",
@@ -191,7 +191,7 @@ export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
             "emoji": true
           },
           "options": propOptions,
-          "action_id": "set_prop-action"
+          "action_id": "select_prop-action"
         }
       },
     ]
