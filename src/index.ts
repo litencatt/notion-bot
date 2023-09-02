@@ -260,6 +260,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
     const currentFilterIndex = metaData.filter_values.length - 1
     metaData.filter_values[currentFilterIndex].prop_field = selectedPropertyField
     const currentFilterValue = metaData.filter_values[currentFilterIndex]
+    console.dir({ currentFilterValue }, { depth: null })
 
     if (["is_empty", "is_not_empty"].includes(selectedPropertyField)) {
       currentFilterValue.prop_value = true
@@ -287,8 +288,20 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
         view: slack.searchPagesResultView(metaData, urls),
       })
     }
-    // typeがselectなどの場合は選択中のDBの指定プロパティの値を取得して選択肢にする
-    // それ以外は入力欄を表示
+    // typeがrich_text, titleの場合は入力欄を表示
+    else if (["rich_text", "title"].includes(currentFilterValue.prop_type)) {
+      logger.info("rich_text or title")
+      await client.views.update({
+        view_id: body.view.id,
+        hash: body.view.hash,
+        view: slack.selectFilterValueInputView(
+          metaData,
+          currentFilterValue.prop_name,
+          selectedPropertyField
+        ),
+      })
+    }
+    // それ以外は選択中のDBの指定プロパティの値を取得して選択肢にする
     else {
       const res = await notion.retrieveDb(metaData.selected_db_id, {})
       const dbPropOptions = await notion.getSelectedDbPropValues(res, currentFilterValue)
@@ -375,6 +388,55 @@ app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
     const nextCursor = res.has_more ? res.next_cursor : ""
     metaData.next_cursor = nextCursor
 
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchPagesResultView(metaData, urls),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
+app.action("select_prop_value_input-action", async ({ ack, body, client, logger }) => {
+  logger.info("select_prop_value_input action called")
+  ack()
+
+  try {
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
+    console.dir(body.view.state.values, { depth: null })
+
+    const propValue =
+      body.view.state.values["select_prop_value_input"]["select_prop_value_input-action"].value
+    const currentFilterIndex = metaData.filter_values.length - 1
+    metaData.filter_values[currentFilterIndex].prop_value = propValue
+
+    const currentFilterValue = metaData.filter_values[currentFilterIndex]
+    const currentFilter = notion.buildDatabaseQueryFilter(currentFilterValue)
+    console.dir(currentFilter, { depth: null })
+
+    if (metaData.filters == null) {
+      metaData.filters = {
+        and: [currentFilter],
+      }
+    } else {
+      metaData.filters["and"].push(currentFilter)
+    }
+
+    console.dir(metaData, { depth: null })
+
+    const res = await notion.client.databases.query({
+      database_id: metaData.selected_db_id,
+      filter: metaData.filters as QueryDatabaseParameters["filter"],
+      page_size: 10,
+    })
+    const urls = await notion.getPageUrls(res)
+    if (urls.length == 0) {
+      urls.push("該当するページはありませんでした")
+    }
+
+    // プロパティ設定用モーダルに更新
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,

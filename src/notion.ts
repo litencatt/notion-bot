@@ -302,10 +302,13 @@ export const getFilterFields = async (type: string) => {
 export const getSelectedDbPropValues = async (res: GetDatabaseResponse, fv: FilterValue) => {
   let props = []
   let relDbId = null
+  let title = null
   const selectDbPropValueOptions = []
 
   if (fv.prop_type == "checkbox") {
     props = ["true", "false"]
+  } else if (["rich_text", "title"].includes(fv.prop_type)) {
+    return props
   } else {
     Object.entries(res.properties).forEach(([_, prop]) => {
       if (prop.name != fv.prop_name) {

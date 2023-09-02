@@ -272,6 +272,72 @@ export const selectFilterPropertyFieldView = (
   }
 }
 
+export const selectFilterValueInputView = (
+  metaData: any,
+  selectedPropName: string,
+  selectedPropertyField: string
+) => {
+  return {
+    private_metadata: JSON.stringify(metaData),
+    type: "modal",
+    callback_id: "search-db-modal",
+    title: {
+      type: "plain_text",
+      text: "Notion bot",
+    },
+    close: {
+      type: "plain_text",
+      text: "Cancel",
+    },
+    blocks: [
+      {
+        block_id: "select_db",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `DB: ${metaData.selected_db_name}`,
+          emoji: true,
+        },
+      },
+      {
+        block_id: "set_prop",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `Property: ${selectedPropName}`,
+          emoji: true,
+        },
+      },
+      {
+        block_id: "select_prop_field",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `field: ${selectedPropertyField}`,
+          emoji: true,
+        },
+      },
+      {
+        block_id: "select_prop_value_input",
+        type: "input",
+        dispatch_action: true,
+        element: {
+          type: "plain_text_input",
+          action_id: "select_prop_value_input-action",
+          placeholder: {
+            type: "plain_text",
+            text: "Type a value...",
+          },
+        },
+        label: {
+          type: "plain_text",
+          text: "フィルター値入力",
+        },
+      },
+    ],
+  }
+}
+
 export const selectFilterValueView = (
   metaData: any,
   selectedPropName: string,
