@@ -16,11 +16,11 @@ export const modalButtonMessage = (message_ts: string) => {
         ],
       },
     ],
-  };
-};
+  }
+}
 
 export const searchDbView = (metaData: any, data: any[]) => {
-  const dbOptions = [];
+  const dbOptions = []
   for (const db of data) {
     dbOptions.push({
       text: {
@@ -28,7 +28,7 @@ export const searchDbView = (metaData: any, data: any[]) => {
         text: db.title,
       },
       value: db.value,
-    });
+    })
   }
   return {
     private_metadata: JSON.stringify(metaData),
@@ -62,8 +62,8 @@ export const searchDbView = (metaData: any, data: any[]) => {
         },
       },
     ],
-  };
-};
+  }
+}
 
 export const searchPagesResultView = (metaData: any, urls: any[]) => {
   let view = {
@@ -144,11 +144,10 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
         },
       },
     ],
-  };
+  }
   if (metaData.filters) {
-    view.blocks[2].text.text = "*フィルター*";
-    view.blocks[2].text.text +=
-      "\n```" + JSON.stringify(metaData.filters) + "```";
+    view.blocks[2].text.text = "*フィルター*"
+    view.blocks[2].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
   }
   if (metaData.next_cursor) {
     view.blocks[6] = {
@@ -164,11 +163,11 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           action_id: "next_result-action",
         },
       ],
-    } as any;
+    } as any
   }
 
-  return view;
-};
+  return view
+}
 
 export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
   return {
@@ -212,8 +211,8 @@ export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
         },
       },
     ],
-  };
-};
+  }
+}
 
 export const selectFilterPropertyFieldView = (
   metaData: any,
@@ -270,8 +269,8 @@ export const selectFilterPropertyFieldView = (
         },
       },
     ],
-  };
-};
+  }
+}
 
 export const selectFilterValueView = (
   metaData: any,
@@ -338,17 +337,17 @@ export const selectFilterValueView = (
         },
       },
     ],
-  };
-};
+  }
+}
 
 export const searchBlock = (data: string, selectProps: any[]) => {
-  const blocks = [];
+  const blocks = []
   for (const prop of selectProps) {
-    const blockSelectOptions = [];
-    let selectType: string;
+    const blockSelectOptions = []
+    let selectType: string
     switch (prop.type) {
       case "select":
-        selectType = "static_select";
+        selectType = "static_select"
         for (const option of prop.select.options) {
           blockSelectOptions.push({
             text: {
@@ -356,11 +355,11 @@ export const searchBlock = (data: string, selectProps: any[]) => {
               text: option.name,
             },
             value: option.name,
-          });
+          })
         }
-        break;
+        break
       case "multi_select":
-        selectType = "multi_static_select";
+        selectType = "multi_static_select"
         for (const option of prop.multi_select.options) {
           blockSelectOptions.push({
             text: {
@@ -368,14 +367,14 @@ export const searchBlock = (data: string, selectProps: any[]) => {
               text: option.name,
             },
             value: option.name,
-          });
+          })
         }
-        break;
+        break
       case "relation":
         // relationの場合は prop.relation.database_id のDBの情報も必要になる
-        break;
+        break
       default:
-        console.log("Not supported type.");
+        console.log("Not supported type.")
     }
     const block = {
       type: "section",
@@ -395,11 +394,11 @@ export const searchBlock = (data: string, selectProps: any[]) => {
         // "action_id": `${prop.id}-action`
         action_id: "static_select-action",
       },
-    };
-    console.log(blockSelectOptions);
-    blocks.push(block);
+    }
+    console.log(blockSelectOptions)
+    blocks.push(block)
   }
-  console.dir(blocks, { depth: null });
+  console.dir(blocks, { depth: null })
 
   return {
     private_metadata: data,
@@ -418,5 +417,5 @@ export const searchBlock = (data: string, selectProps: any[]) => {
       text: "Cancel",
     },
     blocks: blocks,
-  };
-};
+  }
+}
