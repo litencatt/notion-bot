@@ -29,7 +29,7 @@ type metaData = {
   selected_db_id?: string;
   selected_db_name?: string;
   next_cursor?: string;
-  filterValues?: any[];
+  filter_values?: any[];
   filters?: object;
 };
 
@@ -213,7 +213,7 @@ app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
     const metaData = JSON.parse(body.view.private_metadata) as metaData;
     console.dir(metaData, { depth: null });
 
-    metaData.filterValues = [];
+    metaData.filter_values = [];
     metaData.filters = null;
 
     const res = await notion.client.databases.query({
@@ -253,10 +253,10 @@ app.action("select_prop-action", async ({ ack, body, client, logger }) => {
     );
 
     const metaData = JSON.parse(body.view.private_metadata) as metaData;
-    if (metaData.filterValues == null) {
-      metaData.filterValues = [];
+    if (metaData.filter_values == null) {
+      metaData.filter_values = [];
     }
-    metaData.filterValues.push({
+    metaData.filter_values.push({
       prop_name: selectedPropName,
       prop_type: selectedPropType,
     });
@@ -302,14 +302,14 @@ app.action("set_prop_field-action", async ({ ack, body, client, logger }) => {
       body.view.state.values["set_prop_field"][`set_prop_field-action`]
         .selected_option;
     const selectedPropertyField = selectedOption.value;
-    metaData.filterValues[metaData.filterValues.length - 1].prop_field =
+    metaData.filter_values[metaData.filter_values.length - 1].prop_field =
       selectedPropertyField;
 
     // typeがselectなどの場合は選択中のDBの指定プロパティの値を取得して選択肢にする
     // それ以外は入力欄を表示
     const res = await notion.retrieveDb(metaData.selected_db_id, {});
     const selectedPropName =
-      metaData.filterValues[metaData.filterValues.length - 1].prop_name;
+      metaData.filter_values[metaData.filter_values.length - 1].prop_name;
     const dbPropValues = await notion.getSelectedDbPropValues(
       res,
       selectedPropName
@@ -352,10 +352,10 @@ app.action("set_prop_value-action", async ({ ack, body, client, logger }) => {
     const propValue =
       body.view.state.values["set_prop_value"][`set_prop_value-action`]
         .selected_option.value;
-    const currentFilterIndex = metaData.filterValues.length - 1;
-    metaData.filterValues[currentFilterIndex].prop_value = propValue;
+    const currentFilterIndex = metaData.filter_values.length - 1;
+    metaData.filter_values[currentFilterIndex].prop_value = propValue;
 
-    const currentFilterValue = metaData.filterValues[currentFilterIndex];
+    const currentFilterValue = metaData.filter_values[currentFilterIndex];
     const currentFilter = notion.buildDatabaseQueryFilter(
       currentFilterValue.prop_name,
       currentFilterValue.prop_type,
