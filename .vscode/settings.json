@@ -19,5 +19,5 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "[makefile]": {
     "editor.insertSpaces": false
-  },
+  }
 }
