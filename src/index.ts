@@ -295,7 +295,7 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls, res.next_cursor),
+      view: slack.searchPagesResultView(pm, urls, res.next_cursor),
     })
   } catch (error) {
     logger.error(error)
