@@ -458,68 +458,37 @@ app.view("search-db-modal", async ({ ack, view, client, logger }) => {
   ack()
 
   try {
-    // console.log(view)
-    const propValue =
-      view.state.values["select_prop_value"]["select_prop_value-action"].selected_option.value
-    //console.log(propValue)
+    const metaData = JSON.parse(view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
 
-    const pm = JSON.parse(view.private_metadata)
-    pm.selected_prop_value = propValue
-
-    console.dir(pm, { depth: null })
-
-    // console.dir(view.state.values, {depth: null})
-
-    // for (const prop of pm.selectProps) {
-    //   prop.selectedOptions = []
-    //   for (const block of view.blocks) {
-    //     if (prop.id == block.block_id) {
-    //       const type = view.state.values[prop.id][`static_select-action`].type
-    //       switch (type) {
-    //         case "static_select":
-    //           // prop.selectedOption = view.state.values[prop.id][`${prop.id}-action`].selected_option.value
-    //           prop.selectedOptions.push(view.state.values[prop.id][`static_select-action`].selected_option.value)
-    //           break;
-    //         case "multi_static_select":
-    //           view.state.values[prop.id][`static_select-action`].selected_options.map(
-    //             so => prop.selectedOptions.push(so.value)
-    //           )
-    //           break;
-    //         default:
-    //           console.log("Not supported type")
-    //       }
-    //     }
-    //   }
-    // }
-    // console.log(pm.selectProps)
-
-    // // Search Notion DB
-    // const pages = await queDb(pm.selectProps)
-    // // console.log(pages)
-
-    const { pages, filter } = await notion.queryDb(pm)
-    const urls = []
-    for (const page of pages) {
-      if (page.object != "page") {
-        continue
-      }
-      if (!isFullPage(page)) {
-        continue
-      }
-      const title = notion.getPageTitle(page)
-      urls.push(`・ <${page.url}|${title}>`)
+    const res = await notion.client.databases.query({
+      database_id: metaData.selected_db_id,
+      // filter: metaData.filters as QueryDatabaseParameters["filter"],
+      page_size: 10,
+    })
+    const urls = await notion.getPageUrls(res)
+    if (urls.length == 0) {
+      urls.push("該当するページはありませんでした")
     }
 
     // Reply result
+    const dbId = metaData.selected_db_id.replace(/-/g, "")
     await client.chat.postMessage({
-      channel: pm.channel_id,
-      thread_ts: pm.thread_ts,
+      channel: metaData.channel_id,
+      thread_ts: metaData.thread_ts,
       blocks: [
         {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "フィルター条件:\n```" + JSON.stringify(filter) + "```",
+            text: `*DB: <https://www.notion.so/${dbId}|${metaData.selected_db_name}>*`,
+          },
+        },
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "フィルター:\n```" + JSON.stringify(metaData.filters) + "```",
           },
         },
         {
@@ -529,7 +498,7 @@ app.view("search-db-modal", async ({ ack, view, client, logger }) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "検索結果:\n" + urls.join("\n"),
+            text: "*検索結果*:\n" + urls.join("\n"),
           },
         },
       ],

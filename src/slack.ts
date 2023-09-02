@@ -82,6 +82,10 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
       type: "plain_text",
       text: "Cancel",
     },
+    submit: {
+      type: "plain_text",
+      text: "Submit",
+    },
     blocks: [
       {
         type: "section",
