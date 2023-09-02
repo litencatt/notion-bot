@@ -238,8 +238,8 @@ export const selectFilterPropertyFieldView = (
     },
     blocks: [
       {
-        block_id: "select_db",
         type: "section",
+        block_id: "select_db",
         text: {
           type: "plain_text",
           text: `DB: ${metaData.selected_db_name}`,
@@ -247,8 +247,8 @@ export const selectFilterPropertyFieldView = (
         },
       },
       {
-        block_id: "set_prop",
         type: "section",
+        block_id: "set_prop",
         text: {
           type: "plain_text",
           text: `Property: ${selectedPropNameAndType}`,
@@ -296,8 +296,8 @@ export const selectFilterValueInputView = (
     },
     blocks: [
       {
-        block_id: "select_db",
         type: "section",
+        block_id: "select_db",
         text: {
           type: "plain_text",
           text: `DB: ${metaData.selected_db_name}`,
@@ -305,8 +305,8 @@ export const selectFilterValueInputView = (
         },
       },
       {
-        block_id: "set_prop",
         type: "section",
+        block_id: "set_prop",
         text: {
           type: "plain_text",
           text: `Property: ${selectedPropName}`,
@@ -314,8 +314,8 @@ export const selectFilterValueInputView = (
         },
       },
       {
-        block_id: "select_prop_field",
         type: "section",
+        block_id: "select_prop_field",
         text: {
           type: "plain_text",
           text: `field: ${selectedPropertyField}`,
@@ -323,8 +323,8 @@ export const selectFilterValueInputView = (
         },
       },
       {
-        block_id: "select_prop_value_input",
         type: "input",
+        block_id: "select_prop_value_input",
         dispatch_action: true,
         element: {
           type: "plain_text_input",
@@ -372,8 +372,8 @@ export const selectFilterValueView = (
     },
     blocks: [
       {
-        block_id: "select_db",
         type: "section",
+        block_id: "select_db",
         text: {
           type: "plain_text",
           text: `DB: ${metaData.selected_db_name}`,
@@ -381,8 +381,8 @@ export const selectFilterValueView = (
         },
       },
       {
-        block_id: "set_prop",
         type: "section",
+        block_id: "set_prop",
         text: {
           type: "plain_text",
           text: `Property: ${selectedProp.prop_name}`,
@@ -390,8 +390,8 @@ export const selectFilterValueView = (
         },
       },
       {
-        block_id: "select_prop_field",
         type: "section",
+        block_id: "select_prop_field",
         text: {
           type: "plain_text",
           text: `field: ${selectedProp.prop_field}`,
