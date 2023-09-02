@@ -35,6 +35,8 @@ app.event('app_mention', async({ logger, payload, say }) => {
 
   try {
     const modalButtonMessage = slack.modalButtonMessage(payload.thread_ts)
+
+    // If database id is passed, the default database is set to modal button.
     const query = payload.text.split(" ");
     let dbId = null
     if (query.length > 1) {
