@@ -5,6 +5,7 @@ import {
   PageObjectResponse,
   QueryDatabaseResponse,
 } from "@notionhq/client/build/src/api-endpoints"
+import { FilterValue } from "./type"
 
 export const client = new Client({
   auth: process.env.NOTION_API_TOKEN,
@@ -377,20 +378,15 @@ export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
   return propOptions
 }
 
-export const buildDatabaseQueryFilter = (
-  name: string,
-  type: string,
-  field: string,
-  value: string | string[] | boolean
-): QueryDatabaseParameters["filter"] => {
+export const buildDatabaseQueryFilter = (fv: FilterValue): QueryDatabaseParameters["filter"] => {
   let filter = null
-  switch (type) {
+  switch (fv.prop_type) {
     case "checkbox":
       filter = {
-        property: name,
-        [type]: {
+        property: fv.prop_name,
+        [fv.prop_type]: {
           // boolean value
-          [field]: value == "true",
+          [fv.prop_field]: fv.prop_value == "true",
         },
       }
       break
@@ -403,18 +399,18 @@ export const buildDatabaseQueryFilter = (
     case "status":
     case "title":
       filter = {
-        property: name,
-        [type]: {
-          [field]: value,
+        property: fv.prop_name,
+        [fv.prop_type]: {
+          [fv.prop_field]: fv.prop_value,
         },
       }
       break
     case "multi_select":
     case "relation":
       filter = {
-        property: name,
-        [type]: {
-          [field]: value,
+        property: fv.prop_name,
+        [fv.prop_type]: {
+          [fv.prop_field]: fv.prop_value,
         },
       }
       // const values = value as string[]
@@ -443,7 +439,7 @@ export const buildDatabaseQueryFilter = (
     case "people":
     case "rollup":
     default:
-      console.error(`type: ${type} is not support type`)
+      console.error(`type: ${fv.prop_type} is not support type`)
   }
   return filter
 }

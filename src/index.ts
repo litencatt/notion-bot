@@ -262,12 +262,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
       const currentFilterIndex = metaData.filter_values.length - 1
       const currentFilterValue = metaData.filter_values[currentFilterIndex]
       currentFilterValue.prop_value = true
-      const currentFilter = notion.buildDatabaseQueryFilter(
-        currentFilterValue.prop_name,
-        currentFilterValue.prop_type,
-        currentFilterValue.prop_field,
-        currentFilterValue.prop_value
-      )
+      const currentFilter = notion.buildDatabaseQueryFilter(currentFilterValue)
 
       if (metaData.filters == null) {
         metaData.filters = {
@@ -339,12 +334,7 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
     metaData.filter_values[currentFilterIndex].prop_value = propValue
 
     const currentFilterValue = metaData.filter_values[currentFilterIndex]
-    const currentFilter = notion.buildDatabaseQueryFilter(
-      currentFilterValue.prop_name,
-      currentFilterValue.prop_type,
-      currentFilterValue.prop_field,
-      currentFilterValue.prop_value
-    )
+    const currentFilter = notion.buildDatabaseQueryFilter(currentFilterValue)
     console.dir(currentFilter, { depth: null })
 
     if (metaData.filters == null) {
