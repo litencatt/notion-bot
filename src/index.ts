@@ -267,33 +267,68 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
     const selectedPropertyField = selectedOption.value
     metaData.filter_values[metaData.filter_values.length - 1].prop_field = selectedPropertyField
 
-    // typeがselectなどの場合は選択中のDBの指定プロパティの値を取得して選択肢にする
-    // それ以外は入力欄を表示
-    const res = await notion.retrieveDb(metaData.selected_db_id, {})
-    const selectedPropName = metaData.filter_values[metaData.filter_values.length - 1].prop_name
-    const dbPropValues = await notion.getSelectedDbPropValues(res, selectedPropName)
-    console.dir(dbPropValues, { depth: null })
-    const selectDbPropValueOptions = []
-    for (const o of dbPropValues) {
-      selectDbPropValueOptions.push({
-        text: {
-          type: "plain_text",
-          text: o,
-        },
-        value: o,
+    if (["is_empty", "is_not_empty"].includes(selectedPropertyField)) {
+      const currentFilterIndex = metaData.filter_values.length - 1
+      const currentFilterValue = metaData.filter_values[currentFilterIndex]
+      currentFilterValue.prop_value = true
+      const currentFilter = notion.buildDatabaseQueryFilter(
+        currentFilterValue.prop_name,
+        currentFilterValue.prop_type,
+        currentFilterValue.prop_field,
+        currentFilterValue.prop_value
+      )
+
+      if (metaData.filters == null) {
+        metaData.filters = {
+          and: [currentFilter],
+        }
+      } else {
+        metaData.filters["and"].push(currentFilter)
+      }
+      console.dir(metaData, { depth: null })
+
+      const res = await notion.client.databases.query({
+        database_id: metaData.selected_db_id,
+        filter: metaData.filters as QueryDatabaseParameters["filter"],
+        page_size: 10,
+      })
+      const urls = await notion.getPageUrls(res)
+
+      await client.views.update({
+        view_id: body.view.id,
+        hash: body.view.hash,
+        view: slack.searchPagesResultView(metaData, urls),
       })
     }
+    // typeがselectなどの場合は選択中のDBの指定プロパティの値を取得して選択肢にする
+    // それ以外は入力欄を表示
+    else {
+      const res = await notion.retrieveDb(metaData.selected_db_id, {})
+      const selectedPropName = metaData.filter_values[metaData.filter_values.length - 1].prop_name
+      const dbPropValues = await notion.getSelectedDbPropValues(res, selectedPropName)
+      console.dir(dbPropValues, { depth: null })
+      const selectDbPropValueOptions = []
+      for (const o of dbPropValues) {
+        selectDbPropValueOptions.push({
+          text: {
+            type: "plain_text",
+            text: o,
+          },
+          value: o,
+        })
+      }
 
-    await client.views.update({
-      view_id: body.view.id,
-      hash: body.view.hash,
-      view: slack.selectFilterValueView(
-        metaData,
-        selectedPropName,
-        selectedPropertyField,
-        selectDbPropValueOptions
-      ),
-    })
+      await client.views.update({
+        view_id: body.view.id,
+        hash: body.view.hash,
+        view: slack.selectFilterValueView(
+          metaData,
+          selectedPropName,
+          selectedPropertyField,
+          selectDbPropValueOptions
+        ),
+      })
+    }
   } catch (error) {
     logger.error(error)
   }
