@@ -2,6 +2,7 @@ const { App } = require('@slack/bolt');
 import * as notion from "./notion"
 import * as slack from "./slack"
 import { isFullDatabase, isFullPage } from '@notionhq/client'
+import { QueryDatabaseParameters } from '@notionhq/client/build/src/api-endpoints'
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -298,20 +299,26 @@ app.action('set_prop_value-action', async ({ ack, body, client, logger }) => {
     console.dir(metaData, {depth: null})
 
     const propValue = body.view.state.values["set_prop_value"][`set_prop_value-action`].selected_option.value
-    metaData.filters[metaData.filters.length - 1].prop_value = propValue
+    const currentFilterIndex = metaData.filters.length - 1
+    metaData.filters[currentFilterIndex].prop_value = propValue
+
+    const currentFilterValue = metaData.filters[currentFilterIndex]
+    const currentFilter = notion.buildDatabaseQueryFilter(
+      currentFilterValue.prop_name,
+      currentFilterValue.prop_type,
+      currentFilterValue.prop_field,
+      currentFilterValue.prop_value
+    )
+    if (metaData.filters.length > 1) {
+      metaData.filters.push({
+        and: currentFilter
+      })
+    }
     console.dir(metaData.filters, {depth: null})
 
-    const f = metaData.filters.map(f => {
-      return {
-        property: f.prop_name,
-        [f.prop_type]: {
-          [f.prop_field]: f.prop_value
-        }
-      }
-    })
     const res = await notion.client.databases.query({
       database_id: metaData.selected_db_id,
-      // filter: {},
+      filter: currentFilter,
       page_size: 10,
     })
     const urls = await notion.getPageUrls(res)

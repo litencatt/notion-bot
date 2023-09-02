@@ -402,3 +402,68 @@ export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
   })
   return propOptions
 }
+
+export const buildDatabaseQueryFilter = (
+  name: string,
+  type: string,
+  field: string,
+  value: string | string[] | boolean
+): QueryDatabaseParameters["filter"] =>  {
+  let filter = null
+  switch (type) {
+    case 'checkbox':
+      filter = {
+        property: name,
+        [type]: {
+          // boolean value
+          [field]: value == 'true'
+        }
+      }
+      break
+    case 'date':
+    case 'created_time':
+    case 'last_edited_time':
+    case 'rich_text':
+    case 'number':
+    case 'select':
+    case 'status':
+    case 'title':
+      filter = {
+        property: name,
+        [type]: {
+          [field]: value
+        }
+      }
+      break
+    case 'multi_select':
+    case 'relation':
+      const values = value as string[]
+      if (values.length == 1) {
+        filter = {
+          property: name,
+          [type]: {
+            [field]: value[0]
+          }
+        }
+      } else {
+        filter = { and: [] }
+        for (const v of values) {
+          filter.and.push({
+            property: name,
+            [type]: {
+              [field]: v
+            }
+          })
+        }
+      }
+      break
+
+    case 'files':
+    case 'formula':
+    case 'people':
+    case 'rollup':
+    default:
+      console.error(`type: ${type} is not support type`)
+  }
+  return filter
+}
