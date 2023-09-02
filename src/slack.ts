@@ -346,17 +346,23 @@ export const selectFilterValueView = (
   selectDbPropValueOptions: string[]
 ) => {
   let selectPropValueType = "static_select"
-  if (["multi_select", "relation"].includes(selectedProp.prop_type)) {
-    selectPropValueType = "multi_static_select"
-  }
+  let selectPropValueAction = "select_prop_value-action"
+  // if (["multi_select", "relation"].includes(selectedProp.prop_type)) {
+  //   selectPropValueType = "multi_static_select"
+  //   selectPropValueAction = "multi_select_prop_value-action"
+  // }
   return {
     private_metadata: JSON.stringify(metaData),
     type: "modal",
-    callback_id: "search-db-modal",
+    callback_id: "set-filter-property",
     title: {
       type: "plain_text",
       text: "Notion bot",
     },
+    // submit: {
+    //   type: "plain_text",
+    //   text: "Submit",
+    // },
     close: {
       type: "plain_text",
       text: "Cancel",
@@ -404,7 +410,7 @@ export const selectFilterValueView = (
             emoji: true,
           },
           options: selectDbPropValueOptions,
-          action_id: "select_prop_value-action",
+          action_id: selectPropValueAction,
         },
       },
     ],

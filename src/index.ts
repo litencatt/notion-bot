@@ -316,6 +316,11 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
   }
 })
 
+app.action("multi_select_prop_value-action", async ({ ack, logger }) => {
+  logger.info("multi_select_prop_value action called")
+  ack()
+})
+
 app.action("select_prop_value-action", async ({ ack, body, client, logger }) => {
   logger.info("select_prop_value action called")
   ack()
@@ -440,6 +445,11 @@ app.action("select_prop_value_input-action", async ({ ack, body, client, logger 
   } catch (error) {
     logger.error(error)
   }
+})
+
+app.view("set-filter-property", async ({ ack, view, client, logger }) => {
+  logger.info("set-filter-property view called")
+  ack()
 })
 
 // Receive modal submit action and reply result.
