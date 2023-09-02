@@ -291,7 +291,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
     // それ以外は入力欄を表示
     else {
       const res = await notion.retrieveDb(metaData.selected_db_id, {})
-      const selectedPropName = metaData.filter_values[metaData.filter_values.length - 1].prop_name
+      const selectedPropName = metaData.filter_values[currentFilterIndex].prop_name
       const dbPropValues = await notion.getSelectedDbPropValues(res, selectedPropName)
       console.dir(dbPropValues, { depth: null })
       const selectDbPropValueOptions = []
