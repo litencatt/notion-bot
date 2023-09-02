@@ -5,6 +5,7 @@ import {
   PageObjectResponse,
   QueryDatabaseResponse,
 } from "@notionhq/client/build/src/api-endpoints"
+import { FilterValue } from "./type"
 
 export const client = new Client({
   auth: process.env.NOTION_API_TOKEN,
@@ -232,39 +233,50 @@ export const getPageTitle = (row: PageObjectResponse) => {
 
 export const getFilterFields = async (type: string) => {
   switch (type) {
+    case "select":
+    case "status":
+      return ["equals", "does_not_equal", "is_empty", "is_not_empty"]
+
+    case "multi_select":
+    case "relation":
+      return ["contains", "does_not_contain", "is_empty", "is_not_empty"]
+
     case "checkbox":
       return ["equals", "does_not_equal"]
-    case "created_time":
-    case "last_edited_time":
-    case "date":
-      return [
-        "after",
-        "before",
-        "equals",
-        "is_empty",
-        "is_not_empty",
-        "next_month",
-        "next_week",
-        "next_year",
-        "on_or_after",
-        "on_or_before",
-        "past_month",
-        "past_week",
-        "past_year",
-        "this_week",
-      ]
+
     case "rich_text":
     case "title":
       return [
         "contains",
         "does_not_contain",
-        "does_not_equal",
-        "ends_with",
         "equals",
+        "does_not_equal",
+        "starts_with",
+        "ends_with",
         "is_empty",
         "is_not_empty",
-        "starts_with",
       ]
+
+    case "date":
+    case "created_time":
+    case "last_edited_time":
+      return [
+        "equals",
+        "before",
+        "after",
+        "on_or_before",
+        "on_or_after",
+        "this_week",
+        "next_week",
+        "next_month",
+        "next_year",
+        "past_week",
+        "past_month",
+        "past_year",
+        "is_empty",
+        "is_not_empty",
+      ]
+
     case "number":
       return [
         "equals",
@@ -276,13 +288,7 @@ export const getFilterFields = async (type: string) => {
         "is_empty",
         "is_not_empty",
       ]
-    case "select":
-      return ["equals", "does_not_equal", "is_empty", "is_not_empty"]
-    case "multi_select":
-    case "relation":
-      return ["contains", "does_not_contain", "is_empty", "is_not_empty"]
-    case "status":
-      return ["equals", "does_not_equal", "is_empty", "is_not_empty"]
+
     case "files":
     case "formula":
     case "people":
@@ -293,28 +299,72 @@ export const getFilterFields = async (type: string) => {
   }
 }
 
-export const getSelectedDbPropValues = async (
-  res: GetDatabaseResponse,
-  selectedPropName: string
-) => {
+export const getSelectedDbPropValues = async (res: GetDatabaseResponse, fv: FilterValue) => {
   let props = []
-  Object.entries(res.properties).forEach(([_, prop]) => {
-    if (prop.name != selectedPropName) {
-      return
+  let relDbId = null
+  let title = null
+  const selectDbPropValueOptions = []
+
+  if (fv.prop_type == "checkbox") {
+    props = ["true", "false"]
+  } else if (["rich_text", "title"].includes(fv.prop_type)) {
+    return props
+  } else {
+    Object.entries(res.properties).forEach(([_, prop]) => {
+      if (prop.name != fv.prop_name) {
+        return
+      }
+      switch (prop.type) {
+        case "multi_select":
+          props = prop.multi_select.options.map((o) => o.name)
+          break
+        case "select":
+          console.dir(prop.select.options, { depth: null })
+          props = prop.select.options.map((o) => o.name)
+          break
+        case "status":
+          props = prop.status.options.map((o) => o.name)
+          break
+        case "relation":
+          relDbId = prop.relation.database_id
+          break
+        default:
+          console.error(`type: ${prop.type} is not supported`)
+      }
+    })
+
+    if (fv.prop_type == "relation" && relDbId) {
+      const res = await client.databases.query({ database_id: relDbId })
+      Object.entries(res.results).forEach(([_, prop]) => {
+        if (prop.object != "page") {
+          return
+        }
+        if (!isFullPage(prop)) {
+          return
+        }
+        const pageTitle = getPageTitle(prop)
+        props.push({
+          text: {
+            type: "plain_text",
+            text: pageTitle,
+          },
+          value: prop.id,
+        })
+      })
+      return props
+    } else {
+      for (const o of props) {
+        selectDbPropValueOptions.push({
+          text: {
+            type: "plain_text",
+            text: o,
+          },
+          value: o,
+        })
+      }
+      return selectDbPropValueOptions
     }
-    switch (prop.type) {
-      case "multi_select":
-        props = prop.multi_select.options.map((o) => o.name)
-        break
-      case "select":
-        console.dir(prop.select.options, { depth: null })
-        props = prop.select.options.map((o) => o.name)
-        break
-      default:
-        console.error(`type: ${prop.type} is not supported`)
-    }
-  })
-  return props
+  }
 }
 
 export const getDatabases = async () => {
@@ -366,6 +416,20 @@ export const getPageUrls = async (res: QueryDatabaseResponse) => {
 export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
   const propOptions = []
   Object.entries(db.properties).forEach(([_, prop]) => {
+    // Hide not supported types
+    switch (prop.type) {
+      case "date":
+      case "created_time":
+      case "last_edited_time":
+      case "number":
+      case "files":
+      case "formula":
+      case "people":
+      case "rollup":
+      case "unique_id":
+        return
+    }
+
     propOptions.push({
       text: {
         type: "plain_text",
@@ -377,20 +441,15 @@ export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
   return propOptions
 }
 
-export const buildDatabaseQueryFilter = (
-  name: string,
-  type: string,
-  field: string,
-  value: string | string[] | boolean
-): QueryDatabaseParameters["filter"] => {
+export const buildDatabaseQueryFilter = (fv: FilterValue): QueryDatabaseParameters["filter"] => {
   let filter = null
-  switch (type) {
+  switch (fv.prop_type) {
     case "checkbox":
       filter = {
-        property: name,
-        [type]: {
+        property: fv.prop_name,
+        [fv.prop_type]: {
           // boolean value
-          [field]: value == "true",
+          [fv.prop_field]: fv.prop_value == "true",
         },
       }
       break
@@ -403,18 +462,18 @@ export const buildDatabaseQueryFilter = (
     case "status":
     case "title":
       filter = {
-        property: name,
-        [type]: {
-          [field]: value,
+        property: fv.prop_name,
+        [fv.prop_type]: {
+          [fv.prop_field]: fv.prop_value,
         },
       }
       break
     case "multi_select":
     case "relation":
       filter = {
-        property: name,
-        [type]: {
-          [field]: value,
+        property: fv.prop_name,
+        [fv.prop_type]: {
+          [fv.prop_field]: fv.prop_value,
         },
       }
       // const values = value as string[]
@@ -443,7 +502,7 @@ export const buildDatabaseQueryFilter = (
     case "people":
     case "rollup":
     default:
-      console.error(`type: ${type} is not support type`)
+      console.error(`type: ${fv.prop_type} is not support type`)
   }
   return filter
 }

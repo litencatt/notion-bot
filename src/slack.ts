@@ -1,3 +1,5 @@
+import { FilterValue } from "./type"
+
 export const modalButtonMessage = (message_ts: string) => {
   return {
     thread_ts: message_ts,
@@ -251,7 +253,7 @@ export const selectFilterPropertyFieldView = (
         },
       },
       {
-        block_id: "set_prop_field",
+        block_id: "select_prop_field",
         type: "section",
         text: {
           type: "mrkdwn",
@@ -265,18 +267,17 @@ export const selectFilterPropertyFieldView = (
             emoji: true,
           },
           options: filterFieldOptions,
-          action_id: "set_prop_field-action",
+          action_id: "select_prop_field-action",
         },
       },
     ],
   }
 }
 
-export const selectFilterValueView = (
+export const selectFilterValueInputView = (
   metaData: any,
   selectedPropName: string,
-  selectedPropertyField: string,
-  selectDbPropValueOptions: string[]
+  selectedPropertyField: string
 ) => {
   return {
     private_metadata: JSON.stringify(metaData),
@@ -310,7 +311,7 @@ export const selectFilterValueView = (
         },
       },
       {
-        block_id: "set_prop_field",
+        block_id: "select_prop_field",
         type: "section",
         text: {
           type: "plain_text",
@@ -319,21 +320,97 @@ export const selectFilterValueView = (
         },
       },
       {
-        block_id: "set_prop_value",
+        block_id: "select_prop_value_input",
+        type: "input",
+        dispatch_action: true,
+        element: {
+          type: "plain_text_input",
+          action_id: "select_prop_value_input-action",
+          placeholder: {
+            type: "plain_text",
+            text: "Type a value...",
+          },
+        },
+        label: {
+          type: "plain_text",
+          text: "フィルター値入力",
+        },
+      },
+    ],
+  }
+}
+
+export const selectFilterValueView = (
+  metaData: any,
+  selectedProp: FilterValue,
+  selectDbPropValueOptions: string[]
+) => {
+  let selectPropValueType = "static_select"
+  let selectPropValueAction = "select_prop_value-action"
+  // if (["multi_select", "relation"].includes(selectedProp.prop_type)) {
+  //   selectPropValueType = "multi_static_select"
+  //   selectPropValueAction = "multi_select_prop_value-action"
+  // }
+  return {
+    private_metadata: JSON.stringify(metaData),
+    type: "modal",
+    callback_id: "set-filter-property",
+    title: {
+      type: "plain_text",
+      text: "Notion bot",
+    },
+    // submit: {
+    //   type: "plain_text",
+    //   text: "Submit",
+    // },
+    close: {
+      type: "plain_text",
+      text: "Cancel",
+    },
+    blocks: [
+      {
+        block_id: "select_db",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `DB: ${metaData.selected_db_name}`,
+          emoji: true,
+        },
+      },
+      {
+        block_id: "set_prop",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `Property: ${selectedProp.prop_name}`,
+          emoji: true,
+        },
+      },
+      {
+        block_id: "select_prop_field",
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `field: ${selectedProp.prop_field}`,
+          emoji: true,
+        },
+      },
+      {
+        block_id: "select_prop_value",
         type: "section",
         text: {
           type: "mrkdwn",
-          text: "フィルター値入力",
+          text: "フィルター値選択",
         },
         accessory: {
-          type: "static_select",
+          type: selectPropValueType,
           placeholder: {
             type: "plain_text",
-            text: "Select a field",
+            text: "Select a value",
             emoji: true,
           },
           options: selectDbPropValueOptions,
-          action_id: "set_prop_value-action",
+          action_id: selectPropValueAction,
         },
       },
     ],
