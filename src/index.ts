@@ -57,7 +57,7 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
 
   try {
     const dbId = body.actions[0].value
-    console.log(dbId)
+    console.log(`dbId: ${dbId}`)
 
     if (dbId == undefined) {
       const dbs = await notion.getDatabases()
@@ -71,12 +71,12 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
       })
     } else {
       const db = await notion.retrieveDb(dbId, {})
+      const dbTitle = await notion.getDatabaseTitle(db)
       const metaData: metaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
         selected_db_id: dbId,
-        // @ts-ignore
-        selected_db_name: db.title.length > 0 ? db.title[0].plain_text : "",
+        selected_db_name: dbTitle,
       }
 
       const res = await notion.client.databases.query({

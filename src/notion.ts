@@ -364,6 +364,16 @@ export const getDatabases = async () => {
   return sortedDbChoices
 }
 
+export const getDatabaseTitle = async (db: GetDatabaseResponse) => {
+  if (db.object != "database") {
+    return "Untitled"
+  }
+  if (!isFullDatabase(db)) {
+    return "Untitled"
+  }
+  return db.title.length > 0 ? db.title[0].plain_text : "Untitled"
+}
+
 export const getPageUrls = async (res: QueryDatabaseResponse) => {
   const urls = []
   for (const page of res.results) {
