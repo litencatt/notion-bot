@@ -153,17 +153,7 @@ export const searchPagesResultView = (metaData: any, urls: any[], nextCursor: st
   return view
 }
 
-export const selectFilterPropertyView = (metaData: any, data: any[]) => {
-  const propOptions = []
-  for (const prop of data) {
-    propOptions.push({
-      text: {
-        type: "plain_text",
-        text: `${prop.prop_name} (${prop.prop_type})`,
-      },
-      value: prop.prop_name
-    })
-  }
+export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
   return {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",

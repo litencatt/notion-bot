@@ -187,14 +187,7 @@ app.action('add_filter-action', async({ack, body, client, logger}) => {
     console.dir(metaData, {depth: null})
 
     const selectedDb = await notion.retrieveDb(metaData.selected_db_id, {})
-    const dbProps = []
-    Object.entries(selectedDb.properties).forEach(([_, prop]) => {
-      dbProps.push({
-        prop_name: prop.name,
-        prop_type: prop.type
-      })
-    })
-
+    const dbProps = notion.buildFilterPropertyOptions(selectedDb)
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,

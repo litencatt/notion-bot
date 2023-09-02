@@ -388,3 +388,17 @@ export const getPageUrls = async (res: QueryDatabaseResponse) => {
   }
   return urls
 }
+
+export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
+  const propOptions = []
+  Object.entries(db.properties).forEach(([_, prop]) => {
+    propOptions.push({
+      text: {
+        type: "plain_text",
+        text: `${prop.name} (${prop.type})`,
+      },
+      value: prop.name
+    })
+  })
+  return propOptions
+}
