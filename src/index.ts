@@ -71,7 +71,7 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
       })
     } else {
       const db = await notion.retrieveDb(dbId, {})
-      const metaData = {
+      const metaData: metaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
         selected_db_id: dbId,
