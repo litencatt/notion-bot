@@ -44,8 +44,8 @@ export const searchDbView = (metaData: any, data: any[]) => {
   }
 }
 
-export const searchResultModal = (metaData: any, urls: any[], nextCursor: string) => {
-  let searchResultModalView = {
+export const searchPagesResultView = (metaData: any, urls: any[], nextCursor: string) => {
+  let view = {
     "private_metadata": JSON.stringify(metaData),
     "type": "modal",
     "callback_id": "search-db-modal",
@@ -116,7 +116,7 @@ export const searchResultModal = (metaData: any, urls: any[], nextCursor: string
     ]
   }
   if (nextCursor) {
-    searchResultModalView.blocks[6] = {
+    view.blocks[6] = {
       "type": "actions",
       "elements": [
         {
@@ -132,7 +132,7 @@ export const searchResultModal = (metaData: any, urls: any[], nextCursor: string
     } as any
   }
 
-  return searchResultModalView
+  return view
 }
 
 export const searchDbView2 = (metaData: any, data: any[], dbName: string) => {

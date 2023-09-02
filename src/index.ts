@@ -101,7 +101,7 @@ app.action("open-modal-button", async({ ack, body, client, logger}) => {
 
       await client.views.open({
         trigger_id: body.trigger_id,
-        view: slack.searchResultModal(metaData, urls, nextCursor),
+        view: slack.searchPagesResultView(metaData, urls, nextCursor),
       })
     }
   } catch (error) {
@@ -135,7 +135,7 @@ app.action('select_db-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls, nextCursor),
+      view: slack.searchPagesResultView(pm, urls, nextCursor),
     })
   } catch (error) {
     logger.error(error)
@@ -183,7 +183,7 @@ app.action('next_result-action', async({ack, body, client, logger}) => {
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
-      view: slack.searchResultModal(pm, urls, nextCursor),
+      view: slack.searchPagesResultView(pm, urls, nextCursor),
     })
   } catch (error) {
     logger.error(error)
