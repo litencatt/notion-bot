@@ -1,14 +1,14 @@
 version: "3"
 services:
   app:
-    image: node:19-alpine
+    image: node:20-bullseye
     command: yarn dev
     environment:
       TZ: Asia/Tokyo
       SLACK_SIGNING_SECRET: $SLACK_SIGNING_SECRET
       SLACK_BOT_TOKEN: $SLACK_BOT_TOKEN
       SLACK_APP_TOKEN: $SLACK_APP_TOKEN
-      NOTION_API_TOKEN: $NOTION_TOKEN
+      NOTION_TOKEN: $NOTION_TOKEN
     volumes:
       - .:/app
     working_dir: /app

@@ -13,7 +13,7 @@ COPY . /work/
 RUN yarn install --no-progress
 RUN yarn build
 
-FROM gcr.io/distroless/nodejs20-debian11 as runtime-stage
+FROM gcr.io/distroless/nodejs20-debian11:debug as runtime-stage
 ENV NODE_ENV production
 ENV LANG C.UTF-8
 ENV TZ Asia/Tokyo
