@@ -1,9 +1,12 @@
-.git
+.git/
+.github/
+.vscode/
+node_modules/
+manifests/
 .env*
+.gitignore
 .dockerignore
 .prettierrc
-.vscode
-node_modules
 README.md
 docker-compose.yml
 Dockerfile*
