@@ -3,7 +3,7 @@ FROM node:20-bullseye as desp-stage
 WORKDIR /app
 
 COPY ./package.json ./yarn.lock ./
-RUN yarn install --no-progress
+RUN yarn install --production --no-progress
 
 FROM node:20-bullseye as build-stage
 
@@ -13,15 +13,18 @@ COPY . /work/
 RUN yarn install --no-progress
 RUN yarn build
 
-FROM node:20-bullseye-slim as runtime-stage
+FROM gcr.io/distroless/nodejs20-debian11 as runtime-stage
+ENV NODE_ENV production
 
 ENV LANG C.UTF-8
 ENV TZ Asia/Tokyo
 
 WORKDIR /app
 
-COPY ./package.json ./yarn.lock ./
-COPY --from=desp-stage /app/node_modules ./node_modules
-COPY --from=build-stage /work/dist ./dist
+COPY --chown=nonroot:nonroot ./package.json ./yarn.lock ./
+COPY --chown=nonroot:nonroot --from=desp-stage /app/node_modules ./node_modules
+COPY --chown=nonroot:nonroot --from=build-stage /work/dist ./dist
 
-CMD ["node", "dist/index.js"]
+USER nonroot
+
+CMD ["dist/index.js"]
