@@ -23,19 +23,19 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: notion-bot
-                  key: slack-signing-secret
+                  key: SLACK_SIGNING_SECRET
             - name: SLACK_BOT_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: notion-bot
-                  key: slack-bot-token
+                  key: SLACK_BOT_TOKEN
             - name: SLACK_APP_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: notion-bot
-                  key: slack-app-token
+                  key: SLACK_APP_TOKEN
             - name: NOTION_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: notion-bot
-                  key: notion-token
+                  key: NOTION_TOKEN
