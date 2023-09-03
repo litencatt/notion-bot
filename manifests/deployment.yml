@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notion-bot
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: notion-bot
+    spec:
+      containers:
+        - name: notion-bot
+          imagePullPolicy: Always
+          image: ghcr.io/litencatt/notion-bot:latest
+          env:
+            - name: TZ
+              value: Asia/Tokyo
+            - name: SLACK_SIGNING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: notion-bot
+                  key: slack-signing-secret
+            - name: SLACK_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: notion-bot
+                  key: slack-bot-token
+            - name: SLACK_APP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: notion-bot
+                  key: slack-app-token
+            - name: NOTION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: notion-bot
+                  key: notion-token
