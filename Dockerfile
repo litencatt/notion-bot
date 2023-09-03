@@ -15,7 +15,6 @@ RUN yarn build
 
 FROM gcr.io/distroless/nodejs20-debian11 as runtime-stage
 ENV NODE_ENV production
-
 ENV LANG C.UTF-8
 ENV TZ Asia/Tokyo
 
@@ -24,6 +23,7 @@ WORKDIR /app
 COPY --chown=nonroot:nonroot ./package.json ./yarn.lock ./
 COPY --chown=nonroot:nonroot --from=desp-stage /app/node_modules ./node_modules
 COPY --chown=nonroot:nonroot --from=build-stage /work/dist ./dist
+COPY --chown=nonroot:nonroot . .
 
 USER nonroot
 
