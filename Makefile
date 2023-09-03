@@ -11,7 +11,7 @@ run:
 apply:
 	kubectl apply -f manifests
 
-setup-sealed-secrets:
+install-sealed-secrets:
 	helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
 	helm install --namespace kube-system notion-bot sealed-secrets/sealed-secrets
 
