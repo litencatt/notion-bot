@@ -1,5 +1,9 @@
-node_modules
 .git
 .env
 .dockerignore
+.prettierrc
+.vscode
+node_modules
 README.md
+docker-compose.yml
+Dockerfile*
