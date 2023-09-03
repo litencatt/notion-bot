@@ -6,7 +6,21 @@ on:
       - main
 
 jobs:
+  tagpr:
+    runs-on: ubuntu-latest
+    outputs:
+      tagpr-tag: ${{ steps.run-tagpr.outputs.tag }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: run-tagpr
+        name: Run tagpr
+        uses: Songmu/tagpr@v1
+
   docker-image:
+    needs: tagpr
+    if: needs.tagpr.outputs.tagpr-tag != ''
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -18,7 +32,8 @@ jobs:
       - name: Get latest version
         id: latest_version
         run: |
-          echo 'version=v0.1.0' > $GITHUB_OUTPUT
+          echo -n 'version=' > $GITHUB_OUTPUT
+          gh release list --limit 1 | cut -f 1 >> $GITHUB_OUTPUT
           cat $GITHUB_OUTPUT
 
       - name: Set up QEMU
