@@ -4,6 +4,9 @@ metadata:
   name: notion-bot
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      name: notion-bot
   template:
     metadata:
       labels:
