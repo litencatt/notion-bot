@@ -344,8 +344,9 @@ export const getDatabases = async () => {
     if (!isFullDatabase(db)) {
       continue
     }
+    const dbTitle = await getDatabaseTitle(db)
     dbChoices.push({
-      title: db.title.length > 0 ? db.title[0].plain_text : "Untitled",
+      title: dbTitle,
       value: db.id,
     })
   }
@@ -356,13 +357,20 @@ export const getDatabases = async () => {
 }
 
 export const getDatabaseTitle = async (db: GetDatabaseResponse) => {
+  const ut = "Untitled"
   if (db.object != "database") {
-    return "Untitled"
+    return ut
   }
   if (!isFullDatabase(db)) {
-    return "Untitled"
+    return ut
   }
-  return db.title.length > 0 ? db.title[0].plain_text : "Untitled"
+  if (db.title.length == 0) {
+    return ut
+  }
+  if (db.title[0].plain_text == "") {
+    return ut
+  }
+  return db.title[0].plain_text
 }
 
 export const getPageUrls = async (res: QueryDatabaseResponse) => {
