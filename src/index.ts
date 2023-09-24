@@ -357,6 +357,7 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
     if (urls.length == 0) {
       urls.push("該当するページはありませんでした")
     }
+    metaData.next_cursor = res.has_more ? res.next_cursor : ""
 
     // プロパティ設定用モーダルに更新
     await client.views.update({
