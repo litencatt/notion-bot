@@ -1,6 +1,6 @@
 {
   "name": "notion-bot",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Notion database search bot",
   "main": "dist/index.js",
   "repository": "litencatt/notion-bot",
