@@ -395,7 +395,9 @@ export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
     switch (prop.type) {
       case "date":
       case "created_time":
+      case "created_by":
       case "last_edited_time":
+      case "last_edited_by":
       case "number":
       case "files":
       case "formula":
