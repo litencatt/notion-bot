@@ -1,5 +1,8 @@
 # Changelog
 
+## [v0.1.2](https://github.com/litencatt/notion-bot/compare/v0.1.1...v0.1.2) - 2023-09-24
+- Strict check for db title blank by @litencatt in https://github.com/litencatt/notion-bot/pull/25
+
 ## [v0.1.1](https://github.com/litencatt/notion-bot/compare/v0.1.0...v0.1.1) - 2023-09-03
 - Apply to k8s by @litencatt in https://github.com/litencatt/notion-bot/pull/21
 - Add tagpr for release by @litencatt in https://github.com/litencatt/notion-bot/pull/22
