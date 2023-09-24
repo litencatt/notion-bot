@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.1.3](https://github.com/litencatt/notion-bot/compare/v0.1.2...v0.1.3) - 2023-09-24
+- Update result next_cursor after filtered result by @litencatt in https://github.com/litencatt/notion-bot/pull/28
+- Add not supported filter property types by @litencatt in https://github.com/litencatt/notion-bot/pull/27
+
 ## [v0.1.2](https://github.com/litencatt/notion-bot/compare/v0.1.1...v0.1.2) - 2023-09-24
 - Strict check for db title blank by @litencatt in https://github.com/litencatt/notion-bot/pull/25
 
