@@ -105,6 +105,22 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
         },
       },
       {
+        dispatch_action: true,
+        type: "input",
+        element: {
+          type: "plain_text_input",
+          action_id: "title_search_input-action",
+          placeholder: {
+            type: "plain_text",
+            text: "Type to search ...",
+          },
+        },
+        label: {
+          type: "plain_text",
+          text: "検索ワード入力",
+        },
+      },
+      {
         type: "actions",
         elements: [
           {

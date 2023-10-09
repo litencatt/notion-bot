@@ -3,6 +3,7 @@ export type MetaData = {
   thread_ts: string
   selected_db_id?: string
   selected_db_name?: string
+  search_string?: string
   next_cursor?: string
   filter_values?: FilterValue[]
   filters?: object

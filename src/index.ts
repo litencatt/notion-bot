@@ -370,6 +370,21 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
   }
 })
 
+app.action("title_search_input-action", async ({ ack, body, client, logger }) => {
+  logger.info("title_search_input action called")
+  ack()
+
+  try {
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
+    // Set search string to metaData
+    metaData.search_string = body.actions[0].value
+    console.dir({ metaData }, { depth: null })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
 app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
   logger.info("add_filter action called")
   ack()
