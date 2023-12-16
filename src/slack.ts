@@ -97,7 +97,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           type: "button",
           text: {
             type: "plain_text",
-            text: "Change database",
+            text: "Change DB",
           },
           style: "primary",
           action_id: "change_db-action",
