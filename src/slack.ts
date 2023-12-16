@@ -177,7 +177,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
     view.blocks[3].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
   }
   if (metaData.next_cursor) {
-    view.blocks[6] = {
+    view.blocks[7] = {
       type: "actions",
       elements: [
         {
