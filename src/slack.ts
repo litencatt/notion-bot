@@ -114,7 +114,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
             type: "plain_text",
             text: "Type to search ...",
           },
-          initial_value: metaData.search_string,
+          initial_value: metaData.search_string ? metaData.search_string : "",
         },
         label: {
           type: "plain_text",

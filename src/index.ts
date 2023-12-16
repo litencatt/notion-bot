@@ -377,6 +377,7 @@ app.action("title_search_input-action", async ({ ack, body, client, logger }) =>
   try {
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
+
     // Set search string to metaData
     metaData.search_string = body.actions[0].value
 
