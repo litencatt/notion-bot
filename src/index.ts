@@ -353,7 +353,43 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
       filter: metaData.filters as QueryDatabaseParameters["filter"],
       page_size: 10,
     })
-    const urls = await notion.getPageUrls(res)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
+    if (urls.length == 0) {
+      urls.push("該当するページはありませんでした")
+    }
+    metaData.next_cursor = res.has_more ? res.next_cursor : ""
+
+    // プロパティ設定用モーダルに更新
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchPagesResultView(metaData, urls),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
+app.action("title_search_input-action", async ({ ack, body, client, logger }) => {
+  logger.info("title_search_input action called")
+  ack()
+
+  try {
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
+
+    // Set search string to metaData
+    metaData.search_string = body.actions[0].value
+
+    const params = {
+      database_id: metaData.selected_db_id,
+      page_size: 10,
+    }
+    if (metaData.filters != null) {
+      params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
+    }
+    const res = await notion.client.databases.query(params)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
       urls.push("該当するページはありませんでした")
     }
@@ -380,6 +416,7 @@ app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
 
     metaData.filter_values = []
     metaData.filters = null
+    metaData.search_string = null
 
     const res = await notion.client.databases.query({
       database_id: metaData.selected_db_id,

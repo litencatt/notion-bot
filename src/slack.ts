@@ -105,6 +105,24 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
         },
       },
       {
+        dispatch_action: true,
+        type: "input",
+        element: {
+          type: "plain_text_input",
+          action_id: "title_search_input-action",
+          placeholder: {
+            type: "plain_text",
+            text: "Type to search ...",
+          },
+          initial_value: metaData.search_string ? metaData.search_string : "",
+        },
+        label: {
+          type: "plain_text",
+          text: "タイトル検索",
+        },
+        optional: true,
+      },
+      {
         type: "actions",
         elements: [
           {
@@ -155,11 +173,11 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
     ],
   }
   if (metaData.filters) {
-    view.blocks[2].text.text = "*フィルター*"
-    view.blocks[2].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
+    view.blocks[3].text.text = "*フィルター*"
+    view.blocks[3].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
   }
   if (metaData.next_cursor) {
-    view.blocks[6] = {
+    view.blocks[7] = {
       type: "actions",
       elements: [
         {
