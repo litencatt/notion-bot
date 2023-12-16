@@ -173,8 +173,8 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
     ],
   }
   if (metaData.filters) {
-    view.blocks[2].text.text = "*フィルター*"
-    view.blocks[2].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
+    view.blocks[3].text.text = "*フィルター*"
+    view.blocks[3].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
   }
   if (metaData.next_cursor) {
     view.blocks[6] = {
