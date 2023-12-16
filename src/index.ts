@@ -383,7 +383,7 @@ app.action("title_search_input-action", async ({ ack, body, client, logger }) =>
 
     const res = await notion.client.databases.query({
       database_id: metaData.selected_db_id,
-      filter: metaData.filters as QueryDatabaseParameters["filter"],
+      filter: metaData.filters ? (metaData.filters as QueryDatabaseParameters["filter"]) : null,
       page_size: 10,
     })
     const urls = await notion.getPageUrls(res, metaData.search_string)
