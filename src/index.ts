@@ -353,7 +353,7 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
       filter: metaData.filters as QueryDatabaseParameters["filter"],
       page_size: 10,
     })
-    const urls = await notion.getPageUrls(res)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
       urls.push("該当するページはありませんでした")
     }
