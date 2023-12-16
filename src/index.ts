@@ -1,9 +1,9 @@
 const { App } = require("@slack/bolt")
 import * as notion from "./notion"
 import * as slack from "./slack"
-import { isFullDatabase, isFullPage } from "@notionhq/client"
 import { QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints"
-import { MetaData, FilterValue } from "./type"
+import { MetaData } from "./type"
+import * as cache from "./cache"
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -54,7 +54,7 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
     console.log(`dbId: ${dbId}`)
 
     if (dbId == undefined) {
-      const dbs = await notion.getDatabases()
+      const dbs = await cache.getDatabases()
       const metaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
@@ -64,8 +64,8 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
         view: slack.searchDbView(metaData, dbs),
       })
     } else {
-      const db = await notion.retrieveDb(dbId, {})
-      const dbTitle = await notion.getDatabaseTitle(db)
+      const dbs = await cache.getDatabases()
+      const dbTitle = await notion.getDatabaseTitle(dbs)
       const metaData: MetaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
@@ -133,7 +133,7 @@ app.action("change_db-action", async ({ ack, body, client, logger }) => {
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
-    const dbs = await notion.getDatabases()
+    const dbs = await cache.getDatabases()
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
@@ -181,7 +181,7 @@ app.action("add_filter-action", async ({ ack, body, client, logger }) => {
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
-    const selectedDb = await notion.retrieveDb(metaData.selected_db_id, {})
+    const selectedDb = await cache.getDbRetrieve(metaData.selected_db_id, {})
     const dbProps = notion.buildFilterPropertyOptions(selectedDb)
     await client.views.update({
       view_id: body.view.id,
@@ -303,7 +303,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
     }
     // それ以外は選択中のDBの指定プロパティの値を取得して選択肢にする
     else {
-      const res = await notion.retrieveDb(metaData.selected_db_id, {})
+      const res = await cache.getDbRetrieve(metaData.selected_db_id, {})
       const dbPropOptions = await notion.getSelectedDbPropValues(res, currentFilterValue)
       await client.views.update({
         view_id: body.view.id,

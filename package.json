@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@notionhq/client": "^2.2.3",
-    "@slack/bolt": "^3.12.2"
+    "@slack/bolt": "^3.12.2",
+    "ioredis": "^5.3.2"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",
