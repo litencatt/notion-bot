@@ -373,7 +373,10 @@ export const getDatabaseTitle = async (db: GetDatabaseResponse) => {
   return db.title[0].plain_text
 }
 
-export const getPageUrls = async (res: QueryDatabaseResponse) => {
+export const getPageUrls = async (
+  res: QueryDatabaseResponse,
+  search_title: string | null = null
+) => {
   const urls = []
   for (const page of res.results) {
     if (page.object != "page") {
@@ -383,6 +386,10 @@ export const getPageUrls = async (res: QueryDatabaseResponse) => {
       continue
     }
     const title = getPageTitle(page)
+    // Extract only matched title when search_title is specified
+    if (search_title != null && title.indexOf(search_title) == -1) {
+      continue
+    }
     urls.push(`・ <${page.url}|${title}>`)
   }
   return urls
