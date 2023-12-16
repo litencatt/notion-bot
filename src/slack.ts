@@ -153,31 +153,55 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           text: "*フィルター*: なし",
         },
       },
-      {
-        type: "divider",
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "*検索結果*",
-        },
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: urls.join("\n"),
-        },
-      },
     ],
   }
   if (metaData.filters) {
-    view.blocks[3].text.text = "*フィルター*"
-    view.blocks[3].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
+    view.blocks[3].text.text = "*フィルター(AND)*"
+    // view.blocks[3].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
+    metaData.filter_values.forEach((filter: any) => {
+      view.blocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `- ${filter.prop_name} ${filter.prop_field} ${filter.prop_value}`,
+        },
+        accessory: {
+          type: "overflow",
+          action_id: "filter-delete-action",
+          options: [
+            {
+              text: {
+                type: "plain_text",
+                text: "Delete",
+              },
+              value: `${filter.id}`,
+            },
+          ],
+        },
+      } as any)
+    })
   }
+  view.blocks.push({
+    type: "divider",
+  } as any)
+  view.blocks.push(
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: "*検索結果*",
+      },
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: urls.join("\n"),
+      },
+    } as any
+  )
   if (metaData.next_cursor) {
-    view.blocks[7] = {
+    view.blocks.push({
       type: "actions",
       elements: [
         {
@@ -190,7 +214,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           action_id: "next_result-action",
         },
       ],
-    } as any
+    } as any)
   }
 
   return view
