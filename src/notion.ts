@@ -387,7 +387,7 @@ export const getPageUrls = async (
     }
     const title = getPageTitle(page)
     // Extract only matched title when search_title is specified
-    if (search_title != null && title.indexOf(search_title) == -1) {
+    if (search_title && title.indexOf(search_title) == -1) {
       continue
     }
     urls.push(`・ <${page.url}|${title}>`)
