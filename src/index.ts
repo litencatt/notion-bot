@@ -381,11 +381,14 @@ app.action("title_search_input-action", async ({ ack, body, client, logger }) =>
     // Set search string to metaData
     metaData.search_string = body.actions[0].value
 
-    const res = await notion.client.databases.query({
+    const params = {
       database_id: metaData.selected_db_id,
-      filter: metaData.filters ? (metaData.filters as QueryDatabaseParameters["filter"]) : null,
       page_size: 10,
-    })
+    }
+    if (metaData.filters != null) {
+      params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
+    }
+    const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
       urls.push("該当するページはありませんでした")
