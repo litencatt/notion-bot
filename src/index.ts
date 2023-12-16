@@ -212,6 +212,7 @@ app.action("select_prop-action", async ({ ack, body, client, logger }) => {
       metaData.filter_values = []
     }
     metaData.filter_values.push({
+      id: metaData.filter_values.length + 1,
       prop_name: selectedPropName,
       prop_type: selectedPropType,
     })
