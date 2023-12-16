@@ -3,7 +3,7 @@ import * as notion from "./notion"
 import * as slack from "./slack"
 import { QueryDatabaseParameters } from "@notionhq/client/build/src/api-endpoints"
 import { MetaData } from "./type"
-import { redis } from "./redis"
+import * as cache from "./cache"
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -54,8 +54,7 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
     console.log(`dbId: ${dbId}`)
 
     if (dbId == undefined) {
-      const dbs = await notion.getDatabases()
-      redis.set("dbs", JSON.stringify(dbs), "EX", 300)
+      const dbs = await cache.getDatabases()
       const metaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
@@ -65,13 +64,7 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
         view: slack.searchDbView(metaData, dbs),
       })
     } else {
-      let dbs
-      dbs = await redis.get("dbs")
-      logger.info("dbs: " + dbs)
-      if (dbs == null) {
-        logger.info("dbs is null")
-        dbs = await notion.retrieveDb(dbId, {})
-      }
+      const dbs = await cache.getDatabases()
       const dbTitle = await notion.getDatabaseTitle(dbs)
       const metaData: MetaData = {
         channel_id: body.channel.id,
@@ -140,13 +133,7 @@ app.action("change_db-action", async ({ ack, body, client, logger }) => {
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
-    let dbs
-    const cachedDbs = await redis.get("dbs")
-    if (cachedDbs) {
-      dbs = JSON.parse(cachedDbs)
-    } else {
-      dbs = await notion.getDatabases()
-    }
+    const dbs = await cache.getDatabases()
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
