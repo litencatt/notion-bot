@@ -416,6 +416,7 @@ app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
 
     metaData.filter_values = []
     metaData.filters = null
+    metaData.search_string = null
 
     const res = await notion.client.databases.query({
       database_id: metaData.selected_db_id,
