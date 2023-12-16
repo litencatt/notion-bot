@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.1.4](https://github.com/litencatt/notion-bot/compare/v0.1.3...v0.1.4) - 2023-12-16
+- Add search form by @litencatt in https://github.com/litencatt/notion-bot/pull/31
+- Update packages by @litencatt in https://github.com/litencatt/notion-bot/pull/33
+- Update title search to be case-insensitive by @litencatt in https://github.com/litencatt/notion-bot/pull/34
+
 ## [v0.1.3](https://github.com/litencatt/notion-bot/compare/v0.1.2...v0.1.3) - 2023-09-24
 - Update result next_cursor after filtered result by @litencatt in https://github.com/litencatt/notion-bot/pull/28
 - Add not supported filter property types by @litencatt in https://github.com/litencatt/notion-bot/pull/27
