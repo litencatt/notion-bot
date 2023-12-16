@@ -120,6 +120,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           type: "plain_text",
           text: "検索ワード入力",
         },
+        optional: true,
       },
       {
         type: "actions",
