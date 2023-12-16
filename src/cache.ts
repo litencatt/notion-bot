@@ -13,3 +13,16 @@ export const getDatabases = async () => {
     return dbs
   }
 }
+
+export const getDbRetrieve = async (dbId: string, option: any) => {
+  const dbRetrieveKey = `dbRetrieve:${dbId}`
+  const ttlInSeconds = 300
+  const cachedDbRetrieve = await redis.get(dbRetrieveKey)
+  if (cachedDbRetrieve) {
+    return JSON.parse(cachedDbRetrieve)
+  } else {
+    const dbRetrieve = await notion.retrieveDb(dbId, {})
+    redis.set(dbRetrieveKey, JSON.stringify(dbRetrieve), "EX", ttlInSeconds)
+    return dbRetrieve
+  }
+}

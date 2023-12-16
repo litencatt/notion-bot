@@ -181,7 +181,7 @@ app.action("add_filter-action", async ({ ack, body, client, logger }) => {
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
-    const selectedDb = await notion.retrieveDb(metaData.selected_db_id, {})
+    const selectedDb = await cache.getDbRetrieve(metaData.selected_db_id, {})
     const dbProps = notion.buildFilterPropertyOptions(selectedDb)
     await client.views.update({
       view_id: body.view.id,
@@ -303,7 +303,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
     }
     // それ以外は選択中のDBの指定プロパティの値を取得して選択肢にする
     else {
-      const res = await notion.retrieveDb(metaData.selected_db_id, {})
+      const res = await cache.getDbRetrieve(metaData.selected_db_id, {})
       const dbPropOptions = await notion.getSelectedDbPropValues(res, currentFilterValue)
       await client.views.update({
         view_id: body.view.id,
