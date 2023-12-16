@@ -491,6 +491,60 @@ app.view("set-filter-property", async ({ ack, view, client, logger }) => {
   ack()
 })
 
+app.action("filter-delete-action", async ({ ack, body, client, logger }) => {
+  logger.info("filter-delete action called")
+  ack()
+
+  try {
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
+
+    // Delete specified filter
+    metaData.filter_values = metaData.filter_values.filter(
+      (filter) => filter.id != parseInt(body.actions[0].selected_option.value)
+    )
+    console.dir(metaData, { depth: null })
+
+    // Update filters
+    metaData.filters = null
+    metaData.filter_values.forEach((fv, index) => {
+      fv.id = index + 1
+      const queryFilter = notion.buildDatabaseQueryFilter(fv)
+
+      if (metaData.filters == null) {
+        metaData.filters = {
+          and: [queryFilter],
+        }
+      } else {
+        metaData.filters["and"].push(queryFilter)
+      }
+    })
+    console.dir(metaData, { depth: null })
+
+    const params = {
+      database_id: metaData.selected_db_id,
+      page_size: 10,
+    }
+    if (metaData.filters != null) {
+      params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
+    }
+    const res = await notion.client.databases.query(params)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
+    if (urls.length == 0) {
+      urls.push("該当するページはありませんでした")
+    }
+    metaData.next_cursor = res.has_more ? res.next_cursor : ""
+
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchPagesResultView(metaData, urls),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
 // Receive modal submit action and reply result.
 app.view("search-db-modal", async ({ ack, view, client, logger }) => {
   logger.info("search-db-modal view called")
