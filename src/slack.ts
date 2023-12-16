@@ -118,7 +118,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
         },
         label: {
           type: "plain_text",
-          text: "検索ワード入力",
+          text: "タイトル検索",
         },
         optional: true,
       },
