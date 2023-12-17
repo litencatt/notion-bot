@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.2.0](https://github.com/litencatt/notion-bot/compare/v0.1.5...v0.2.0) - 2023-12-17
+- Title quick search by filter by @litencatt in https://github.com/litencatt/notion-bot/pull/38
+- Get db title from db id and set by @litencatt in https://github.com/litencatt/notion-bot/pull/40
+- Set filter for slack submit result search by @litencatt in https://github.com/litencatt/notion-bot/pull/41
+
 ## [v0.1.5](https://github.com/litencatt/notion-bot/compare/v0.1.4...v0.1.5) - 2023-12-17
 - Cache with Redis by @litencatt in https://github.com/litencatt/notion-bot/pull/35
 - Removable filter on modal by @litencatt in https://github.com/litencatt/notion-bot/pull/37
