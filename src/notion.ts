@@ -400,6 +400,7 @@ export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
   const propOptions = []
   Object.entries(db.properties).forEach(([_, prop]) => {
     // Hide not supported types
+    // title is not supported because it is filter by quick search
     switch (prop.type) {
       case "date":
       case "created_time":
@@ -412,6 +413,7 @@ export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
       case "people":
       case "rollup":
       case "unique_id":
+      case "title":
         return
     }
 
