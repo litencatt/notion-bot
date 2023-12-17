@@ -64,8 +64,14 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
         view: slack.searchDbView(metaData, dbs),
       })
     } else {
-      const dbs = await cache.getDatabases()
-      const dbTitle = await notion.getDatabaseTitle(dbs)
+      const resRetrieve = await notion.client.databases.retrieve({
+        database_id: dbId,
+      })
+      const dbTitle = await notion.getDatabaseTitle(resRetrieve)
+      const resQuery = await notion.client.databases.query({
+        database_id: dbId,
+        page_size: 10,
+      })
       const metaData: MetaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
@@ -73,13 +79,8 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
         selected_db_name: dbTitle,
         filter_values: [],
       }
-
-      const res = await notion.client.databases.query({
-        database_id: dbId,
-        page_size: 10,
-      })
-      const urls = await notion.getPageUrls(res)
-      const nextCursor = res.has_more ? res.next_cursor : ""
+      const urls = await notion.getPageUrls(resQuery)
+      const nextCursor = resQuery.has_more ? resQuery.next_cursor : ""
       metaData.next_cursor = nextCursor
 
       await client.views.open({
