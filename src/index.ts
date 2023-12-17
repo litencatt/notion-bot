@@ -154,7 +154,20 @@ app.action("title_search_input-action", async ({ ack, body, client, logger }) =>
 
     // Set search string to metaData
     metaData.search_string = body.actions[0].value
-
+    metaData.filters = null
+    if (metaData.search_string) {
+      const titlePropName = await notion.getDbPropNameByType(metaData.selected_db_id, "title")
+      metaData.filters = {
+        and: [
+          {
+            property: titlePropName,
+            title: {
+              contains: metaData.search_string,
+            },
+          },
+        ],
+      }
+    }
     const params = {
       database_id: metaData.selected_db_id,
       page_size: 10,
@@ -162,6 +175,7 @@ app.action("title_search_input-action", async ({ ack, body, client, logger }) =>
     if (metaData.filters != null) {
       params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
     }
+    console.dir(params, { depth: null })
     const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
