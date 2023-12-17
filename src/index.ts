@@ -578,11 +578,14 @@ app.view("search-db-modal", async ({ ack, view, client, logger }) => {
     const metaData = JSON.parse(view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
-    const res = await notion.client.databases.query({
+    const params = {
       database_id: metaData.selected_db_id,
-      // filter: metaData.filters as QueryDatabaseParameters["filter"],
       page_size: 10,
-    })
+    }
+    if (metaData.filters != null) {
+      params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
+    }
+    const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res)
     if (urls.length == 0) {
       urls.push("No Results")
