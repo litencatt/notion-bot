@@ -179,7 +179,7 @@ app.action("title_search_input-action", async ({ ack, body, client, logger }) =>
     const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
     metaData.next_cursor = res.has_more ? res.next_cursor : ""
 
@@ -380,7 +380,7 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
     })
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
     metaData.next_cursor = res.has_more ? res.next_cursor : ""
 
@@ -430,7 +430,7 @@ app.action("select_prop_value_input-action", async ({ ack, body, client, logger 
     })
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
 
     // プロパティ設定用モーダルに更新
@@ -519,7 +519,7 @@ app.action("filter-remove-action", async ({ ack, body, client, logger }) => {
     const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
     metaData.next_cursor = res.has_more ? res.next_cursor : ""
 
@@ -552,7 +552,7 @@ app.action("next_result-action", async ({ ack, body, client, logger }) => {
     const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
     const nextCursor = res.has_more ? res.next_cursor : ""
     metaData.next_cursor = nextCursor
@@ -583,7 +583,7 @@ app.view("search-db-modal", async ({ ack, view, client, logger }) => {
     })
     const urls = await notion.getPageUrls(res)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
 
     // Reply result
