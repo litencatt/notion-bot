@@ -54,9 +54,10 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
 
     if (dbId == undefined) {
       const dbs = await cache.getDatabases()
-      const metaData = {
+      const metaData: MetaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
+        filter_values: [],
       }
       await client.views.open({
         trigger_id: body.trigger_id,
@@ -70,6 +71,7 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
         thread_ts: body.message.thread_ts,
         selected_db_id: dbId,
         selected_db_name: dbTitle,
+        filter_values: [],
       }
 
       const res = await notion.client.databases.query({
@@ -152,7 +154,20 @@ app.action("title_search_input-action", async ({ ack, body, client, logger }) =>
 
     // Set search string to metaData
     metaData.search_string = body.actions[0].value
-
+    metaData.filters = null
+    if (metaData.search_string) {
+      const titlePropName = await notion.getDbPropNameByType(metaData.selected_db_id, "title")
+      metaData.filters = {
+        and: [
+          {
+            property: titlePropName,
+            title: {
+              contains: metaData.search_string,
+            },
+          },
+        ],
+      }
+    }
     const params = {
       database_id: metaData.selected_db_id,
       page_size: 10,
@@ -160,10 +175,11 @@ app.action("title_search_input-action", async ({ ack, body, client, logger }) =>
     if (metaData.filters != null) {
       params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
     }
+    console.dir(params, { depth: null })
     const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
     metaData.next_cursor = res.has_more ? res.next_cursor : ""
 
@@ -364,7 +380,7 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
     })
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
     metaData.next_cursor = res.has_more ? res.next_cursor : ""
 
@@ -414,7 +430,7 @@ app.action("select_prop_value_input-action", async ({ ack, body, client, logger 
     })
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
 
     // プロパティ設定用モーダルに更新
@@ -434,13 +450,14 @@ app.view("set-filter-property", async ({ ack, view, client, logger }) => {
 })
 
 app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
-  logger.info("add_filter action called")
+  logger.info("clear_filter action called")
   ack()
 
   try {
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
+    // Clear filters
     metaData.filter_values = []
     metaData.filters = null
     metaData.search_string = null
@@ -503,7 +520,7 @@ app.action("filter-remove-action", async ({ ack, body, client, logger }) => {
     const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
     metaData.next_cursor = res.has_more ? res.next_cursor : ""
 
@@ -536,7 +553,7 @@ app.action("next_result-action", async ({ ack, body, client, logger }) => {
     const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
     const nextCursor = res.has_more ? res.next_cursor : ""
     metaData.next_cursor = nextCursor
@@ -567,7 +584,7 @@ app.view("search-db-modal", async ({ ack, view, client, logger }) => {
     })
     const urls = await notion.getPageUrls(res)
     if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
+      urls.push("No Results")
     }
 
     // Reply result

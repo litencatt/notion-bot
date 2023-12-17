@@ -400,6 +400,7 @@ export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
   const propOptions = []
   Object.entries(db.properties).forEach(([_, prop]) => {
     // Hide not supported types
+    // title is not supported because it is filter by quick search
     switch (prop.type) {
       case "date":
       case "created_time":
@@ -412,6 +413,7 @@ export const buildFilterPropertyOptions = (db: GetDatabaseResponse) => {
       case "people":
       case "rollup":
       case "unique_id":
+      case "title":
         return
     }
 
@@ -490,4 +492,18 @@ export const buildDatabaseQueryFilter = (fv: FilterValue): QueryDatabaseParamete
       console.error(`type: ${fv.prop_type} is not support type`)
   }
   return filter
+}
+
+export const getDbPropNameByType = async (dbId: string, targetType: string) => {
+  const { properties } = await client.databases.retrieve({
+    database_id: dbId,
+  })
+
+  let name = null
+  Object.entries(properties).forEach(([_, prop]) => {
+    if (prop.type == targetType) {
+      name = prop.name
+    }
+  })
+  return name
 }
