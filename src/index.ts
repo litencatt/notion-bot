@@ -54,9 +54,10 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
 
     if (dbId == undefined) {
       const dbs = await cache.getDatabases()
-      const metaData = {
+      const metaData: MetaData = {
         channel_id: body.channel.id,
         thread_ts: body.message.thread_ts,
+        filter_values: [],
       }
       await client.views.open({
         trigger_id: body.trigger_id,
@@ -70,6 +71,7 @@ app.action("open-modal-button", async ({ ack, body, client, logger }) => {
         thread_ts: body.message.thread_ts,
         selected_db_id: dbId,
         selected_db_name: dbTitle,
+        filter_values: [],
       }
 
       const res = await notion.client.databases.query({
