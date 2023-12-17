@@ -96,7 +96,6 @@ app.action("select_db-action", async ({ ack, body, client, logger }) => {
   ack()
 
   try {
-    // console.dir(body, {depth: null})
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
@@ -274,6 +273,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
       currentFilterValue.prop_value = true
       const currentFilter = notion.buildDatabaseQueryFilter(currentFilterValue)
 
+      // Build filters
       if (metaData.filters == null) {
         metaData.filters = {
           and: [currentFilter],
