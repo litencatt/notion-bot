@@ -532,6 +532,9 @@ app.action("next_result-action", async ({ ack, body, client, logger }) => {
       page_size: 10,
     })
     const urls = await notion.getPageUrls(res, metaData.search_string)
+    if (urls.length == 0) {
+      urls.push("該当するページはありませんでした")
+    }
     const nextCursor = res.has_more ? res.next_cursor : ""
     metaData.next_cursor = nextCursor
 
