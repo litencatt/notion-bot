@@ -118,9 +118,16 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
         },
         label: {
           type: "plain_text",
-          text: "タイトル検索",
+          text: "Title Quick Search",
         },
         optional: true,
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "*Filter*: none",
+        },
       },
       {
         type: "actions",
@@ -147,17 +154,10 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           },
         ],
       },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "*フィルター*: なし",
-        },
-      },
     ],
   }
   if (metaData.filters) {
-    view.blocks[3].text.text = "*フィルター(AND)*"
+    view.blocks[2].text.text = "*Filter(AND)*"
     // view.blocks[3].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
     metaData.filter_values.forEach((filter: any) => {
       view.blocks.push({
@@ -187,7 +187,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
       type: "section",
       text: {
         type: "mrkdwn",
-        text: "*検索結果*",
+        text: "*Search Result*",
       },
     },
     {
