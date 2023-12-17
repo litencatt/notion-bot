@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.1.5](https://github.com/litencatt/notion-bot/compare/v0.1.4...v0.1.5) - 2023-12-17
+- Cache with Redis by @litencatt in https://github.com/litencatt/notion-bot/pull/35
+- Removable filter on modal by @litencatt in https://github.com/litencatt/notion-bot/pull/37
+
 ## [v0.1.4](https://github.com/litencatt/notion-bot/compare/v0.1.3...v0.1.4) - 2023-12-16
 - Add search form by @litencatt in https://github.com/litencatt/notion-bot/pull/31
 - Update packages by @litencatt in https://github.com/litencatt/notion-bot/pull/33
