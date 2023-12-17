@@ -47,7 +47,6 @@ app.event("app_mention", async ({ logger, payload, say }) => {
 app.action("open-modal-button", async ({ ack, body, client, logger }) => {
   logger.info("open-modal-button action called")
   ack()
-  // console.dir(body, {depth: null})
 
   try {
     const dbId = body.actions[0].value
@@ -204,7 +203,10 @@ app.action("select_prop-action", async ({ ack, body, client, logger }) => {
   ack()
 
   try {
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
     console.dir(body.view.state.values, { depth: null })
+
     const selectedOption =
       body.view.state.values["select_prop"]["select_prop-action"].selected_option
     const selectedPropName = selectedOption.value
@@ -213,7 +215,6 @@ app.action("select_prop-action", async ({ ack, body, client, logger }) => {
     let selectedPropType = selectedPropNameAndType.split(" (")[1] as string
     selectedPropType = selectedPropType.substring(0, selectedPropType.length - 1)
 
-    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     if (metaData.filter_values == null) {
       metaData.filter_values = []
     }
@@ -521,8 +522,6 @@ app.action("next_result-action", async ({ ack, body, client, logger }) => {
   ack()
 
   try {
-    console.dir(body.view.state.values, { depth: null })
-
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
