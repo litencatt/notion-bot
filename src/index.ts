@@ -450,13 +450,14 @@ app.view("set-filter-property", async ({ ack, view, client, logger }) => {
 })
 
 app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
-  logger.info("add_filter action called")
+  logger.info("clear_filter action called")
   ack()
 
   try {
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
+    // Clear filters
     metaData.filter_values = []
     metaData.filters = null
     metaData.search_string = null
