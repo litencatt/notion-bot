@@ -168,7 +168,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
         },
         accessory: {
           type: "button",
-          action_id: "filter-delete-action",
+          action_id: "filter-remove-action",
           text: {
             type: "plain_text",
             text: "- Remove",
