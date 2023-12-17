@@ -526,11 +526,15 @@ app.action("next_result-action", async ({ ack, body, client, logger }) => {
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
-    const res = await notion.client.databases.query({
+    const params = {
       database_id: metaData.selected_db_id,
       start_cursor: metaData.next_cursor,
       page_size: 10,
-    })
+    }
+    if (metaData.filters != null) {
+      params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
+    }
+    const res = await notion.client.databases.query(params)
     const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
       urls.push("該当するページはありませんでした")
