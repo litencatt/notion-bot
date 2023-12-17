@@ -11,7 +11,7 @@ export const modalButtonMessage = (message_ts: string) => {
             type: "button",
             text: {
               type: "plain_text",
-              text: "モーダルを開いて検索する",
+              text: "Open modal",
             },
             action_id: "open-modal-button",
           },
@@ -61,7 +61,7 @@ export const searchDbView = (metaData: any, data: any[]) => {
         },
         label: {
           type: "plain_text",
-          text: "DB選択",
+          text: "Select DB",
         },
       },
     ],
