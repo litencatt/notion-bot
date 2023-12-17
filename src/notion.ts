@@ -55,6 +55,7 @@ const retrieveResponse = (res: GetDatabaseResponse, options: any) => {
   return output.join("\n")
 }
 
+// Fetch all pages from the database
 export const queryDb = async (data: any) => {
   console.dir(data, { depth: null })
   let filter = null

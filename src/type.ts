@@ -10,6 +10,7 @@ export type MetaData = {
 }
 
 export type FilterValue = {
+  id: number
   prop_name: string
   prop_type: string
   prop_field?: string

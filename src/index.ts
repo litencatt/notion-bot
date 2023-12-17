@@ -47,7 +47,6 @@ app.event("app_mention", async ({ logger, payload, say }) => {
 app.action("open-modal-button", async ({ ack, body, client, logger }) => {
   logger.info("open-modal-button action called")
   ack()
-  // console.dir(body, {depth: null})
 
   try {
     const dbId = body.actions[0].value
@@ -96,7 +95,6 @@ app.action("select_db-action", async ({ ack, body, client, logger }) => {
   ack()
 
   try {
-    // console.dir(body, {depth: null})
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
@@ -144,25 +142,32 @@ app.action("change_db-action", async ({ ack, body, client, logger }) => {
   }
 })
 
-app.action("next_result-action", async ({ ack, body, client, logger }) => {
-  logger.info("next_result action called")
+app.action("title_search_input-action", async ({ ack, body, client, logger }) => {
+  logger.info("title_search_input action called")
   ack()
 
   try {
-    console.dir(body.view.state.values, { depth: null })
-
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
-    const res = await notion.client.databases.query({
-      database_id: metaData.selected_db_id,
-      start_cursor: metaData.next_cursor,
-      page_size: 10,
-    })
-    const urls = await notion.getPageUrls(res)
-    const nextCursor = res.has_more ? res.next_cursor : ""
-    metaData.next_cursor = nextCursor
+    // Set search string to metaData
+    metaData.search_string = body.actions[0].value
 
+    const params = {
+      database_id: metaData.selected_db_id,
+      page_size: 10,
+    }
+    if (metaData.filters != null) {
+      params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
+    }
+    const res = await notion.client.databases.query(params)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
+    if (urls.length == 0) {
+      urls.push("該当するページはありませんでした")
+    }
+    metaData.next_cursor = res.has_more ? res.next_cursor : ""
+
+    // プロパティ設定用モーダルに更新
     await client.views.update({
       view_id: body.view.id,
       hash: body.view.hash,
@@ -198,7 +203,10 @@ app.action("select_prop-action", async ({ ack, body, client, logger }) => {
   ack()
 
   try {
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
     console.dir(body.view.state.values, { depth: null })
+
     const selectedOption =
       body.view.state.values["select_prop"]["select_prop-action"].selected_option
     const selectedPropName = selectedOption.value
@@ -207,11 +215,11 @@ app.action("select_prop-action", async ({ ack, body, client, logger }) => {
     let selectedPropType = selectedPropNameAndType.split(" (")[1] as string
     selectedPropType = selectedPropType.substring(0, selectedPropType.length - 1)
 
-    const metaData = JSON.parse(body.view.private_metadata) as MetaData
     if (metaData.filter_values == null) {
       metaData.filter_values = []
     }
     metaData.filter_values.push({
+      id: metaData.filter_values.length + 1,
       prop_name: selectedPropName,
       prop_type: selectedPropType,
     })
@@ -266,6 +274,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
       currentFilterValue.prop_value = true
       const currentFilter = notion.buildDatabaseQueryFilter(currentFilterValue)
 
+      // Build filters
       if (metaData.filters == null) {
         metaData.filters = {
           and: [currentFilter],
@@ -280,7 +289,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
         filter: metaData.filters as QueryDatabaseParameters["filter"],
         page_size: 10,
       })
-      const urls = await notion.getPageUrls(res)
+      const urls = await notion.getPageUrls(res, metaData.search_string)
 
       await client.views.update({
         view_id: body.view.id,
@@ -370,72 +379,6 @@ app.action("select_prop_value-action", async ({ ack, body, client, logger }) => 
   }
 })
 
-app.action("title_search_input-action", async ({ ack, body, client, logger }) => {
-  logger.info("title_search_input action called")
-  ack()
-
-  try {
-    const metaData = JSON.parse(body.view.private_metadata) as MetaData
-    console.dir({ metaData }, { depth: null })
-
-    // Set search string to metaData
-    metaData.search_string = body.actions[0].value
-
-    const params = {
-      database_id: metaData.selected_db_id,
-      page_size: 10,
-    }
-    if (metaData.filters != null) {
-      params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
-    }
-    const res = await notion.client.databases.query(params)
-    const urls = await notion.getPageUrls(res, metaData.search_string)
-    if (urls.length == 0) {
-      urls.push("該当するページはありませんでした")
-    }
-    metaData.next_cursor = res.has_more ? res.next_cursor : ""
-
-    // プロパティ設定用モーダルに更新
-    await client.views.update({
-      view_id: body.view.id,
-      hash: body.view.hash,
-      view: slack.searchPagesResultView(metaData, urls),
-    })
-  } catch (error) {
-    logger.error(error)
-  }
-})
-
-app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
-  logger.info("add_filter action called")
-  ack()
-
-  try {
-    const metaData = JSON.parse(body.view.private_metadata) as MetaData
-    console.dir({ metaData }, { depth: null })
-
-    metaData.filter_values = []
-    metaData.filters = null
-    metaData.search_string = null
-
-    const res = await notion.client.databases.query({
-      database_id: metaData.selected_db_id,
-      page_size: 10,
-    })
-    const urls = await notion.getPageUrls(res)
-    const nextCursor = res.has_more ? res.next_cursor : ""
-    metaData.next_cursor = nextCursor
-
-    await client.views.update({
-      view_id: body.view.id,
-      hash: body.view.hash,
-      view: slack.searchPagesResultView(metaData, urls),
-    })
-  } catch (error) {
-    logger.error(error)
-  }
-})
-
 app.action("select_prop_value_input-action", async ({ ack, body, client, logger }) => {
   logger.info("select_prop_value_input action called")
   ack()
@@ -469,7 +412,7 @@ app.action("select_prop_value_input-action", async ({ ack, body, client, logger 
       filter: metaData.filters as QueryDatabaseParameters["filter"],
       page_size: 10,
     })
-    const urls = await notion.getPageUrls(res)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
       urls.push("該当するページはありませんでした")
     }
@@ -488,6 +431,124 @@ app.action("select_prop_value_input-action", async ({ ack, body, client, logger 
 app.view("set-filter-property", async ({ ack, view, client, logger }) => {
   logger.info("set-filter-property view called")
   ack()
+})
+
+app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
+  logger.info("add_filter action called")
+  ack()
+
+  try {
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
+
+    metaData.filter_values = []
+    metaData.filters = null
+    metaData.search_string = null
+
+    const res = await notion.client.databases.query({
+      database_id: metaData.selected_db_id,
+      page_size: 10,
+    })
+    const urls = await notion.getPageUrls(res, metaData.search_string)
+    const nextCursor = res.has_more ? res.next_cursor : ""
+    metaData.next_cursor = nextCursor
+
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchPagesResultView(metaData, urls),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
+app.action("filter-remove-action", async ({ ack, body, client, logger }) => {
+  logger.info("filter-remove action called")
+  ack()
+
+  try {
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
+
+    // Remove specified filter
+    metaData.filter_values = metaData.filter_values.filter(
+      (filter) => filter.id != parseInt(body.actions[0].value)
+    )
+    console.dir(metaData, { depth: null })
+
+    // Update filters
+    metaData.filters = null
+    metaData.filter_values.forEach((fv, index) => {
+      fv.id = index + 1
+      const queryFilter = notion.buildDatabaseQueryFilter(fv)
+
+      if (metaData.filters == null) {
+        metaData.filters = {
+          and: [queryFilter],
+        }
+      } else {
+        metaData.filters["and"].push(queryFilter)
+      }
+    })
+    console.dir(metaData, { depth: null })
+
+    const params = {
+      database_id: metaData.selected_db_id,
+      page_size: 10,
+    }
+    if (metaData.filters != null) {
+      params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
+    }
+    const res = await notion.client.databases.query(params)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
+    if (urls.length == 0) {
+      urls.push("該当するページはありませんでした")
+    }
+    metaData.next_cursor = res.has_more ? res.next_cursor : ""
+
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchPagesResultView(metaData, urls),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
+})
+
+app.action("next_result-action", async ({ ack, body, client, logger }) => {
+  logger.info("next_result action called")
+  ack()
+
+  try {
+    const metaData = JSON.parse(body.view.private_metadata) as MetaData
+    console.dir({ metaData }, { depth: null })
+
+    const params = {
+      database_id: metaData.selected_db_id,
+      start_cursor: metaData.next_cursor,
+      page_size: 10,
+    }
+    if (metaData.filters != null) {
+      params["filter"] = metaData.filters as QueryDatabaseParameters["filter"]
+    }
+    const res = await notion.client.databases.query(params)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
+    if (urls.length == 0) {
+      urls.push("該当するページはありませんでした")
+    }
+    const nextCursor = res.has_more ? res.next_cursor : ""
+    metaData.next_cursor = nextCursor
+
+    await client.views.update({
+      view_id: body.view.id,
+      hash: body.view.hash,
+      view: slack.searchPagesResultView(metaData, urls),
+    })
+  } catch (error) {
+    logger.error(error)
+  }
 })
 
 // Receive modal submit action and reply result.

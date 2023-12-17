@@ -97,7 +97,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           type: "button",
           text: {
             type: "plain_text",
-            text: "Change database",
+            text: "Change DB",
           },
           style: "primary",
           action_id: "change_db-action",
@@ -118,9 +118,16 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
         },
         label: {
           type: "plain_text",
-          text: "タイトル検索",
+          text: "Title Quick Search",
         },
         optional: true,
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: "*Filter*: none",
+        },
       },
       {
         type: "actions",
@@ -129,8 +136,9 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
             type: "button",
             text: {
               type: "plain_text",
-              text: "Add filter",
+              text: "+ Add",
             },
+            style: "primary",
             action_id: "add_filter-action",
             value: "click_add_filter",
           },
@@ -138,7 +146,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
             type: "button",
             text: {
               type: "plain_text",
-              text: "Clear filter",
+              text: "Clear",
             },
             style: "danger",
             action_id: "clear_filter-action",
@@ -146,38 +154,52 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           },
         ],
       },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "*フィルター*: なし",
-        },
-      },
-      {
-        type: "divider",
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "*検索結果*",
-        },
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: urls.join("\n"),
-        },
-      },
     ],
   }
   if (metaData.filters) {
-    view.blocks[3].text.text = "*フィルター*"
-    view.blocks[3].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
+    view.blocks[2].text.text = "*Filter(AND)*"
+    // view.blocks[3].text.text += "\n```" + JSON.stringify(metaData.filters) + "```"
+    metaData.filter_values.forEach((filter: any) => {
+      view.blocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `- ${filter.prop_name} ${filter.prop_field} ${filter.prop_value}`,
+        },
+        accessory: {
+          type: "button",
+          action_id: "filter-remove-action",
+          text: {
+            type: "plain_text",
+            text: "- Remove",
+          },
+          style: "danger",
+          value: `${filter.id}`,
+        },
+      } as any)
+    })
   }
+  view.blocks.push({
+    type: "divider",
+  } as any)
+  view.blocks.push(
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: "*Search Result*",
+      },
+    },
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: urls.join("\n"),
+      },
+    } as any
+  )
   if (metaData.next_cursor) {
-    view.blocks[7] = {
+    view.blocks.push({
       type: "actions",
       elements: [
         {
@@ -190,7 +212,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           action_id: "next_result-action",
         },
       ],
-    } as any
+    } as any)
   }
 
   return view
