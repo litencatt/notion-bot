@@ -129,8 +129,9 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
             type: "button",
             text: {
               type: "plain_text",
-              text: "Add filter",
+              text: "+ Add",
             },
+            style: "primary",
             action_id: "add_filter-action",
             value: "click_add_filter",
           },
@@ -138,7 +139,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
             type: "button",
             text: {
               type: "plain_text",
-              text: "Clear filter",
+              text: "Clear",
             },
             style: "danger",
             action_id: "clear_filter-action",
