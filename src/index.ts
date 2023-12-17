@@ -607,7 +607,7 @@ app.view("search-db-modal", async ({ ack, view, client, logger }) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "フィルター:\n```" + JSON.stringify(metaData.filters) + "```",
+            text: "Filter:\n```" + JSON.stringify(metaData.filters) + "```",
           },
         },
         {
@@ -617,7 +617,7 @@ app.view("search-db-modal", async ({ ack, view, client, logger }) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "*検索結果*:\n" + urls.join("\n"),
+            text: "*Search Result*:\n" + urls.join("\n"),
           },
         },
       ],
