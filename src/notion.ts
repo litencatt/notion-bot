@@ -492,7 +492,7 @@ export const buildDatabaseQueryFilter = (fv: FilterValue): QueryDatabaseParamete
   return filter
 }
 
-export const getDbPropertyNameByType = async (dbId: string, targetType: string) => {
+export const getDbPropNameByType = async (dbId: string, targetType: string) => {
   const { properties } = await client.databases.retrieve({
     database_id: dbId,
   })
