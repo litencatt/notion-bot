@@ -463,17 +463,17 @@ app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
   }
 })
 
-app.action("filter-delete-action", async ({ ack, body, client, logger }) => {
-  logger.info("filter-delete action called")
+app.action("filter-remove-action", async ({ ack, body, client, logger }) => {
+  logger.info("filter-remove action called")
   ack()
 
   try {
     const metaData = JSON.parse(body.view.private_metadata) as MetaData
     console.dir({ metaData }, { depth: null })
 
-    // Delete specified filter
+    // Remove specified filter
     metaData.filter_values = metaData.filter_values.filter(
-      (filter) => filter.id != parseInt(body.actions[0].selected_option.value)
+      (filter) => filter.id != parseInt(body.actions[0].value)
     )
     console.dir(metaData, { depth: null })
 

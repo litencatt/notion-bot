@@ -166,17 +166,14 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
           text: `- ${filter.prop_name} ${filter.prop_field} ${filter.prop_value}`,
         },
         accessory: {
-          type: "overflow",
+          type: "button",
           action_id: "filter-delete-action",
-          options: [
-            {
-              text: {
-                type: "plain_text",
-                text: "Delete",
-              },
-              value: `${filter.id}`,
-            },
-          ],
+          text: {
+            type: "plain_text",
+            text: "- Remove",
+          },
+          style: "danger",
+          value: `${filter.id}`,
         },
       } as any)
     })
