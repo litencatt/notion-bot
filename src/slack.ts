@@ -146,7 +146,7 @@ export const searchPagesResultView = (metaData: any, urls: any[]) => {
             type: "button",
             text: {
               type: "plain_text",
-              text: "Clear",
+              text: "Clear All",
             },
             style: "danger",
             action_id: "clear_filter-action",
@@ -249,14 +249,14 @@ export const selectFilterPropertyView = (metaData: any, propOptions: any[]) => {
           type: "static_select",
           placeholder: {
             type: "plain_text",
-            text: "Select a property",
+            text: "Pick an option",
           },
           options: propOptions,
           action_id: "select_prop-action",
         },
         label: {
           type: "plain_text",
-          text: "フィルター用プロパティ選択",
+          text: "Property",
         },
       },
     ],
@@ -314,7 +314,7 @@ export const selectFilterPropertyFieldView = (
         },
         label: {
           type: "plain_text",
-          text: "フィルタープロパティのフィールド選択",
+          text: "Field",
         },
       },
     ],
@@ -362,7 +362,7 @@ export const selectFilterValueInputView = (
         block_id: "select_prop_field",
         text: {
           type: "plain_text",
-          text: `field: ${selectedPropertyField}`,
+          text: `Field: ${selectedPropertyField}`,
           emoji: true,
         },
       },
@@ -380,7 +380,7 @@ export const selectFilterValueInputView = (
         },
         label: {
           type: "plain_text",
-          text: "フィルター値入力",
+          text: "Value",
         },
       },
     ],
