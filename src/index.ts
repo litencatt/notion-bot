@@ -288,7 +288,7 @@ app.action("select_prop_field-action", async ({ ack, body, client, logger }) => 
         filter: metaData.filters as QueryDatabaseParameters["filter"],
         page_size: 10,
       })
-      const urls = await notion.getPageUrls(res)
+      const urls = await notion.getPageUrls(res, metaData.search_string)
 
       await client.views.update({
         view_id: body.view.id,
@@ -411,7 +411,7 @@ app.action("select_prop_value_input-action", async ({ ack, body, client, logger 
       filter: metaData.filters as QueryDatabaseParameters["filter"],
       page_size: 10,
     })
-    const urls = await notion.getPageUrls(res)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
     if (urls.length == 0) {
       urls.push("該当するページはありませんでした")
     }
@@ -448,7 +448,7 @@ app.action("clear_filter-action", async ({ ack, body, client, logger }) => {
       database_id: metaData.selected_db_id,
       page_size: 10,
     })
-    const urls = await notion.getPageUrls(res)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
     const nextCursor = res.has_more ? res.next_cursor : ""
     metaData.next_cursor = nextCursor
 
@@ -531,7 +531,7 @@ app.action("next_result-action", async ({ ack, body, client, logger }) => {
       start_cursor: metaData.next_cursor,
       page_size: 10,
     })
-    const urls = await notion.getPageUrls(res)
+    const urls = await notion.getPageUrls(res, metaData.search_string)
     const nextCursor = res.has_more ? res.next_cursor : ""
     metaData.next_cursor = nextCursor
 
