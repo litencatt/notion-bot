@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.2.1](https://github.com/litencatt/notion-bot/compare/v0.2.0...v0.2.1) - 2023-12-18
+- Add delete by @litencatt in https://github.com/litencatt/notion-bot/pull/44
+- Update docker build actions version by @litencatt in https://github.com/litencatt/notion-bot/pull/46
+
 ## [v0.2.0](https://github.com/litencatt/notion-bot/compare/v0.1.5...v0.2.0) - 2023-12-18
 - Title quick search by filter by @litencatt in https://github.com/litencatt/notion-bot/pull/38
 - Get db title from db id and set by @litencatt in https://github.com/litencatt/notion-bot/pull/40
