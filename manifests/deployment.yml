@@ -41,6 +41,8 @@ spec:
                   key: NOTION_TOKEN
             - name: REDIS_HOST
               value: localhost
+            - name: REDIS_PORT
+              value: "6379"
         - name: redis
           image: redis:7.2-alpine
           imagePullPolicy: Always
