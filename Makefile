@@ -7,9 +7,13 @@ build-debug:
 run:
 	docker run --entrypoint=sh --env-file=.env -it notion-bot:latest-debug
 
-# For minikube
+# For docker-desktop k8s
 apply:
 	kubectl apply -f manifests
+
+delete:
+	kubectl delete deployment notion-bot
+	kubectl delete sealedsecrets.bitnami.com notion-bot
 
 install-sealed-secrets:
 	helm repo add sealed-secrets https://bitnami-labs.github.io/sealed-secrets
