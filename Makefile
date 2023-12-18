@@ -17,6 +17,7 @@ install-sealed-secrets:
 
 secret-init:
 	kubectl create secret generic notion-bot --dry-run=client --from-env-file=.env -o yaml > manifests/secrets/non-encrypted-secrets.yml
+	kubectl apply -f manifests/secrets/secrets.yaml
 
 secret-update:
 	cat manifests/secrets/non-encrypted-secrets.yml | kubeseal --controller-name=notion-bot-sealed-secrets --controller-namespace=kube-system --format yaml > manifests/secrets/secrets.yaml
