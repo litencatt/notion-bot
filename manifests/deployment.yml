@@ -41,3 +41,15 @@ spec:
                   key: NOTION_TOKEN
             - name: REDIS_HOST
               value: localhost
+        - name: redis
+          image: redis:7.2-alpine
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
