@@ -9,6 +9,7 @@ services:
       SLACK_BOT_TOKEN: $SLACK_BOT_TOKEN
       SLACK_APP_TOKEN: $SLACK_APP_TOKEN
       NOTION_TOKEN: $NOTION_TOKEN
+      REDIS_HOST: redis
     volumes:
       - .:/app
     working_dir: /app
