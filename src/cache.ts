@@ -3,7 +3,7 @@ import * as notion from "./notion"
 
 export const getDatabases = async () => {
   const dbsKey = "dbs"
-  const ttlInSeconds = 300
+  const ttlInSeconds = 3600
   const cachedDbs = await redis.get(dbsKey)
   if (cachedDbs) {
     return JSON.parse(cachedDbs)
