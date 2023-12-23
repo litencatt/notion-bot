@@ -44,3 +44,8 @@ make apply
       <img src="https://github.com/litencatt/notion-bot/assets/17349045/a4763cb3-e02d-49d8-8f25-b098e40de3b8" width="800" alt="Usage notion-bot">
    </a>
 </p>
+
+1. Mention to notion-bot
+2. Click `Open modal`button in reply message received thread, then open a modal.
+3. You can search pages in selected Notion DB with any filters.
+4. Click submit, if you want to show result in thread.
