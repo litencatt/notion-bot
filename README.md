@@ -28,7 +28,7 @@
 
 ## Quick start
 
-run locally
+run notion-bot locally
 
 ```bash
 export SLACK_SIGNING_SECRET=xxx
@@ -50,4 +50,6 @@ make secret-update
 make apply
 ```
 
+#### And then
 
+- How to get slack token: https://api.slack.com/authentication/basics
