@@ -61,7 +61,7 @@ export const searchDbView = (metaData: any, data: any[]) => {
         },
         label: {
           type: "plain_text",
-          text: "Select DB",
+          text: "DB",
         },
       },
     ],
@@ -438,7 +438,7 @@ export const selectFilterValueView = (
         block_id: "select_prop_field",
         text: {
           type: "plain_text",
-          text: `field: ${selectedProp.prop_field}`,
+          text: `Field: ${selectedProp.prop_field}`,
           emoji: true,
         },
       },
@@ -457,7 +457,7 @@ export const selectFilterValueView = (
         },
         label: {
           type: "plain_text",
-          text: "フィルター値選択",
+          text: "Value",
         },
       },
     ],
