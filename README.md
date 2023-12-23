@@ -39,4 +39,8 @@ make apply
 
 ## Usage
 
-[!['Usage'](https://github.com/litencatt/notion-bot/assets/17349045/a4763cb3-e02d-49d8-8f25-b098e40de3b8)](https://youtu.be/mHCKeCSVFAw)
+<p align="center">
+   <a href="https://youtu.be/mHCKeCSVFAw">
+      <img src="https://github.com/litencatt/notion-bot/assets/17349045/a4763cb3-e02d-49d8-8f25-b098e40de3b8" width="800" alt="Usage notion-bot">
+   </a>
+</p>
