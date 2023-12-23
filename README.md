@@ -1,5 +1,9 @@
 # Notion bot
 
+<p align="center">
+   <img src="./misc/icon.png" width="200" alt="icon" />
+</p>
+
 🤖 A Slack bot searches pages in Notion DB.
 
 ## Features
