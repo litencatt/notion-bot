@@ -6,6 +6,19 @@
 
 🤖 A Slack bot searches pages in Notion DB.
 
+## Usage
+
+<p align="center">
+   <a href="https://youtu.be/mHCKeCSVFAw">
+      <img src="https://github.com/litencatt/notion-bot/assets/17349045/a4763cb3-e02d-49d8-8f25-b098e40de3b8" width="800" alt="Usage notion-bot">
+   </a>
+</p>
+
+1. Mention to notion-bot
+2. Click `Open modal`button in reply message received thread, then open a modal.
+3. You can search pages in selected Notion DB with any filters.
+4. Click submit, if you want to show result in thread.
+
 ## Features
 
 - Select/change DB on modal
@@ -15,7 +28,7 @@
 
 ## Quick start
 
-run locally
+run notion-bot locally
 
 ```bash
 export SLACK_SIGNING_SECRET=xxx
@@ -37,14 +50,6 @@ make secret-update
 make apply
 ```
 
-## Usage
+#### And then
 
-1. Mention to bot
-   - <img width="473" alt="image" src="https://github.com/litencatt/notion-bot/assets/17349045/a284735f-3fa4-4234-999c-144bbfaa1bc6">
-2. Click button in reply message received thread, then open a modal.
-   - <img width="576" alt="image" src="https://github.com/litencatt/notion-bot/assets/17349045/6c17600e-a8aa-4127-ad01-5364ee993631">
-   - <img width="528" alt="image" src="https://github.com/litencatt/notion-bot/assets/17349045/3f2cda27-49ea-4d6d-bb92-7bc7389928e0">
-3. You can search pages in selected Notion DB with filters.
-   - <img width="523" alt="image" src="https://github.com/litencatt/notion-bot/assets/17349045/f5dc07a3-e373-4f3f-b387-20e068955e23">
-4. Click submit, if you want to show result in thread.
-   - <img width="576" alt="image" src="https://github.com/litencatt/notion-bot/assets/17349045/ed239da8-4d5a-44b5-9ed0-34f796163f0c">
+- How to get slack token: https://api.slack.com/authentication/basics
