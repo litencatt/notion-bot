@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.2.3](https://github.com/litencatt/notion-bot/compare/v0.2.2...v0.2.3) - 2024-04-13
+- Bump follow-redirects from 1.15.3 to 1.15.6 by @dependabot in https://github.com/litencatt/notion-bot/pull/56
+- Bump express from 4.18.2 to 4.19.2 by @dependabot in https://github.com/litencatt/notion-bot/pull/57
+
 ## [v0.2.2](https://github.com/litencatt/notion-bot/compare/v0.2.1...v0.2.2) - 2023-12-23
 - Extend dbs cache ttl to 1H by @litencatt in https://github.com/litencatt/notion-bot/pull/48
 - Fix label by @litencatt in https://github.com/litencatt/notion-bot/pull/52
