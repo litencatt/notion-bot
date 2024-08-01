@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.2.4](https://github.com/litencatt/notion-bot/compare/v0.2.3...v0.2.4) - 2024-08-01
+- Bump ws from 7.5.9 to 7.5.10 by @dependabot in https://github.com/litencatt/notion-bot/pull/59
+- Bump braces from 3.0.2 to 3.0.3 by @dependabot in https://github.com/litencatt/notion-bot/pull/61
+
 ## [v0.2.3](https://github.com/litencatt/notion-bot/compare/v0.2.2...v0.2.3) - 2024-04-13
 - Bump follow-redirects from 1.15.3 to 1.15.6 by @dependabot in https://github.com/litencatt/notion-bot/pull/56
 - Bump express from 4.18.2 to 4.19.2 by @dependabot in https://github.com/litencatt/notion-bot/pull/57
