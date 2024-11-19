@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.2.5](https://github.com/litencatt/notion-bot/compare/v0.2.4...v0.2.5) - 2024-11-19
+- Bump axios from 1.6.2 to 1.7.7 in the npm_and_yarn group by @dependabot in https://github.com/litencatt/notion-bot/pull/62
+- Bump the npm_and_yarn group with 4 updates by @dependabot in https://github.com/litencatt/notion-bot/pull/64
+
 ## [v0.2.4](https://github.com/litencatt/notion-bot/compare/v0.2.3...v0.2.4) - 2024-08-01
 - Bump ws from 7.5.9 to 7.5.10 by @dependabot in https://github.com/litencatt/notion-bot/pull/59
 - Bump braces from 3.0.2 to 3.0.3 by @dependabot in https://github.com/litencatt/notion-bot/pull/61
