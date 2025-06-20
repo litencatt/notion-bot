@@ -7,12 +7,8 @@
 🤖 A Slack bot searches pages in Notion DB.
 
 ## Usage
+https://github.com/user-attachments/assets/2d3a0b73-1433-4a55-89d6-084a61f6065c
 
-<p align="center">
-   <a href="https://youtu.be/mHCKeCSVFAw">
-      <img src="https://github.com/litencatt/notion-bot/assets/17349045/a4763cb3-e02d-49d8-8f25-b098e40de3b8" width="800" alt="Usage notion-bot">
-   </a>
-</p>
 
 1. Mention to notion-bot
 2. Click `Open modal`button in reply message received thread, then open a modal.
